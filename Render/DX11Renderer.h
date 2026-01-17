@@ -7,6 +7,8 @@
 
 #include "RHI/DX11/DX11Device.h"
 #include "RHI/DX11/DX11SwapChain.h"
+#include "Render/Shader/ShaderManager.h"
+#include "Render/Primitives/TriangleDemo.h"
 
 namespace Salt2D::Render {
 
@@ -28,6 +30,9 @@ private:
 
     RHI::DX11::DX11Device       device_;
     RHI::DX11::DX11SwapChain    swapChain_;
+
+    ShaderManager   shaderManager_;
+    TriangleDemo    triangleDemo_;
 };
 
 } // namespace Salt2D::Render

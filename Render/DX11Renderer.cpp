@@ -5,9 +5,11 @@ namespace Salt2D::Render {
 
 DX11Renderer::DX11Renderer(HWND hwnd, uint32_t width, uint32_t height)
     : width_(width), height_(height),
-      device_(), swapChain_(device_, hwnd, width, height)
+      device_(), swapChain_(device_, hwnd, width, height),
+      shaderManager_({ std::filesystem::path("Build/Bin/Debug/Shaders") })
 {
     UpdateViewport();
+    triangleDemo_.Initialize(device_.GetDevice(), shaderManager_);
 }
 
 void DX11Renderer::Resize(uint32_t width, uint32_t height) {
@@ -35,6 +37,8 @@ void DX11Renderer::BeginFrame() {
 
     context->OMSetRenderTargets(1, rtvs, nullptr);
     context->ClearRenderTargetView(rtv.Get(), clearColor);
+
+    triangleDemo_.Draw(context, rtv.Get());
 }
 
 void DX11Renderer::EndFrame(bool vsync) {

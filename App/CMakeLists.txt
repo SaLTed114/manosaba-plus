@@ -30,3 +30,10 @@ add_custom_command(TARGET manosaba_plus POST_BUILD
         $<TARGET_FILE_DIR:manosaba_plus>/Assets
     COMMENT "Copying assets to exe directory"
 )
+
+add_custom_command(TARGET manosaba_plus POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_BINARY_DIR}/Render/Shaders
+        $<TARGET_FILE_DIR:manosaba_plus>/Shaders
+    COMMENT "Copying shaders to exe directory"
+)
