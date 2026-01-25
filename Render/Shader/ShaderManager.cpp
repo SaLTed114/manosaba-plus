@@ -1,5 +1,6 @@
 // Render/Shader/ShaderManager.cpp
 #include "ShaderManager.h"
+#include "RHI/DX11/DX11Common.h"
 
 #include <stdexcept>
 
@@ -35,10 +36,8 @@ ComPtr<ID3DBlob> ShaderManager::LoadShader(const fs::path& relativePath) {
 
 ComPtr<ID3DBlob> ShaderManager::LoadFromDisk(const fs::path& filepath) {
     ComPtr<ID3DBlob> blob;
-    HRESULT hr = D3DReadFileToBlob(filepath.c_str(), blob.GetAddressOf());
-    if (FAILED(hr)) {
-        throw std::runtime_error("Failed to read shader blob: " + filepath.string());
-    }
+    auto errMsg = "Failed to read shader blob: " + filepath.string();
+    ThrowIfFailed(D3DReadFileToBlob(filepath.c_str(), blob.GetAddressOf()), errMsg.c_str());
     return blob;
 }
 

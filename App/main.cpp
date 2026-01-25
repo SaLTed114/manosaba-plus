@@ -21,9 +21,7 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
         Render::DX11Renderer renderer(window.GetHWND(), cw, ch);
 
         while (window.ProcessMessages()) {
-            renderer.BeginFrame();
-
-            renderer.EndFrame(true);
+            renderer.RenderFrame(true);
         }
 
     } catch (const std::exception& e) {

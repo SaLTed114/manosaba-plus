@@ -10,6 +10,7 @@ DX11Renderer::DX11Renderer(HWND hwnd, uint32_t width, uint32_t height)
 {
     UpdateViewport();
     triangleDemo_.Initialize(device_.GetDevice(), shaderManager_);
+    fullScreenTexDemo_.Initialize(device_.GetDevice(), shaderManager_);
 }
 
 void DX11Renderer::Resize(uint32_t width, uint32_t height) {
@@ -37,8 +38,6 @@ void DX11Renderer::BeginFrame() {
 
     context->OMSetRenderTargets(1, rtvs, nullptr);
     context->ClearRenderTargetView(rtv.Get(), clearColor);
-
-    triangleDemo_.Draw(context, rtv.Get());
 }
 
 void DX11Renderer::EndFrame(bool vsync) {
@@ -55,6 +54,18 @@ void DX11Renderer::UpdateViewport() {
     viewport.MaxDepth = 1.0f;
 
     device_.GetContext()->RSSetViewports(1, &viewport);
+}
+
+void DX11Renderer::RenderFrame(bool sync) {
+    BeginFrame();
+
+    ID3D11DeviceContext* context = device_.GetContext();
+    auto rtv = swapChain_.GetBackBufferRTV();
+
+    fullScreenTexDemo_.Draw(context, rtv.Get());
+    // triangleDemo_.Draw(context, rtv.Get());
+
+    EndFrame(sync);
 }
 
 } // namespace Salt2D::Render

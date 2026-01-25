@@ -9,6 +9,7 @@
 #include "RHI/DX11/DX11SwapChain.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/Primitives/TriangleDemo.h"
+#include "Render/Primitives/FullScreenTexDemo.h"
 
 namespace Salt2D::Render {
 
@@ -18,10 +19,11 @@ public:
 
     void Resize(uint32_t width, uint32_t height);
 
-    void BeginFrame();
-    void EndFrame(bool vsync = true);
+    void RenderFrame(bool sync = true);
 
 private:
+    void BeginFrame();
+    void EndFrame(bool vsync);
     void UpdateViewport();
 
 private:
@@ -31,8 +33,9 @@ private:
     RHI::DX11::DX11Device       device_;
     RHI::DX11::DX11SwapChain    swapChain_;
 
-    ShaderManager   shaderManager_;
-    TriangleDemo    triangleDemo_;
+    ShaderManager     shaderManager_;
+    TriangleDemo      triangleDemo_;
+    FullScreenTexDemo fullScreenTexDemo_;
 };
 
 } // namespace Salt2D::Render
