@@ -1,5 +1,6 @@
 set(RENDER_SOURCES
     DX11Renderer.cpp
+    DX11CommonState.cpp
 
     Primitives/TriangleDemo.cpp
 
@@ -13,6 +14,7 @@ set(RENDER_SOURCES
 
 set(RENDER_HEADERS
     DX11Renderer.h
+    DX11CommonState.h
 
     Primitives/TriangleDemo.h
 

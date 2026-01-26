@@ -53,23 +53,6 @@ void SpritePipeline::Initialize(const RHI::DX11::DX11Device& device, ShaderManag
     ThrowIfFailed(d3dDevice->CreateSamplerState(&sampDesc, samp_.GetAddressOf()),
         "SpritePipeline::Initialize: CreateSamplerState failed.");
 
-    D3D11_BLEND_DESC blendDesc{};
-    blendDesc.AlphaToCoverageEnable  = FALSE;
-    blendDesc.IndependentBlendEnable = FALSE;
-    
-    auto& rtBlend = blendDesc.RenderTarget[0];
-    rtBlend.BlendEnable           = TRUE;
-    rtBlend.SrcBlend              = D3D11_BLEND_SRC_ALPHA;
-    rtBlend.DestBlend             = D3D11_BLEND_INV_SRC_ALPHA;
-    rtBlend.BlendOp               = D3D11_BLEND_OP_ADD;
-    rtBlend.SrcBlendAlpha         = D3D11_BLEND_ONE;
-    rtBlend.DestBlendAlpha        = D3D11_BLEND_INV_SRC_ALPHA;
-    rtBlend.BlendOpAlpha          = D3D11_BLEND_OP_ADD;
-    rtBlend.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-
-    ThrowIfFailed(d3dDevice->CreateBlendState(&blendDesc, blend_.GetAddressOf()),
-        "SpritePipeline::Initialize: CreateBlendState failed.");
-
     D3D11_RASTERIZER_DESC rastDesc{};
     rastDesc.FillMode = D3D11_FILL_SOLID;
     rastDesc.CullMode = D3D11_CULL_NONE;
@@ -94,9 +77,6 @@ void SpritePipeline::Bind(ID3D11DeviceContext* context) {
     context->PSSetShader(ps_.Get(), nullptr, 0);
 
     context->RSSetState(rast_.Get());
-
-    float blendFactor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-    context->OMSetBlendState(blend_.Get(), blendFactor, 0xFFFFFFFF);
 
     ID3D11SamplerState* samplers[] = { samp_.Get() };
     context->PSSetSamplers(0, 1, samplers);

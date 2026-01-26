@@ -29,7 +29,6 @@ private:
     Microsoft::WRL::ComPtr<ID3D11InputLayout>  inputLayout_;
     
     Microsoft::WRL::ComPtr<ID3D11SamplerState>    samp_;
-    Microsoft::WRL::ComPtr<ID3D11BlendState>      blend_;
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> rast_;
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> cbFrame_;
