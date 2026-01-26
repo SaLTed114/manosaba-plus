@@ -7,9 +7,10 @@
 
 #include "RHI/DX11/DX11Device.h"
 #include "RHI/DX11/DX11SwapChain.h"
+#include "RHI/DX11/DX11Texture2D.h"
 #include "Render/Shader/ShaderManager.h"
-#include "Render/Primitives/TriangleDemo.h"
-#include "Render/Primitives/FullScreenTexDemo.h"
+#include "Render/Draw/DrawList.h"
+#include "Render/Sprite/SpriteRenderer.h"
 
 namespace Salt2D::Render {
 
@@ -19,7 +20,7 @@ public:
 
     void Resize(uint32_t width, uint32_t height);
 
-    void RenderFrame(bool sync = true);
+    void RenderFrame(bool vsync = true);
 
 private:
     void BeginFrame();
@@ -34,8 +35,10 @@ private:
     RHI::DX11::DX11SwapChain    swapChain_;
 
     ShaderManager     shaderManager_;
-    TriangleDemo      triangleDemo_;
-    FullScreenTexDemo fullScreenTexDemo_;
+    DrawList          drawList_;
+    SpriteRenderer    spriteRenderer_;
+
+    RHI::DX11::DX11Texture2D testTexture_;
 };
 
 } // namespace Salt2D::Render

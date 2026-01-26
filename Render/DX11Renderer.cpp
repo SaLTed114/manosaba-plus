@@ -3,14 +3,43 @@
 
 namespace Salt2D::Render {
 
+namespace {
+
+static std::vector<uint8_t> MakeCheckerRGBA(uint32_t w, uint32_t h) {
+    std::vector<uint8_t> img(w * h * 4);
+    for (uint32_t y = 0; y < h; ++y) {
+        for (uint32_t x = 0; x < w; ++x) {
+            bool c = ((x / 16) ^ (y / 16)) & 1;
+            uint8_t v = c ? 255 : 30;
+
+            size_t idx = (y * w + x) * 4;
+            img[idx + 0] = v;
+            img[idx + 1] = (uint8_t)(x * 255 / (w - 1));
+            img[idx + 2] = (uint8_t)(y * 255 / (h - 1));
+            img[idx + 3] = 255;
+        }
+    }
+    return img;
+}
+
+} // Anonymous namespace
+
 DX11Renderer::DX11Renderer(HWND hwnd, uint32_t width, uint32_t height)
     : width_(width), height_(height),
       device_(), swapChain_(device_, hwnd, width, height),
       shaderManager_({ std::filesystem::path("Build/Bin/Debug/Shaders") })
 {
     UpdateViewport();
-    triangleDemo_.Initialize(device_.GetDevice(), shaderManager_);
-    fullScreenTexDemo_.Initialize(device_.GetDevice(), shaderManager_);
+
+    const uint32_t texW = 256;
+    const uint32_t texH = 256;
+    testTexture_ = RHI::DX11::DX11Texture2D::CreateRGBA8(
+        device_, texW, texH,
+        MakeCheckerRGBA(texW, texH).data(),
+        texW * 4
+    );
+
+    spriteRenderer_.Initialize(device_, shaderManager_);
 }
 
 void DX11Renderer::Resize(uint32_t width, uint32_t height) {
@@ -56,16 +85,22 @@ void DX11Renderer::UpdateViewport() {
     device_.GetContext()->RSSetViewports(1, &viewport);
 }
 
-void DX11Renderer::RenderFrame(bool sync) {
+void DX11Renderer::RenderFrame(bool vsync) {
+    drawList_.Clear();
+    drawList_.ReserveSprites(8);
+
+    auto srv = testTexture_.SRV();
+
+    drawList_.PushSprite(Layer::Background, srv, RectF{0,0,(float)width_,(float)height_}, 0.0f);
+    drawList_.PushSprite(Layer::HUD, srv, RectF{20,20,256,256}, 0.0f);
+
+    drawList_.Sort();
+
     BeginFrame();
 
-    ID3D11DeviceContext* context = device_.GetContext();
-    auto rtv = swapChain_.GetBackBufferRTV();
+    spriteRenderer_.Draw(device_, drawList_, width_, height_);
 
-    fullScreenTexDemo_.Draw(context, rtv.Get());
-    // triangleDemo_.Draw(context, rtv.Get());
-
-    EndFrame(sync);
+    EndFrame(vsync);
 }
 
 } // namespace Salt2D::Render
