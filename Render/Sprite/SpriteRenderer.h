@@ -3,6 +3,7 @@
 #define RENDER_SPRITE_SPRITERENDERER_H
 
 #include <cstdint>
+#include <span>
 #include <wrl/client.h>
 #include <d3d11.h>
 
@@ -24,7 +25,7 @@ public:
 
     void Draw(
         const RHI::DX11::DX11Device& device,
-        const DrawList& drawList,
+        std::span<const SpriteDrawItem> sprites,
         uint32_t screenW, uint32_t screenH
     );
 

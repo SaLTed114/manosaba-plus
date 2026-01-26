@@ -1,5 +1,7 @@
 // Render/DX11Renderer.cpp
 #include "DX11Renderer.h"
+#include "Utils/FileUtils.h"
+#include "Resources/Image/WICImageLoader.h"
 
 namespace Salt2D::Render {
 
@@ -35,11 +37,26 @@ static inline D3D11_VIEWPORT MakeViewport(uint32_t w, uint32_t h) {
 
 DX11Renderer::DX11Renderer(HWND hwnd, uint32_t width, uint32_t height)
     : width_(width), height_(height),
-      device_(), swapChain_(device_, hwnd, width, height),
-      shaderManager_({ std::filesystem::path("Build/Bin/Debug/Shaders") })
+      device_(), swapChain_(device_, hwnd, width, height)
 {
-    internalW_ = width_;
-    internalH_ = height_;
+    std::vector<std::filesystem::path> searchPaths;
+
+    if (auto shaderDir = Utils::TryResolvePath("Shaders")) {
+        searchPaths.push_back(*shaderDir);
+    }
+    
+    if (auto buildShaderDir = Utils::TryResolvePath("Build/Render/Shaders")) {
+        searchPaths.push_back(*buildShaderDir);
+    }
+
+    if (searchPaths.empty()) throw std::runtime_error("Failed to locate shader directories.");
+
+    shaderManager_.Initialize(std::move(searchPaths));
+
+    float factor = 1.0f;
+
+    internalW_ = static_cast<uint32_t>(width_ * factor);
+    internalH_ = static_cast<uint32_t>(height_ * factor);
 
     sceneRT_ = RHI::DX11::DX11Texture2D::CreateRenderTarget(device_, internalW_, internalH_);
     compose_.Initialize(device_, shaderManager_);
@@ -48,6 +65,17 @@ DX11Renderer::DX11Renderer(HWND hwnd, uint32_t width, uint32_t height)
     const uint32_t texH = 256;
     auto rgba = MakeCheckerRGBA(texW, texH);
     testTexture_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device_, texW, texH, rgba.data(), texW * 4);
+
+    
+    Resources::ImageRGBA8 img;
+    if (!Resources::LoadImageRGBA8_WIC("Assets/Textures/01.png", img)) {
+        throw std::runtime_error("Failed to load image: Assets/Textures/01.png");
+    }
+
+    imgTexture_ = RHI::DX11::DX11Texture2D::CreateRGBA8(
+        device_, img.width, img.height,
+        img.pixels.data(), img.rowPitch
+    );
 
     spriteRenderer_.Initialize(device_, shaderManager_);
 }
@@ -76,49 +104,62 @@ void DX11Renderer::BuildTestDrawList() {
     drawList_.ReserveSprites(8);
 
     auto srv = testTexture_.SRV();
-    drawList_.PushSprite(Layer::Background, srv, RectF{0,0,(float)(width_ / 2),(float)(height_ / 2)}, 0.0f);
+    drawList_.PushSprite(Layer::Background, srv, RectF{0,0,(float)width_,(float)height_}, 0.0f);
     drawList_.PushSprite(Layer::HUD, srv, RectF{20,20,256,256}, 0.0f);
+
+    auto imgSrv = imgTexture_.SRV();
+    drawList_.PushSprite(Layer::Stage, imgSrv, RectF{100,100, (float)imgTexture_.GetWidth(), (float)imgTexture_.GetHeight()}, 0.0f);
+
     drawList_.Sort();
 }
 
-void DX11Renderer::BeginFrame() {
-    auto context = device_.GetContext();
-    
-    ID3D11RenderTargetView* rtvs[] = { sceneRT_.RTV() };
-    context->OMSetRenderTargets(1, rtvs, nullptr);
+void DX11Renderer::BeginScenePass() {
+    auto ctx = device_.GetContext();
 
-    auto viewport = MakeViewport(internalW_, internalH_);
-    context->RSSetViewports(1, &viewport);
+    ID3D11RenderTargetView* rtvs[] = { sceneRT_.RTV() };
+    ctx->OMSetRenderTargets(1, rtvs, nullptr);
+
+    auto vp = MakeViewport(internalW_, internalH_);
+    ctx->RSSetViewports(1, &vp);
 
     float clearColor[4] = {0.2f, 0.2f, 0.2f, 1.0f};
-    context->ClearRenderTargetView(sceneRT_.RTV(), clearColor);
+    ctx->ClearRenderTargetView(sceneRT_.RTV(), clearColor);
 }
 
-void DX11Renderer::EndFrame(bool vsync) {
-    auto context = device_.GetContext();
+void DX11Renderer::ComposeToBackBuffer() {
+    auto ctx = device_.GetContext();
+
     auto backRTV = swapChain_.GetBackBufferRTV();
-
     ID3D11RenderTargetView* rtvs[] = { backRTV.Get() };
-    context->OMSetRenderTargets(1, rtvs, nullptr);
+    ctx->OMSetRenderTargets(1, rtvs, nullptr);
 
-    auto viewport = MakeViewport(width_, height_);
-    context->RSSetViewports(1, &viewport);
+    auto vp = MakeViewport(width_, height_);
+    ctx->RSSetViewports(1, &vp);
 
     compose_.Draw(device_, sceneRT_.SRV());
+}
 
+void DX11Renderer::Present(bool vsync) {
     swapChain_.Present(vsync);
 }
 
 void DX11Renderer::RenderFrame(bool vsync) {
     if (width_ == 0 || height_ == 0) return;
-
-    BeginFrame();
+    if (internalW_ == 0 || internalH_ == 0) return;
 
     BuildTestDrawList(); // TMP
 
-    spriteRenderer_.Draw(device_, drawList_, internalW_, internalH_);
+    BeginScenePass();
 
-    EndFrame(vsync);
+    auto sceneSprites = drawList_.Sprites(Layer::Background, Layer::Text);
+    spriteRenderer_.Draw(device_, sceneSprites, width_, height_);
+
+    ComposeToBackBuffer();
+
+    auto hudSprites = drawList_.Sprites(Layer::HUD);
+    spriteRenderer_.Draw(device_, hudSprites, width_, height_);
+
+    Present(vsync);
 }
 
 } // namespace Salt2D::Render

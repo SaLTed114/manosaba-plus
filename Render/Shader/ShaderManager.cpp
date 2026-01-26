@@ -9,8 +9,9 @@ namespace fs = std::filesystem;
 
 namespace Salt2D::Render {
 
-ShaderManager::ShaderManager(std::vector<fs::path> searchDirs)
-    : searchDirs_(std::move(searchDirs)) {}
+void ShaderManager::Initialize(std::vector<fs::path> searchDirs) {
+    searchDirs_ = std::move(searchDirs);
+}
 
 ComPtr<ID3DBlob> ShaderManager::LoadShader(const fs::path& relativePath) {
     const auto key = relativePath.wstring();

@@ -46,7 +46,9 @@ manosaba-plus/
 │   │
 │   ├── Pipeline/
 │   │   ├── SpritePipeline.h                   # Sprite pipeline interface
-│   │   └── SpritePipeline.cpp                 # Pipeline state and shader binding
+│   │   ├── SpritePipeline.cpp                 # Pipeline state and shader binding
+│   │   ├── ComposePipeline.h                  # Scene composition pipeline interface
+│   │   └── ComposePipeline.cpp                # Fullscreen composition pass
 │   │
 │   ├── Primitives/
 │   │   ├── TriangleDemo.h                     # Triangle test renderer interface
@@ -60,14 +62,22 @@ manosaba-plus/
 │       ├── SpriteRenderer.h                   # Sprite batch renderer interface
 │       └── SpriteRenderer.cpp                 # Vertex buffer management and sprite batching
 │
+├── Resources/
+│   ├── CMakeLists.txt
+│   └── Image/
+│       ├── WICImageLoader.h                   # WIC image loader interface
+│       └── WICImageLoader.cpp                 # Image loading via Windows Imaging Component
+│
 ├── Shaders/
-│   ├── sprite_vs.hlsl                         # Sprite vertex shader (pixel to NDC)
-│   ├── sprite_ps.hlsl                         # Sprite pixel shader (texture sampling)
-│   ├── triangle_vs.hlsl                       # Debug triangle vertex shader
-│   └── triangle_ps.hlsl                       # Debug triangle pixel shader
+│   ├── compose.hlsl                           # Composition shaders (VS + PS)
+│   ├── sprite.hlsl                            # Sprite shaders (VS + PS)
+│   └── triangle.hlsl                          # Debug triangle shaders (VS + PS)
 │
 ├── Utils/
-│   └── ConsoleUtils.h                         # Console attachment utilities
+│   ├── CMakeLists.txt
+│   ├── ConsoleUtils.h                         # Console attachment utilities
+│   ├── FileUtils.h                            # File path resolution utilities
+│   └── FileUtils.cpp                          # File system helpers
 │
 ├── CMakeLists.txt                             # Root CMake configuration
 ├── LICENSE                                    # MIT License
@@ -115,11 +125,19 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 
 ---
 
+### Resources/ - Resource Loading
+
+**Image Loading**
+- `Image/WICImageLoader.h` - WIC-based image loader interface
+- `Image/WICImageLoader.cpp` - Load PNG/JPEG/BMP images to RGBA8 format using Windows Imaging Component
+
+---
+
 ### Render/ - High-Level Rendering System
 
 **Renderer Core**
 - `DX11Renderer.h` - Main renderer interface
-- `DX11Renderer.cpp` - Frame management, viewport setup, draw list coordination
+- `DX11Renderer.cpp` - Offscreen rendering, frame management, viewport setup, multi-pass rendering coordination
 
 **Draw System**
 - `Draw/DrawItem.h` - Draw item definitions (SpriteDrawItem, Layer enum, geometric structs)
@@ -132,6 +150,8 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 **Pipeline Configuration**
 - `Pipeline/SpritePipeline.h` - Sprite render pipeline interface
 - `Pipeline/SpritePipeline.cpp` - Shader binding, render state setup (blend, rasterizer, sampler), constant buffer management
+- `Pipeline/ComposePipeline.h` - Scene composition pipeline interface
+- `Pipeline/ComposePipeline.cpp` - Fullscreen composition from offscreen RT to backbuffer
 
 **Shader Management**
 - `Shader/ShaderManager.h` - Shader loading and caching interface
@@ -145,13 +165,16 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 
 ### Shaders/ - HLSL Shader Sources
 
+**Composition Shaders**
+- `compose.hlsl` - Fullscreen composition pass (VS + PS entry points)
+
 **Sprite Shaders**
-- `sprite_vs.hlsl` - Vertex shader: pixel coordinates to NDC transformation
-- `sprite_ps.hlsl` - Pixel shader: texture sampling with vertex color modulation
+- `sprite.hlsl` - Sprite rendering (VS + PS entry points): pixel coordinates to NDC, texture sampling
 
 **Debug Shaders**
-- `triangle_vs.hlsl` - Simple triangle vertex shader
-- `triangle_ps.hlsl` - Simple triangle pixel shader
+- `triangle.hlsl` - Debug triangle rendering (VS + PS entry points)
+
+Note: Each .hlsl file contains both vertex shader (VS) and pixel shader (PS) entry points, compiled to separate .cso bytecode files.
 
 ---
 
@@ -159,6 +182,10 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 
 **Console Utilities**
 - `ConsoleUtils.h` - Console attachment for debugging in Windows GUI applications
+
+**File System Utilities**
+- `FileUtils.h` - File path resolution interface
+- `FileUtils.cpp` - Path resolution helpers for locating assets and shaders
 
 ---
 
@@ -171,9 +198,22 @@ DX11Renderer::RenderFrame()
     ↓
 DrawList (populate sprites, sort by layer/z)
     ↓
-SpriteRenderer::Draw()
+┌─────────────────────────────────────────────┐
+│ Pass 1: Scene Rendering (Offscreen RT)      │
+│ BeginScenePass() → SpriteRenderer::Draw()   │
+│ (Background, Stage, Text layers)            │
+└─────────────────────────────────────────────┘
     ↓
-SpritePipeline (bind shaders, states)
+┌─────────────────────────────────────────────┐
+│ Pass 2: Composition (Backbuffer)            │
+│ ComposeToBackBuffer() → ComposePipeline     │
+│ (Fullscreen blit from Scene RT)             │
+└─────────────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────────────┐
+│ Pass 3: HUD Rendering (Backbuffer)          │
+│ SpriteRenderer::Draw() (HUD layer)          │
+└─────────────────────────────────────────────┘
     ↓
 DX11SwapChain::Present()
 ```
@@ -202,14 +242,22 @@ Shaders cached by ShaderManager to avoid redundant disk I/O.
 
 1. **Setup Phase**
    - Create D3D11 device and swap chain
-   - Load and compile shaders
-   - Initialize render pipelines
+   - Load and compile shaders (FXC bytecode)
+   - Initialize render pipelines (Sprite, Compose)
+   - Create offscreen render target (Scene RT)
+   - Load textures via WIC
 
-2. **Frame Loop**
-   - Clear draw list
-   - Populate draw items (sprites)
-   - Sort by layer and z-order
-   - Batch render all items
+2. **Frame Loop (Multi-Pass)**
+   - **Pass 1: Scene Rendering**
+     - Clear draw list
+     - Populate draw items (sprites)
+     - Sort by layer and z-order
+     - Render Background→Text layers to Scene RT at configurable internal resolution
+   - **Pass 2: Composition**
+     - Blit Scene RT to backbuffer using fullscreen composition
+     - Scales internal resolution to window resolution
+   - **Pass 3: HUD Rendering**
+     - Render HUD layer directly to backbuffer at native window resolution
    - Present to screen
 
 3. **Sprite Rendering**
@@ -218,3 +266,9 @@ Shaders cached by ShaderManager to avoid redundant disk I/O.
    - Unmap buffer
    - Bind pipeline state
    - Per-sprite texture binding and draw calls
+
+4. **Resolution Architecture**
+   - **Internal Resolution** (internalW × internalH): Scene RT resolution, configurable for performance scaling
+   - **Window Resolution** (width × height): Backbuffer resolution, fixed by window size
+   - Scene layers rendered at internal resolution, upscaled via composition
+   - HUD layer rendered at native window resolution for crisp UI

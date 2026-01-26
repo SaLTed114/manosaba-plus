@@ -56,5 +56,7 @@ target_include_directories(Render PUBLIC
 
 target_link_libraries(Render PUBLIC
     RHI_DX11
+    Utils
+    Resources
     d3dcompiler
 )

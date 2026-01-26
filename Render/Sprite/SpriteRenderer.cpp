@@ -36,10 +36,9 @@ void SpriteRenderer::EnsureVB(const RHI::DX11::DX11Device& device, size_t sprite
 
 void SpriteRenderer::Draw(
     const RHI::DX11::DX11Device& device,
-    const DrawList& drawList,
+    std::span<const SpriteDrawItem> sprites,
     uint32_t screenW, uint32_t screenH
 ) {
-    const auto& sprites = drawList.Sprites();
     if (sprites.empty()) return;
 
     if (sprites.size() > vbCapacity_) EnsureVB(device, sprites.size());

@@ -26,8 +26,9 @@ public:
 
 private:
     void BuildTestDrawList(); // TMP
-    void BeginFrame();
-    void EndFrame(bool vsync);
+    void BeginScenePass();
+    void ComposeToBackBuffer();
+    void Present(bool vsync);
 
 private:
     uint32_t width_  = 0;
@@ -41,6 +42,7 @@ private:
     SpriteRenderer    spriteRenderer_;
 
     RHI::DX11::DX11Texture2D testTexture_;
+    RHI::DX11::DX11Texture2D imgTexture_;
 
     RHI::DX11::DX11Texture2D sceneRT_;
     ComposePipeline compose_;

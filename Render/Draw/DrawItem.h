@@ -13,7 +13,7 @@ enum class Layer : uint8_t {
     Stage      = 1,
     Text       = 2,
     HUD        = 3,
-    Count
+    Count      = 4,
 };
 
 struct RectF {
@@ -49,7 +49,7 @@ struct SpriteDrawItem {
     uint32_t order = 0;
 };
 
-static inline uint8_t ToLayerIndex(Layer layer) {
+constexpr static inline uint8_t ToLayerIndex(Layer layer) {
     return static_cast<uint8_t>(layer);
 }
 

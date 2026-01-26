@@ -13,7 +13,7 @@ namespace Salt2D::Render {
 
 class ShaderManager {
 public:
-    explicit ShaderManager(std::vector<std::filesystem::path> searchDirs);
+    void Initialize(std::vector<std::filesystem::path> searchDirs);
 
     Microsoft::WRL::ComPtr<ID3DBlob> LoadShader(const std::filesystem::path& relativePath);
     void ClearCache();
