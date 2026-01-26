@@ -4,7 +4,7 @@
 
 -----
 
-This project aims to enhance the limited visual presentation of "Magical Girl's Witch Trial"
+This project aims to enhance the limited visual presentation of "Magical Girl Witch Trial"
 
 -----
 

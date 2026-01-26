@@ -1,3 +1,6 @@
+Texture2D gTex : register(t0);
+SamplerState gSamp : register(s0);
+
 cbuffer CBFrame : register(b0)
 {
     float2 gScreenSize;  // (W,H)
@@ -27,4 +30,8 @@ VSOut VS(VSIn i) {
     o.uv = i.uv;
     o.color = i.color;
     return o;
+}
+
+float4 PS(VSOut i) : SV_TARGET {
+    return gTex.Sample(gSamp, i.uv) * i.color;
 }

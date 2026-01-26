@@ -15,7 +15,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi /RTC1")
 
 function(compile_shader_fxc SHADER_FILE PROFILE ENTRY OUTPUT_FILE)
     get_filename_component(FILE_NAME ${SHADER_FILE} NAME_WE)
-    set(OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/Shaders/${FILE_NAME}.cso)
+
+    string(TOLOWER ${ENTRY} ENTRY_LOWER)
+    set(OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/Shaders/${FILE_NAME}_${ENTRY_LOWER}.cso)
 
     add_custom_command(
         OUTPUT ${OUTPUT_PATH}
@@ -25,8 +27,9 @@ function(compile_shader_fxc SHADER_FILE PROFILE ENTRY OUTPUT_FILE)
             /E ${ENTRY}
             /Fo ${OUTPUT_PATH}
             ${SHADER_FILE}
+            > nul 2>&1
         DEPENDS ${SHADER_FILE}
-        COMMENT "FXC compiling ${SHADER_FILE} (${PROFILE})"
+        COMMENT "Compiling ${FILE_NAME}_${ENTRY_LOWER}.cso"
     )
 
     set(${OUTPUT_FILE} ${OUTPUT_PATH} PARENT_SCOPE)

@@ -22,6 +22,15 @@ static std::vector<uint8_t> MakeCheckerRGBA(uint32_t w, uint32_t h) {
     return img;
 }
 
+static inline D3D11_VIEWPORT MakeViewport(uint32_t w, uint32_t h) {
+    D3D11_VIEWPORT viewport = {};
+    viewport.TopLeftX = 0.0f; viewport.TopLeftY = 0.0f;
+    viewport.Width    = static_cast<FLOAT>(w);
+    viewport.Height   = static_cast<FLOAT>(h);
+    viewport.MinDepth = 0.0f; viewport.MaxDepth = 1.0f;
+    return viewport;
+}
+
 } // Anonymous namespace
 
 DX11Renderer::DX11Renderer(HWND hwnd, uint32_t width, uint32_t height)
@@ -29,15 +38,16 @@ DX11Renderer::DX11Renderer(HWND hwnd, uint32_t width, uint32_t height)
       device_(), swapChain_(device_, hwnd, width, height),
       shaderManager_({ std::filesystem::path("Build/Bin/Debug/Shaders") })
 {
-    UpdateViewport();
+    internalW_ = width_;
+    internalH_ = height_;
+
+    sceneRT_ = RHI::DX11::DX11Texture2D::CreateRenderTarget(device_, internalW_, internalH_);
+    compose_.Initialize(device_, shaderManager_);
 
     const uint32_t texW = 256;
     const uint32_t texH = 256;
-    testTexture_ = RHI::DX11::DX11Texture2D::CreateRGBA8(
-        device_, texW, texH,
-        MakeCheckerRGBA(texW, texH).data(),
-        texW * 4
-    );
+    auto rgba = MakeCheckerRGBA(texW, texH);
+    testTexture_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device_, texW, texH, rgba.data(), texW * 4);
 
     spriteRenderer_.Initialize(device_, shaderManager_);
 }
@@ -55,50 +65,58 @@ void DX11Renderer::Resize(uint32_t width, uint32_t height) {
     device_.GetContext()->OMSetRenderTargets(1, &nullRTV, nullptr);
 
     swapChain_.Resize(width_, height_);
-    UpdateViewport();
+
+    internalW_ = width_;
+    internalH_ = height_;
+    sceneRT_ = RHI::DX11::DX11Texture2D::CreateRenderTarget(device_, internalW_, internalH_);
 }
 
-void DX11Renderer::BeginFrame() {
-    ID3D11DeviceContext* context = device_.GetContext();
-    auto rtv = swapChain_.GetBackBufferRTV();
-
-    float clearColor[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-    ID3D11RenderTargetView* rtvs[] = { rtv.Get() };
-
-    context->OMSetRenderTargets(1, rtvs, nullptr);
-    context->ClearRenderTargetView(rtv.Get(), clearColor);
-}
-
-void DX11Renderer::EndFrame(bool vsync) {
-    swapChain_.Present(vsync);
-}
-
-void DX11Renderer::UpdateViewport() {
-    D3D11_VIEWPORT viewport = {};
-    viewport.TopLeftX = 0.0f;
-    viewport.TopLeftY = 0.0f;
-    viewport.Width    = static_cast<FLOAT>(width_);
-    viewport.Height   = static_cast<FLOAT>(height_);
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-
-    device_.GetContext()->RSSetViewports(1, &viewport);
-}
-
-void DX11Renderer::RenderFrame(bool vsync) {
+void DX11Renderer::BuildTestDrawList() {
     drawList_.Clear();
     drawList_.ReserveSprites(8);
 
     auto srv = testTexture_.SRV();
-
-    drawList_.PushSprite(Layer::Background, srv, RectF{0,0,(float)width_,(float)height_}, 0.0f);
+    drawList_.PushSprite(Layer::Background, srv, RectF{0,0,(float)(width_ / 2),(float)(height_ / 2)}, 0.0f);
     drawList_.PushSprite(Layer::HUD, srv, RectF{20,20,256,256}, 0.0f);
-
     drawList_.Sort();
+}
+
+void DX11Renderer::BeginFrame() {
+    auto context = device_.GetContext();
+    
+    ID3D11RenderTargetView* rtvs[] = { sceneRT_.RTV() };
+    context->OMSetRenderTargets(1, rtvs, nullptr);
+
+    auto viewport = MakeViewport(internalW_, internalH_);
+    context->RSSetViewports(1, &viewport);
+
+    float clearColor[4] = {0.2f, 0.2f, 0.2f, 1.0f};
+    context->ClearRenderTargetView(sceneRT_.RTV(), clearColor);
+}
+
+void DX11Renderer::EndFrame(bool vsync) {
+    auto context = device_.GetContext();
+    auto backRTV = swapChain_.GetBackBufferRTV();
+
+    ID3D11RenderTargetView* rtvs[] = { backRTV.Get() };
+    context->OMSetRenderTargets(1, rtvs, nullptr);
+
+    auto viewport = MakeViewport(width_, height_);
+    context->RSSetViewports(1, &viewport);
+
+    compose_.Draw(device_, sceneRT_.SRV());
+
+    swapChain_.Present(vsync);
+}
+
+void DX11Renderer::RenderFrame(bool vsync) {
+    if (width_ == 0 || height_ == 0) return;
 
     BeginFrame();
 
-    spriteRenderer_.Draw(device_, drawList_, width_, height_);
+    BuildTestDrawList(); // TMP
+
+    spriteRenderer_.Draw(device_, drawList_, internalW_, internalH_);
 
     EndFrame(vsync);
 }

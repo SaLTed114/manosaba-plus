@@ -14,3 +14,7 @@ VSOut VS(VSIn vin) {
     o.color = vin.color;
     return o;
 }
+
+float4 PS(VSOut pin) : SV_TARGET {
+    return float4(pin.color, 1.0);
+}

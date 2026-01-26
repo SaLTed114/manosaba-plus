@@ -12,6 +12,8 @@
 #include "Render/Draw/DrawList.h"
 #include "Render/Sprite/SpriteRenderer.h"
 
+#include "Render/Pipeline/ComposePipeline.h"
+
 namespace Salt2D::Render {
 
 class DX11Renderer {
@@ -23,9 +25,9 @@ public:
     void RenderFrame(bool vsync = true);
 
 private:
+    void BuildTestDrawList(); // TMP
     void BeginFrame();
     void EndFrame(bool vsync);
-    void UpdateViewport();
 
 private:
     uint32_t width_  = 0;
@@ -39,6 +41,11 @@ private:
     SpriteRenderer    spriteRenderer_;
 
     RHI::DX11::DX11Texture2D testTexture_;
+
+    RHI::DX11::DX11Texture2D sceneRT_;
+    ComposePipeline compose_;
+    uint32_t internalW_ = 0;
+    uint32_t internalH_ = 0;
 };
 
 } // namespace Salt2D::Render
