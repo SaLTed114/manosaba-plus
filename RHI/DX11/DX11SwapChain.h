@@ -29,6 +29,7 @@ public:
     Microsoft::WRL::ComPtr<IDXGISwapChain1> GetSwapChain()  const { return swapChain_; }
     Microsoft::WRL::ComPtr<ID3D11Texture2D> GetBackBuffer() const { return backBuffer_; }
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> GetBackBufferRTV() const { return backBufferRTV_; }
+    ID3D11RenderTargetView* backBufferRTV() const { return backBufferRTV_.Get(); }
 
     const uint32_t GetWidth()  const { return width_; }
     const uint32_t GetHeight() const { return height_; }

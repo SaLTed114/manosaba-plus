@@ -3,9 +3,11 @@ set(RENDER_SOURCES
     DX11CommonState.cpp
 
     Primitives/TriangleDemo.cpp
+    Primitives/CubeDemo.cpp
 
     Pipeline/SpritePipeline.cpp
     Pipeline/ComposePipeline.cpp
+    Pipeline/MeshPipeline.cpp
 
     Sprite/SpriteRenderer.cpp
 
@@ -17,9 +19,11 @@ set(RENDER_HEADERS
     DX11CommonState.h
 
     Primitives/TriangleDemo.h
+    Primitives/CubeDemo.h
 
     Pipeline/SpritePipeline.h
     Pipeline/ComposePipeline.h
+    Pipeline/MeshPipeline.h
 
     Sprite/SpriteRenderer.h
 
@@ -32,6 +36,7 @@ set(RENDER_HEADERS
 set(TRIANGLE_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/triangle.hlsl)
 set(SPRITE_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/sprite.hlsl)
 set(COMPOSE_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/compose.hlsl)
+set(MESH_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/mesh.hlsl)
 
 compile_shader_fxc(${TRIANGLE_SHADER_SOURCE} vs_5_0 VS TRI_VS_CSO)
 compile_shader_fxc(${TRIANGLE_SHADER_SOURCE} ps_5_0 PS TRI_PS_CSO)
@@ -39,6 +44,8 @@ compile_shader_fxc(${SPRITE_SHADER_SOURCE} vs_5_0 VS SPRITE_VS_CSO)
 compile_shader_fxc(${SPRITE_SHADER_SOURCE} ps_5_0 PS SPRITE_PS_CSO)
 compile_shader_fxc(${COMPOSE_SHADER_SOURCE} vs_5_0 VS COMPOSE_VS_CSO)
 compile_shader_fxc(${COMPOSE_SHADER_SOURCE} ps_5_0 PS COMPOSE_PS_CSO)
+compile_shader_fxc(${MESH_SHADER_SOURCE} vs_5_0 VS MESH_VS_CSO)
+compile_shader_fxc(${MESH_SHADER_SOURCE} ps_5_0 PS MESH_PS_CSO)
 
 add_library(Render STATIC
     ${RENDER_SOURCES}
@@ -50,6 +57,8 @@ add_library(Render STATIC
     ${SPRITE_PS_CSO}
     ${COMPOSE_VS_CSO}
     ${COMPOSE_PS_CSO}
+    ${MESH_VS_CSO}
+    ${MESH_PS_CSO}
 )
 
 target_include_directories(Render PUBLIC

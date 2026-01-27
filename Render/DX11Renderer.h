@@ -10,11 +10,14 @@
 #include "RHI/DX11/DX11Texture2D.h"
 #include "RHI/DX11/DX11DepthBuffer.h"
 #include "Render/DX11CommonState.h"
+#include "Render/RenderPlan.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/Draw/DrawList.h"
 #include "Render/Sprite/SpriteRenderer.h"
 
 #include "Render/Pipeline/ComposePipeline.h"
+
+#include "Render/Primitives/CubeDemo.h"
 
 namespace Salt2D::Render {
 
@@ -35,42 +38,18 @@ private:
 
 private:
     void BuildTestDrawList(); // TMP
-    void BeginScenePass();
-    void ComposeToBackBuffer();
-    void BeginHUDPass();
     void Present(bool vsync);
 
 private:
-    enum class DepthMode { Off, RO, RW };
-    enum class BlendMode { Off, Alpha };
-
-    ID3D11DepthStencilState* DS(DepthMode mode) {
-        switch (mode) {
-        case DepthMode::RO:  return states_.depthRO.Get();
-        case DepthMode::RW:  return states_.depthRW.Get();
-        case DepthMode::Off:
-        default: return states_.depthOff.Get();
-        }
-    }
-
-    ID3D11BlendState* BS(BlendMode mode) {
-        switch (mode) {
-        case BlendMode::Alpha: return states_.blendAlpha.Get();
-        case BlendMode::Off:
-        default: return states_.blendOff.Get();
-        }
-    }
-
-    void BeginPass(
-        ID3D11RenderTargetView* rtv,
-        ID3D11DepthStencilView* dsv,
-        uint32_t vpW, uint32_t vpH,
-        DepthMode depthMode, BlendMode blendMode
-    );
+    RenderPlan BuildDefaultPlan();
+    void ExecutePlan(const RenderPlan& plan);
 
 private:
-    uint32_t width_  = 0;
-    uint32_t height_ = 0;
+    uint32_t canvasW_ = 0;
+    uint32_t canvasH_ = 0;
+    uint32_t sceneW_  = 0;
+    uint32_t sceneH_  = 0;
+    float internalScale_ = 1.0f;
 
     RHI::DX11::DX11Device       device_;
     RHI::DX11::DX11SwapChain    swapChain_;
@@ -88,8 +67,8 @@ private:
 
     RHI::DX11::DX11Texture2D sceneRT_;
     ComposePipeline compose_;
-    uint32_t internalW_ = 0;
-    uint32_t internalH_ = 0;
+
+    CubeDemo cubeDemo_;
 };
 
 } // namespace Salt2D::Render
