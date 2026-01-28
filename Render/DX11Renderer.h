@@ -27,22 +27,16 @@ public:
 
     void Resize(uint32_t width, uint32_t height);
 
-    void RenderFrame(bool vsync = true);
+    void ExecutePlan(const RenderPlan& plan);
+    void Present(bool vsync);
+
+    const RHI::DX11::DX11Device& Device() const { return device_; }
 
 private:
     void InitShaderSearchPaths();
     void InitSceneTargets(float factor);
     void InitPipelines();
     void InitStates();
-    void InitDemoTextures(); 
-
-private:
-    void BuildTestDrawList(); // TMP
-    void Present(bool vsync);
-
-private:
-    RenderPlan BuildDefaultPlan();
-    void ExecutePlan(const RenderPlan& plan);
 
 private:
     uint32_t canvasW_ = 0;
@@ -59,11 +53,7 @@ private:
     DX11StateCache  stateCache_;
 
     ShaderManager     shaderManager_;
-    DrawList          drawList_;
     SpriteRenderer    spriteRenderer_;
-
-    RHI::DX11::DX11Texture2D testTexture_;
-    RHI::DX11::DX11Texture2D imgTexture_;
 
     RHI::DX11::DX11Texture2D sceneRT_;
     ComposePipeline compose_;

@@ -14,6 +14,10 @@ namespace Salt2D::RHI::DX11 {
 
 namespace Salt2D::Render {
 
+class SpriteRenderer;
+class ComposePipeline;
+class CubeDemo;
+
 enum class Target { Scene, BackBuffer };
 enum class DepthMode { Off, RO, RW };
 enum class BlendMode { Off, Alpha };
@@ -32,6 +36,10 @@ struct PassContext {
 
     DX11CommonState& states;
     DX11StateCache&  cache;
+
+    SpriteRenderer*  spriteRenderer = nullptr;
+    ComposePipeline* compose        = nullptr;
+    CubeDemo*        cubeDemo       = nullptr;
 };
 
 struct RenderPass {

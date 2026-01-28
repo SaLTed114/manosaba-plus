@@ -1,0 +1,56 @@
+// App/Application.cpp
+#include "Application.h"
+#include "Scene/DemoScene.h"
+
+#include <Windows.h>
+#include <iostream>
+#include <stdexcept>
+
+namespace Salt2D::App {
+
+Application::Application(const char* title, uint32_t width, uint32_t height) {
+    SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+    window_ = std::make_unique<Core::Win32Window>(title, width, height);
+
+    window_->GetClientSize(canvasW_, canvasH_);
+    window_->setOnResized([this](uint32_t w, uint32_t h) { OnResized(w, h); });
+
+    renderer_ = std::make_unique<Render::DX11Renderer>(window_->GetHWND(), canvasW_, canvasH_);
+
+    scene_ = std::make_unique<DemoScene>();
+    scene_->Initialize(*renderer_);
+}
+
+Application::~Application() = default;
+
+void Application::OnResized(uint32_t w, uint32_t h) {
+    canvasW_ = w;
+    canvasH_ = h;
+    renderer_->Resize(w, h);
+}
+
+void Application::Tick(const Core::FrameTime& ft) {
+    scene_->Update(ft, canvasW_, canvasH_);
+
+    drawList_.Clear();
+    scene_->BuildDrawList(drawList_, canvasW_, canvasH_);
+    drawList_.Sort();
+
+    plan_.Clear();
+    scene_->BuildPlan(plan_, drawList_);
+}
+
+void Application::Run() {
+    clock_.Reset();
+
+    while (window_->ProcessMessages()) {
+        auto ft = clock_.Tick();
+        Tick(ft);
+
+        renderer_->ExecutePlan(plan_);
+        renderer_->Present(vsync_);
+    }
+}
+
+
+} // namespace Salt2D::App

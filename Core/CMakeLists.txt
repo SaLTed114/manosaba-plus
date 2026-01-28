@@ -1,9 +1,13 @@
 set(SALT2D_CORE_SOURCES
     Window/Win32Window.cpp
+
+    Time/FrameClock.cpp
 )
 
 set(SALT2D_CORE_HEADERS
     Window/Win32Window.h
+
+    Time/FrameClock.h
 )
 
 add_library(Core STATIC

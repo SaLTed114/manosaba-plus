@@ -13,6 +13,16 @@ void Win32Window::GetClientSize(uint32_t& width, uint32_t& height) const {
     height = static_cast<uint32_t>(rect.bottom - rect.top);
 }
 
+void Win32Window::SetClientSize(uint32_t width, uint32_t height) {
+    RECT rect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
+    AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+    
+    SetWindowPos(hwnd_, nullptr, 0, 0,
+        rect.right - rect.left,
+        rect.bottom - rect.top,
+        SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+}
+
 Win32Window::Win32Window(const std::string& title, int width, int height)
     : width_(width), height_(height) {
 

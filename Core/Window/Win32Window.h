@@ -29,6 +29,7 @@ public:
     int GetWidth()  const { return width_; }
     int GetHeight() const { return height_; }
     void GetClientSize(uint32_t& width, uint32_t& height) const;
+    void SetClientSize(uint32_t width, uint32_t height);
 
     void setOnResized(ResizedCallback callback) { onResized_ = std::move(callback); }
     void setOnDpiChanged(DpiChangedCallback callback) { onDpiChanged_ = std::move(callback); }
