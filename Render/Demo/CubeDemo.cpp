@@ -1,4 +1,4 @@
-// Render/Primitives/CubeDemo.cpp
+// Render/Demo/CubeDemo.cpp
 #include "CubeDemo.h"
 #include "RHI/DX11/DX11Device.h"
 #include "RHI/DX11/DX11Common.h"

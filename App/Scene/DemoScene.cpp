@@ -42,7 +42,15 @@ void DemoScene::Initialize(Render::DX11Renderer& renderer) {
 }
 
 void DemoScene::Update(const Core::FrameTime& ft, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {
+    float t = static_cast<float>(ft.totalSec);
     angle_ += static_cast<float>(ft.dtSec) * 1.0f;
+    float deg2rad = DirectX::XM_PI / 180.0f;
+    camera_.SetYawPitchRoll(sinf(t) * 30.0f * deg2rad, sinf(t*2) * 20.0f * deg2rad, 0.0f);
+}
+
+void DemoScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sceneW, uint32_t sceneH) {
+    frame.view = camera_.GetView();
+    frame.proj = camera_.GetProj(sceneW, sceneH);
 }
 
 void DemoScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
@@ -90,14 +98,7 @@ void DemoScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& draw
         pass.exec = [this](PassContext& ctx) {
             using namespace DirectX;
             XMMATRIX world = XMMatrixRotationY(angle_) * XMMatrixRotationX(angle_ * 0.5f);
-            XMVECTOR eye  = XMVectorSet(0.0f, 1.2f, -2.5f, 1.0f);
-            XMVECTOR at   = XMVectorZero();
-            XMVECTOR up   = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-            XMMATRIX view = XMMatrixLookAtLH(eye, at, up);
-            float aspect  = static_cast<float>(ctx.sceneW) / static_cast<float>(ctx.sceneH);
-            XMMATRIX proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, aspect, 0.1f, 100.0f);
-
-            ctx.cubeDemo->Draw(ctx.device, world * view * proj);
+            ctx.cubeDemo->Draw(ctx.device, world * ctx.frame->view * ctx.frame->proj);
         };
         plan.passes.push_back(std::move(pass));
     }

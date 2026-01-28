@@ -85,7 +85,7 @@ void DX11Renderer::Present(bool vsync) {
     swapChain_.Present(vsync);
 }
 
-void DX11Renderer::ExecutePlan(const RenderPlan& plan) {
+void DX11Renderer::ExecutePlan(const RenderPlan& plan, const FrameBlackboard& frame) {
     auto ctx = device_.GetContext();
 
     PassContext passCtx{
@@ -107,7 +107,9 @@ void DX11Renderer::ExecutePlan(const RenderPlan& plan) {
 
         .spriteRenderer = &spriteRenderer_,
         .compose        = &compose_,
-        .cubeDemo       = &cubeDemo_
+        .cubeDemo       = &cubeDemo_,
+
+        .frame = &frame,
     };
 
     for (const auto& pass : plan.passes) {

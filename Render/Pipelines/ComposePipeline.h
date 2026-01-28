@@ -1,6 +1,6 @@
-// Render/Pipeline/ComposePipeline.h
-#ifndef RENDER_PIPELINE_COMPOSEPIPELINE_H
-#define RENDER_PIPELINE_COMPOSEPIPELINE_H
+// Render/Pipelines/ComposePipeline.h
+#ifndef RENDER_PIPELINES_COMPOSEPIPELINE_H
+#define RENDER_PIPELINES_COMPOSEPIPELINE_H
 
 #include <wrl/client.h>
 #include <d3d11.h>
@@ -28,4 +28,4 @@ private:
 
 } // namespace Salt2D::Render
 
-#endif // RENDER_PIPELINE_COMPOSEPIPELINE_H
+#endif // RENDER_PIPELINES_COMPOSEPIPELINE_H

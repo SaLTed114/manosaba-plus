@@ -1,6 +1,6 @@
-//Render/Pipeline/SpritePipeline.h
-#ifndef RENDER_PIPELINE_SPRITEPIPELINE_H
-#define RENDER_PIPELINE_SPRITEPIPELINE_H
+//Render/Pipelines/SpritePipeline.h
+#ifndef RENDER_PIPELINES_SPRITEPIPELINE_H
+#define RENDER_PIPELINES_SPRITEPIPELINE_H
 
 #include <cstdint>
 #include <wrl/client.h>
@@ -36,4 +36,4 @@ private:
 
 } // namespace Salt2D::Render
 
-#endif // RENDER_PIPELINE_SPRITEPIPELINE_H
+#endif // RENDER_PIPELINES_SPRITEPIPELINE_H

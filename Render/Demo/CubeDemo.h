@@ -1,12 +1,12 @@
-// Render/Primitives/CubeDemo.h
-#ifndef RENDER_PRIMITIVES_CUBEDEMO_H
-#define RENDER_PRIMITIVES_CUBEDEMO_H
+// Render/Demo/CubeDemo.h
+#ifndef RENDER_DEMO_CUBEDEMO_H
+#define RENDER_DEMO_CUBEDEMO_H
 
 #include <wrl/client.h>
 #include <d3d11.h>
 #include <DirectXMath.h>
 
-#include "Render/Pipeline/MeshPipeline.h"
+#include "Render/Pipelines/MeshPipeline.h"
 
 namespace Salt2D::RHI::DX11 {
     class DX11Device;
@@ -30,4 +30,4 @@ private:
 
 } // namespace Salt2D::Render
 
-#endif // RENDER_PRIMITIVES_CUBEDEMO_H
+#endif // RENDER_DEMO_CUBEDEMO_H

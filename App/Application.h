@@ -40,6 +40,7 @@ private:
 
     uint32_t canvasW_ = 0;
     uint32_t canvasH_ = 0;
+    Render::FrameBlackboard frame_;
 
     Core::FrameClock clock_;
     bool vsync_ = true;

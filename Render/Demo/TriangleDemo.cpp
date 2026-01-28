@@ -1,4 +1,4 @@
-// Render/Primitives/TriangleDemo.cpp
+// Render/Demo/TriangleDemo.cpp
 #include "TriangleDemo.h"
 #include "Render/Shader/ShaderManager.h"
 

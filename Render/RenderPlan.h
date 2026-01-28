@@ -6,6 +6,7 @@
 #include <functional>
 #include <vector>
 #include <d3d11.h>
+#include <DirectXMath.h>
 #include "DX11CommonState.h"
 
 namespace Salt2D::RHI::DX11 {
@@ -21,6 +22,11 @@ class CubeDemo;
 enum class Target { Scene, BackBuffer };
 enum class DepthMode { Off, RO, RW };
 enum class BlendMode { Off, Alpha };
+
+struct FrameBlackboard {
+    DirectX::XMMATRIX view;
+    DirectX::XMMATRIX proj;
+};
 
 struct PassContext {
     RHI::DX11::DX11Device& device;
@@ -40,6 +46,8 @@ struct PassContext {
     SpriteRenderer*  spriteRenderer = nullptr;
     ComposePipeline* compose        = nullptr;
     CubeDemo*        cubeDemo       = nullptr;
+
+    const FrameBlackboard* frame = nullptr;
 };
 
 struct RenderPass {

@@ -1,6 +1,6 @@
-// Rebder/Primitives/TriangleDemo.h
-#ifndef RENDER_PRIMITIVES_TRIANGLEDEMO_H
-#define RENDER_PRIMITIVES_TRIANGLEDEMO_H
+// Rebder/DEMO/TriangleDemo.h
+#ifndef RENDER_DEMO_TRIANGLEDEMO_H
+#define RENDER_DEMO_TRIANGLEDEMO_H
 
 #include <wrl/client.h>
 #include <d3d11.h>
@@ -26,4 +26,4 @@ private:
 
 } // namespace Salt2D::Render
 
-#endif // RENDER_PRIMITIVES_TRIANGLEDEMO_H
+#endif // RENDER_DEMO_TRIANGLEDEMO_H

@@ -13,11 +13,11 @@
 #include "Render/RenderPlan.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/Draw/DrawList.h"
-#include "Render/Sprite/SpriteRenderer.h"
+#include "Render/Renderers/SpriteRenderer.h"
 
-#include "Render/Pipeline/ComposePipeline.h"
+#include "Render/Pipelines/ComposePipeline.h"
 
-#include "Render/Primitives/CubeDemo.h"
+#include "Render/Demo/CubeDemo.h"
 
 namespace Salt2D::Render {
 
@@ -27,10 +27,14 @@ public:
 
     void Resize(uint32_t width, uint32_t height);
 
-    void ExecutePlan(const RenderPlan& plan);
+    void ExecutePlan(const RenderPlan& plan, const FrameBlackboard& frame);
     void Present(bool vsync);
 
     const RHI::DX11::DX11Device& Device() const { return device_; }
+    const uint32_t GetCanvasW() const { return canvasW_; }
+    const uint32_t GetCanvasH() const { return canvasH_; }
+    const uint32_t GetSceneW()  const { return sceneW_; }
+    const uint32_t GetSceneH()  const { return sceneH_; }
 
 private:
     void InitShaderSearchPaths();

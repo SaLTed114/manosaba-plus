@@ -1,4 +1,4 @@
-// Render/Pipeline/CompoesePipeline.cpp
+// Render/Pipeline/ComposePipeline.cpp
 #include "ComposePipeline.h"
 #include "Render/Shader/ShaderManager.h"
 #include "RHI/DX11/DX11Common.h"

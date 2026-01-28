@@ -1,6 +1,6 @@
-// Render/Pipeline/MeshPipeline.h
-#ifndef RENDER_PIPELINE_MESHPIPELINE_H
-#define RENDER_PIPELINE_MESHPIPELINE_H
+// Render/Pipelines/MeshPipeline.h
+#ifndef RENDER_PIPELINES_MESHPIPELINE_H
+#define RENDER_PIPELINES_MESHPIPELINE_H
 
 #include <wrl/client.h>
 #include <d3d11.h>
@@ -38,4 +38,4 @@ private:
 
 } // namespace Salt2D::Render
 
-#endif // RENDER_PIPELINE_MESHPIPELINE_H
+#endif // RENDER_PIPELINES_MESHPIPELINE_H

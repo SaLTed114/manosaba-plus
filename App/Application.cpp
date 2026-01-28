@@ -36,6 +36,10 @@ void Application::Tick(const Core::FrameTime& ft) {
     scene_->BuildDrawList(drawList_, canvasW_, canvasH_);
     drawList_.Sort();
 
+    uint32_t sceneW = renderer_->GetSceneW();
+    uint32_t sceneH = renderer_->GetSceneH();
+    scene_->FillFrameBlackboard(frame_, sceneW, sceneH);
+
     plan_.Clear();
     scene_->BuildPlan(plan_, drawList_);
 }
@@ -47,7 +51,7 @@ void Application::Run() {
         auto ft = clock_.Tick();
         Tick(ft);
 
-        renderer_->ExecutePlan(plan_);
+        renderer_->ExecutePlan(plan_, frame_);
         renderer_->Present(vsync_);
     }
 }

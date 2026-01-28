@@ -1,4 +1,4 @@
-// Render/Pipeline/SpritePipeline.cpp
+// Render/Pipelines/SpritePipeline.cpp
 #include "SpritePipeline.h"
 #include "Render/Shader/ShaderManager.h"
 #include "RHI/DX11/DX11Common.h"

@@ -1,13 +1,13 @@
-// Render/Sprite/SpriteRenderer.h
-#ifndef RENDER_SPRITE_SPRITERENDERER_H
-#define RENDER_SPRITE_SPRITERENDERER_H
+// Render/Renderers/SpriteRenderer.h
+#ifndef RENDER_RENDERERS_SPRITERENDERER_H
+#define RENDER_RENDERERS_SPRITERENDERER_H
 
 #include <cstdint>
 #include <span>
 #include <wrl/client.h>
 #include <d3d11.h>
 
-#include "Render/Pipeline/SpritePipeline.h"
+#include "Render/Pipelines/SpritePipeline.h"
 #include "Render/Draw/DrawList.h"
 
 namespace Salt2D::RHI::DX11 {
@@ -46,4 +46,4 @@ private:
 
 } // namespace Salt2D::Render
 
-#endif // RENDER_SPRITE_SPRITERENDERER_H
+#endif // RENDER_RENDERERS_SPRITERENDERER_H

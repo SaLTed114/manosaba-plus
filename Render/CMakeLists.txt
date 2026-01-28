@@ -2,35 +2,39 @@ set(RENDER_SOURCES
     DX11Renderer.cpp
     DX11CommonState.cpp
 
-    Primitives/TriangleDemo.cpp
-    Primitives/CubeDemo.cpp
+    Demo/TriangleDemo.cpp
+    Demo/CubeDemo.cpp
 
-    Pipeline/SpritePipeline.cpp
-    Pipeline/ComposePipeline.cpp
-    Pipeline/MeshPipeline.cpp
+    Pipelines/SpritePipeline.cpp
+    Pipelines/ComposePipeline.cpp
+    Pipelines/MeshPipeline.cpp
 
-    Sprite/SpriteRenderer.cpp
+    Renderers/SpriteRenderer.cpp
 
     Shader/ShaderManager.cpp
+
+    Scene3D/Camera3D.cpp
 )
 
 set(RENDER_HEADERS
     DX11Renderer.h
     DX11CommonState.h
 
-    Primitives/TriangleDemo.h
-    Primitives/CubeDemo.h
+    Demo/TriangleDemo.h
+    Demo/CubeDemo.h
 
-    Pipeline/SpritePipeline.h
-    Pipeline/ComposePipeline.h
-    Pipeline/MeshPipeline.h
+    Pipelines/SpritePipeline.h
+    Pipelines/ComposePipeline.h
+    Pipelines/MeshPipeline.h
 
-    Sprite/SpriteRenderer.h
+    Renderers/SpriteRenderer.h
 
     Draw/DrawItem.h
     Draw/DrawList.h
 
     Shader/ShaderManager.h
+
+    Scene3D/Camera3D.h
 )
 
 set(TRIANGLE_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/triangle.hlsl)
