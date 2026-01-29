@@ -5,9 +5,11 @@
 #include <cstdint>
 #include <functional>
 #include <vector>
+#include <memory>
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "DX11CommonState.h"
+#include "Passes/IRenderPass.h"
 
 namespace Salt2D::RHI::DX11 {
     class DX11Device;
@@ -50,24 +52,8 @@ struct PassContext {
     const FrameBlackboard* frame = nullptr;
 };
 
-struct RenderPass {
-    const char* name = "Unnamed";
-    Target      target = Target::Scene;
-
-    bool clearColor = false;
-    bool clearDepth = false;
-    float clearColorValue[4] = {0, 0, 0, 1};
-    float clearDepthValue = 1.0f;
-    uint8_t clearStencilValue = 0;
-
-    DepthMode depth = DepthMode::Off;
-    BlendMode blend = BlendMode::Off;
-
-    std::function<void(PassContext&)> exec;
-};
-
 struct RenderPlan {
-    std::vector<RenderPass> passes;
+    std::vector<std::unique_ptr<IRenderPass>> passes;
     void Clear() { passes.clear(); }
 };
 

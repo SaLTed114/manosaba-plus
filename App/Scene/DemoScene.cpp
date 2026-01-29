@@ -1,6 +1,9 @@
 // App/Scene/DemoScene.cpp
 #include "DemoScene.h"
 #include "Resources/Image/WICImageLoader.h"
+#include "Render/Passes/SceneSpritePass.h"
+#include "Render/Passes/ComposePass.h"
+#include "Render/Passes/CubePass.h"
 
 using namespace DirectX;
 
@@ -73,71 +76,27 @@ void DemoScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& draw
     auto overlay = drawList.Sprites(Layer::Stage, Layer::Text);
     auto hud     = drawList.Sprites(Layer::HUD);
 
-    {
-        RenderPass pass;
-        pass.name = "Scene_BG_2D";
-        pass.target = Target::Scene;
-        pass.clearColor = true;
-        pass.clearDepth = true;
-        pass.clearColorValue[0] = 0.2f; pass.clearColorValue[1] = 0.2f;
-        pass.clearColorValue[2] = 0.2f; pass.clearColorValue[3] = 1.0f;
-        pass.depth = DepthMode::Off;
-        pass.blend = BlendMode::Alpha;
-        pass.exec = [this, bg](PassContext& ctx) {
-            ctx.spriteRenderer->Draw(ctx.device, bg, ctx.canvasW, ctx.canvasH);
-        };
-        plan.passes.push_back(std::move(pass));
-    }
+    // Scene background
+    auto p0 = std::make_unique<SpritePass>("Scene_BG_2D", Target::Scene, DepthMode::Off, BlendMode::Alpha, bg);
+    p0->SetClearScene(0.2f, 0.2f, 0.2f, 1.0f);
+    plan.passes.push_back(std::move(p0));
 
-    {
-        RenderPass pass;
-        pass.name = "Scene_3D_Cube";
-        pass.target = Target::Scene;
-        pass.depth = DepthMode::RW;
-        pass.blend = BlendMode::Off;
-        pass.exec = [this](PassContext& ctx) {
-            using namespace DirectX;
-            XMMATRIX world = XMMatrixRotationY(angle_) * XMMatrixRotationX(angle_ * 0.5f);
-            ctx.cubeDemo->Draw(ctx.device, world * ctx.frame->view * ctx.frame->proj);
-        };
-        plan.passes.push_back(std::move(pass));
-    }
+    // 3D cube
+    XMMATRIX world = XMMatrixRotationY(angle_) * XMMatrixRotationX(angle_ * 0.5f);
+    auto p1 = std::make_unique<CubePass>("Scene_3D_Cube", world);
+    plan.passes.push_back(std::move(p1));
 
-    {
-        RenderPass pass;
-        pass.name = "Scene_Overlay_2D";
-        pass.target = Target::Scene;
-        pass.depth = DepthMode::Off;
-        pass.blend = BlendMode::Alpha;
-        pass.exec = [this, overlay](PassContext& ctx) {
-            ctx.spriteRenderer->Draw(ctx.device, overlay, ctx.canvasW, ctx.canvasH);
-        };
-        plan.passes.push_back(std::move(pass));
-    }
+    // Scene overlay sprites
+    auto p2 = std::make_unique<SpritePass>("Scene_Overlay_2D", Target::Scene, DepthMode::Off, BlendMode::Alpha, overlay);
+    plan.passes.push_back(std::move(p2));
 
-    {
-        RenderPass pass;
-        pass.name = "Compose";
-        pass.target = Target::BackBuffer;
-        pass.depth = DepthMode::Off;
-        pass.blend = BlendMode::Off;
-        pass.exec = [this](PassContext& ctx) {
-            ctx.compose->Draw(ctx.device, ctx.sceneSRV);
-        };
-        plan.passes.push_back(std::move(pass));
-    }
+    // Compose scene to backbuffer
+    auto p3 = std::make_unique<ComposePass>("Compose");
+    plan.passes.push_back(std::move(p3));
 
-    {
-        RenderPass pass;
-        pass.name = "HUD_2D";
-        pass.target = Target::BackBuffer;
-        pass.depth = DepthMode::Off;
-        pass.blend = BlendMode::Alpha;
-        pass.exec = [this, hud](PassContext& ctx) {
-            ctx.spriteRenderer->Draw(ctx.device, hud, ctx.canvasW, ctx.canvasH);
-        };
-        plan.passes.push_back(std::move(pass));
-    }
+    // HUD sprites
+    auto p4 = std::make_unique<SpritePass>("HUD_2D", Target::BackBuffer, DepthMode::Off, BlendMode::Alpha, hud);
+    plan.passes.push_back(std::move(p4));
 }
 
 } // namespace Salt2D::App

@@ -113,36 +113,7 @@ void DX11Renderer::ExecutePlan(const RenderPlan& plan, const FrameBlackboard& fr
     };
 
     for (const auto& pass : plan.passes) {
-        // Bind targets
-        if (pass.target == Target::Scene) {
-            ID3D11RenderTargetView* rtvs[] = { passCtx.sceneRTV };
-            ctx->OMSetRenderTargets(1, rtvs, passCtx.sceneDSV);
-            auto vp = MakeViewport(passCtx.sceneW, passCtx.sceneH);
-            ctx->RSSetViewports(1, &vp);
-        } else /*if (pass.target == Target::BackBuffer)*/ {
-            ID3D11RenderTargetView* rtvs[] = { passCtx.backRTV };
-            ctx->OMSetRenderTargets(1, rtvs, nullptr);
-            auto vp = MakeViewport(passCtx.canvasW, passCtx.canvasH);
-            ctx->RSSetViewports(1, &vp);
-        }
-
-        // Clear targets
-        if (pass.clearColor) {
-            auto rtv = (pass.target == Target::Scene) ? passCtx.sceneRTV : passCtx.backRTV;
-            ctx->ClearRenderTargetView(rtv, pass.clearColorValue);
-        }
-        if (pass.clearDepth && passCtx.sceneDSV && pass.target == Target::Scene) {
-            ctx->ClearDepthStencilView(passCtx.sceneDSV,
-                D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
-                pass.clearDepthValue, pass.clearStencilValue);
-        }
-
-        passCtx.cache.SetDepthStencilState(ctx,
-            DepthStencilState(&passCtx.states, pass.depth));
-        passCtx.cache.SetBlendState(ctx,
-            BlendState(&passCtx.states, pass.blend));
-
-        if (pass.exec) pass.exec(passCtx);
+        pass->Record(passCtx);
     }
 }
 

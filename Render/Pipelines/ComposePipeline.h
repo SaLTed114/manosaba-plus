@@ -17,7 +17,7 @@ class ComposePipeline {
 public:
     void Initialize(const RHI::DX11::DX11Device& device, ShaderManager& shaderManager);
 
-    void Draw(const RHI::DX11::DX11Device& device, ID3D11ShaderResourceView* sceneSRV);
+    void Bind(ID3D11DeviceContext* context);
 
 private:
     Microsoft::WRL::ComPtr<ID3D11VertexShader> vs_;

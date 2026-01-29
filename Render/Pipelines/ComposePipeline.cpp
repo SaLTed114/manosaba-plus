@@ -44,9 +44,7 @@ void ComposePipeline::Initialize(const RHI::DX11::DX11Device& device, ShaderMana
         "ComposePipeline::Initialize: CreateRasterizerState failed.");
 }
 
-void ComposePipeline::Draw(const RHI::DX11::DX11Device& device, ID3D11ShaderResourceView* sceneSRV) {
-    auto context = device.GetContext();
-
+void ComposePipeline::Bind(ID3D11DeviceContext* context) {
     context->IASetInputLayout(nullptr);
     context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
     context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -58,15 +56,6 @@ void ComposePipeline::Draw(const RHI::DX11::DX11Device& device, ID3D11ShaderReso
 
     ID3D11SamplerState* samplers[] = { samp_.Get() };
     context->PSSetSamplers(0, 1, samplers);
-
-    ID3D11ShaderResourceView* srvs[] = { sceneSRV };
-    context->PSSetShaderResources(0, 1, srvs);
-
-    context->Draw(3, 0);
-
-    // Unbind resources
-    ID3D11ShaderResourceView* nullSRVs[] = { nullptr };
-    context->PSSetShaderResources(0, 1, nullSRVs);
 }
 
 } // namespace Salt2D::Render

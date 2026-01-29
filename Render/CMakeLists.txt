@@ -14,6 +14,10 @@ set(RENDER_SOURCES
     Shader/ShaderManager.cpp
 
     Scene3D/Camera3D.cpp
+
+    Passes/SceneSpritePass.cpp
+    Passes/ComposePass.cpp
+    Passes/CubePass.cpp
 )
 
 set(RENDER_HEADERS
@@ -35,6 +39,12 @@ set(RENDER_HEADERS
     Shader/ShaderManager.h
 
     Scene3D/Camera3D.h
+
+    Passes/IRenderPass.h
+    Passes/RenderPassBase.h
+    Passes/SceneSpritePass.h
+    Passes/ComposePass.h
+    Passes/CubePass.h
 )
 
 set(TRIANGLE_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/triangle.hlsl)
