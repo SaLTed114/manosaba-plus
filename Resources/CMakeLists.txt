@@ -1,9 +1,12 @@
 set(RESOURCES_SOURCES
     Image/WICImageLoader.cpp
+    Mesh/MeshLoader.cpp
 )
 
 set(RESOURCES_HEADERS
     Image/WICImageLoader.h
+    Mesh/MeshData.h
+    Mesh/MeshLoader.h
 )
 
 add_library(Resources STATIC
@@ -17,6 +20,7 @@ target_include_directories(Resources PUBLIC
 
 target_link_libraries(Resources PUBLIC
     windowscodecs
+    Utils
 )
 
 if(MSVC)
