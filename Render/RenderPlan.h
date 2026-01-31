@@ -20,7 +20,6 @@ namespace Salt2D::RHI::DX11 {
 namespace Salt2D::Render {
 
 class ComposePipeline;
-class CubeDemo;
 
 enum class Target { Scene, BackBuffer };
 enum class DepthMode { Off, RO, RW };
@@ -29,6 +28,7 @@ enum class BlendMode { Off, Alpha };
 struct FrameBlackboard {
     DirectX::XMMATRIX view;
     DirectX::XMMATRIX proj;
+    DirectX::XMMATRIX viewProj;
 };
 
 struct PassContext {
@@ -45,8 +45,6 @@ struct PassContext {
 
     DX11CommonState& states;
     DX11StateCache&  cache;
-
-    CubeDemo*        cubeDemo       = nullptr;
 
     PipelineLibrary* pipelines = nullptr;
     DrawServices*    draw      = nullptr;

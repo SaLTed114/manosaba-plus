@@ -8,7 +8,7 @@
 #include <array>
 #include <span>
 
-#include "DrawItem.h"
+#include "SpriteDrawItem.h"
 
 namespace Salt2D::Render {
 

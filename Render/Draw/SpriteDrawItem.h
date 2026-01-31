@@ -1,6 +1,6 @@
-// Render/Draw/DrawItem.h
-#ifndef RENDER_DRAW_DRAWITEM_H
-#define RENDER_DRAW_DRAWITEM_H
+// Render/Draw/SpriteDrawItem.h
+#ifndef RENDER_DRAW_SPRITEDRAWITEM_H
+#define RENDER_DRAW_SPRITEDRAWITEM_H
 
 #include <cstdint>
 
@@ -55,4 +55,4 @@ constexpr static inline uint8_t ToLayerIndex(Layer layer) {
 
 } // namespace Salt2D::Render
 
-#endif // RENDER_DRAW_DRAWITEM_H
+#endif // RENDER_DRAW_SPRITEDRAWITEM_H

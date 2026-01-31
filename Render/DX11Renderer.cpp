@@ -22,8 +22,6 @@ DX11Renderer::DX11Renderer(HWND hwnd, uint32_t width, uint32_t height)
 
     states_.Initialize(device_.GetDevice());
     stateCache_.Reset();
-
-    cubeDemo_.Initialize(device_);
 }
 
 DX11Renderer::~DX11Renderer() = default;
@@ -99,8 +97,6 @@ void DX11Renderer::ExecutePlan(const RenderPlan& plan, const FrameBlackboard& fr
         .states = states_,
         .cache  = stateCache_,
 
-        .cubeDemo       = &cubeDemo_,
-        
         .pipelines = &pipelines_,
         .draw      = &draw_,
 

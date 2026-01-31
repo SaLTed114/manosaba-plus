@@ -80,7 +80,7 @@ void SpriteBatcher::DrawBatch(PassContext& ctx, std::span<const SpriteDrawItem> 
 
     ctx.ctx->Unmap(vb_.Get(), 0);
 
-    auto pipeline = ctx.pipelines->Sprite();
+    auto& pipeline = ctx.pipelines->Sprite();
     pipeline.Bind(ctx.ctx);
     pipeline.SetFrameConstants(ctx.ctx, ctx.canvasW, ctx.canvasH);
 

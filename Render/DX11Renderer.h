@@ -14,8 +14,6 @@
 #include "Render/Shader/ShaderManager.h"
 #include "Render/Draw/DrawList.h"
 
-#include "Render/Demo/CubeDemo.h"
-
 #include "Render/Pipelines/PipelineLibrary.h"
 #include "Render/Drawers/DrawServices.h"
 
@@ -61,8 +59,6 @@ private:
 
     PipelineLibrary pipelines_;
     DrawServices draw_;
-
-    CubeDemo cubeDemo_;
 };
 
 } // namespace Salt2D::Render

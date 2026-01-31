@@ -2,9 +2,6 @@ set(RENDER_SOURCES
     DX11Renderer.cpp
     DX11CommonState.cpp
 
-    Demo/TriangleDemo.cpp
-    Demo/CubeDemo.cpp
-
     Pipelines/SpritePipeline.cpp
     Pipelines/ComposePipeline.cpp
     Pipelines/MeshPipeline.cpp
@@ -13,10 +10,11 @@ set(RENDER_SOURCES
     Shader/ShaderManager.cpp
 
     Scene3D/Camera3D.cpp
+    Scene3D/MeshFactory.cpp
 
     Passes/SceneSpritePass.cpp
     Passes/ComposePass.cpp
-    Passes/CubePass.cpp
+    Passes/MeshPass.cpp
 
     Drawers/DrawServices.cpp
     Drawers/SpriteBatcher.cpp
@@ -27,26 +25,24 @@ set(RENDER_HEADERS
     DX11Renderer.h
     DX11CommonState.h
 
-    Demo/TriangleDemo.h
-    Demo/CubeDemo.h
-
     Pipelines/SpritePipeline.h
     Pipelines/ComposePipeline.h
     Pipelines/MeshPipeline.h
     Pipelines/PipelineLibrary.h
 
-    Draw/DrawItem.h
+    Draw/SpriteDrawItem.h
     Draw/DrawList.h
 
     Shader/ShaderManager.h
 
     Scene3D/Camera3D.h
+    Scene3D/MeshFactory.h
 
     Passes/IRenderPass.h
     Passes/RenderPassBase.h
     Passes/SceneSpritePass.h
     Passes/ComposePass.h
-    Passes/CubePass.h
+    Passes/MeshPass.h
     
     Drawers/DrawServices.h
     Drawers/SpriteBatcher.h

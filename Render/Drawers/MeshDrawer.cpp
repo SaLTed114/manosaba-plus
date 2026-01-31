@@ -4,33 +4,48 @@
 #include "Render/RenderPlan.h"
 #include "RHI/DX11/DX11Device.h"
 
+#include <stdexcept>
+
 namespace Salt2D::Render {
 
-void MeshDrawer::Initialize(const RHI::DX11::DX11Device& device) {
-    (void)device; // placeholder for future use
+void MeshDrawer::Initialize(const RHI::DX11::DX11Device& /*device*/) {
+    // placeholder for future use
 }
 
-void MeshDrawer::DrawMesh(
-    PassContext& ctx,
-    ID3D11Buffer* vertexBuffer,
-    ID3D11Buffer* indexBuffer,
-    uint32_t indexCount,
-    const DirectX::XMMATRIX& worldViewProj
-) {
+void MeshDrawer::DrawBatch(PassContext& ctx, std::span<const MeshDrawItem> meshes) {
+    if (meshes.empty()) return;
+
     auto& pipeline = ctx.pipelines->Mesh();
-    auto context = ctx.ctx;
+    pipeline.Bind(ctx.ctx);
 
-    pipeline.Bind(context);
-    pipeline.SetConstants(context, worldViewProj);
+    for (const auto& item : meshes) {
+        Draw(ctx, item);
+    }
+}
 
-    UINT stride = sizeof(MeshPipeline::VertexCPU);
+void MeshDrawer::DrawItem(PassContext& ctx, const MeshDrawItem& item) {
+    auto& pipeline = ctx.pipelines->Mesh();
+    pipeline.Bind(ctx.ctx);
+    Draw(ctx, item);
+}
+
+void MeshDrawer::Draw(PassContext& ctx, const MeshDrawItem& item) {
+    if (!item.mesh || !item.mesh->vb || !item.mesh->ib) return;
+
+    auto wvp = item.world * ctx.frame->viewProj;
+
+    auto& pipeline = ctx.pipelines->Mesh();
+
+    pipeline.SetConstants(ctx.ctx, wvp);
+
+    UINT stride = item.mesh->stride;
     UINT offset = 0;
-    ID3D11Buffer* vbArray[] = { vertexBuffer };
-    context->IASetVertexBuffers(0, 1, vbArray, &stride, &offset);
-    context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R16_UINT, 0);
-    context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    ID3D11Buffer* vbArray[] = { item.mesh->vb.Get() };
+    ctx.ctx->IASetVertexBuffers(0, 1, vbArray, &stride, &offset);
+    ctx.ctx->IASetIndexBuffer(item.mesh->ib.Get(), item.mesh->indexFormat, 0);
+    ctx.ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    context->DrawIndexed(indexCount, 0, 0);
+    ctx.ctx->DrawIndexed(item.mesh->indexCount, 0, 0);
 }
 
 } // namespace Salt2D::Render

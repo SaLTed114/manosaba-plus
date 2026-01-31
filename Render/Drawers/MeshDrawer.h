@@ -6,25 +6,25 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 
+#include "Render/Draw/MeshDrawItem.h"
+#include "Render/RenderPlan.h"
+#include <span>
+
 namespace Salt2D::RHI::DX11 {
     class DX11Device;
 } // namespace Salt2D::RHI::DX11
 
 namespace Salt2D::Render {
 
-struct PassContext;
-
 class MeshDrawer {
 public:
     void Initialize(const RHI::DX11::DX11Device& device);
 
-    void DrawMesh(
-        PassContext& ctx,
-        ID3D11Buffer* vertexBuffer,
-        ID3D11Buffer* indexBuffer,
-        uint32_t indexCount,
-        const DirectX::XMMATRIX& worldViewProj
-    );
+    void DrawBatch(PassContext& ctx, std::span<const MeshDrawItem> meshes);
+    void DrawItem(PassContext& ctx, const MeshDrawItem& item);
+
+private:
+    void Draw(PassContext& ctx, const MeshDrawItem& item);
 };
 
 } // namespace Salt2D::Render
