@@ -6,8 +6,10 @@
 
 #include "Render/DX11Renderer.h"
 #include "Render/Draw/DrawList.h"
+#include "Render/Draw/MeshDrawItem.h"
 #include "Render/RenderPlan.h"
 #include "Render/Scene3D/Camera3D.h"
+#include "Render/Scene3D/Mesh.h"
 #include "RHI/DX11/DX11Texture2D.h"
 #include "Core/Time/FrameClock.h"
 
@@ -27,6 +29,9 @@ private:
     RHI::DX11::DX11Texture2D img_;
 
     Render::Scene3D::Camera3D camera_;
+    Render::Scene3D::Mesh redCube_;
+    Render::Scene3D::Mesh greenCube_;
+    std::vector<Render::MeshDrawItem> meshItems_;
     float angle_ = 0.0f;
 };
 

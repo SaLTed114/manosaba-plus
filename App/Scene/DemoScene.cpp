@@ -1,9 +1,13 @@
 // App/Scene/DemoScene.cpp
 #include "DemoScene.h"
 #include "Resources/Image/WICImageLoader.h"
+#include "Resources/Mesh/MeshLoader.h"
+#include "Render/Scene3D/MeshFactory.h"
 #include "Render/Passes/SceneSpritePass.h"
 #include "Render/Passes/ComposePass.h"
-#include "Render/Passes/CubePass.h"
+#include "Render/Passes/MeshPass.h"
+#include "Render/Draw/MeshDrawItem.h"
+#include "Render/Pipelines/MeshPipeline.h"
 
 using namespace DirectX;
 
@@ -37,23 +41,46 @@ void DemoScene::Initialize(Render::DX11Renderer& renderer) {
     checker_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, 256, 256, rgba.data(), 256 * 4);
 
     Resources::ImageRGBA8 img;
-    std::filesystem::path imgPath = "Assets/Textures/667.png";
+    std::filesystem::path imgPath = "Assets/Image/667.png";
     if (!Resources::LoadImageRGBA8_WIC(imgPath.string(), img)) {
         throw std::runtime_error("Failed to load image in DemoScene: " + imgPath.string());
     }
     img_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, img.width, img.height, img.pixels.data(), img.rowPitch);
+
+    // Load cube mesh from OBJ file
+    Resources::MeshLoadOptions options;
+    options.triangulate = true;
+    
+    auto meshData = Resources::MeshLoader::LoadOBJ("Assets/Mesh/cube.obj", options);
+    if (!meshData) throw std::runtime_error("Failed to load cube.obj");
+    
+    // Create red cube (front)
+    auto redMeshData = *meshData;
+    for (auto& v : redMeshData.vertices) {
+        v.color = DirectX::XMFLOAT3(1.0f, 0.2f, 0.2f);  // Red
+    }
+    redCube_ = Render::Scene3D::MeshFactory::CreateMesh(device, redMeshData);
+    
+    // Create green cube (back)
+    auto greenMeshData = *meshData;
+    for (auto& v : greenMeshData.vertices) {
+        v.color = DirectX::XMFLOAT3(0.2f, 1.0f, 0.2f);  // Green
+    }
+    greenCube_ = Render::Scene3D::MeshFactory::CreateMesh(device, greenMeshData);
 }
 
 void DemoScene::Update(const Core::FrameTime& ft, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {
-    float t = static_cast<float>(ft.totalSec);
+    // (void)ft;
+    // float t = static_cast<float>(ft.totalSec);
     angle_ += static_cast<float>(ft.dtSec) * 1.0f;
-    float deg2rad = DirectX::XM_PI / 180.0f;
-    camera_.SetYawPitchRoll(sinf(t) * 30.0f * deg2rad, sinf(t*2) * 20.0f * deg2rad, 0.0f);
+    // float deg2rad = DirectX::XM_PI / 180.0f;
+    // camera_.SetYawPitchRoll(sinf(t) * 30.0f * deg2rad, sinf(t*2) * 20.0f * deg2rad, 0.0f);
 }
 
 void DemoScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sceneW, uint32_t sceneH) {
     frame.view = camera_.GetView();
     frame.proj = camera_.GetProj(sceneW, sceneH);
+    frame.viewProj = frame.view * frame.proj;
 }
 
 void DemoScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
@@ -81,9 +108,20 @@ void DemoScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& draw
     p0->SetClearScene(0.2f, 0.2f, 0.2f, 1.0f);
     plan.passes.push_back(std::move(p0));
 
-    // 3D cube
-    XMMATRIX world = XMMatrixRotationY(angle_) * XMMatrixRotationX(angle_ * 0.5f);
-    auto p1 = std::make_unique<CubePass>("Scene_3D_Cube", world);
+    // 3D cubes - depth testing with partial occlusion
+    meshItems_.clear();
+    
+    // Red cube (front) - slightly offset to the right
+    XMMATRIX worldRed = XMMatrixRotationY(angle_) * XMMatrixRotationX(angle_ * 0.5f) * 
+                        XMMatrixTranslation(0.5f, 0.0f, 0.0f);
+    meshItems_.push_back({&redCube_, worldRed});
+    
+    // Green cube (back) - slightly offset to the left and farther
+    XMMATRIX worldGreen = XMMatrixRotationY(angle_ * 0.7f) * XMMatrixRotationX(angle_ * 0.3f) * 
+                          XMMatrixTranslation(-0.5f, 0.0f, 1.5f);
+    meshItems_.push_back({&greenCube_, worldGreen});
+    
+    auto p1 = std::make_unique<Render::MeshPass>("Scene_3D_Cubes", Target::Scene, DepthMode::RW, BlendMode::Off, meshItems_);
     plan.passes.push_back(std::move(p1));
 
     // Scene overlay sprites
