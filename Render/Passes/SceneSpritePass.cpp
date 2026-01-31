@@ -1,6 +1,6 @@
 // Render/Passes/SceneSpritePass.cpp
 #include "SceneSpritePass.h"
-#include "Render/Renderers/SpriteRenderer.h"
+#include "Render/Drawers/SpriteBatcher.h"
 
 namespace Salt2D::Render {
 
@@ -17,7 +17,7 @@ void SpritePass::SetClearScene(float r, float g, float b, float a) {
 }
 
 void SpritePass::Execute(PassContext& ctx) {
-    ctx.spriteRenderer->Draw(ctx.device, sprites_, ctx.canvasW, ctx.canvasH);
+    ctx.draw->Sprite().DrawBatch(ctx, sprites_);
 }
 
 } // namespace Salt2D::Render

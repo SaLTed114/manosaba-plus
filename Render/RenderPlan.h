@@ -9,7 +9,9 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "DX11CommonState.h"
-#include "Passes/IRenderPass.h"
+#include "Render/Passes/IRenderPass.h"
+#include "Render/Pipelines/PipelineLibrary.h"
+#include "Render/Drawers/DrawServices.h"
 
 namespace Salt2D::RHI::DX11 {
     class DX11Device;
@@ -17,7 +19,6 @@ namespace Salt2D::RHI::DX11 {
 
 namespace Salt2D::Render {
 
-class SpriteRenderer;
 class ComposePipeline;
 class CubeDemo;
 
@@ -45,9 +46,10 @@ struct PassContext {
     DX11CommonState& states;
     DX11StateCache&  cache;
 
-    SpriteRenderer*  spriteRenderer = nullptr;
-    ComposePipeline* compose        = nullptr;
     CubeDemo*        cubeDemo       = nullptr;
+
+    PipelineLibrary* pipelines = nullptr;
+    DrawServices*    draw      = nullptr;
 
     const FrameBlackboard* frame = nullptr;
 };

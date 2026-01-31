@@ -11,7 +11,7 @@ CubePass::CubePass(const char* name, DirectX::XMMATRIX transform)
 void CubePass::Execute(PassContext& ctx) {
     using namespace DirectX;
     XMMATRIX mvp = transform_ * ctx.frame->view * ctx.frame->proj;
-    ctx.cubeDemo->Draw(ctx.device, mvp);
+    ctx.cubeDemo->Draw(ctx, mvp);
 }
 
 } // namespace Salt2D::Render

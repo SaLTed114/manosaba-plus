@@ -8,14 +8,24 @@
 manosaba-plus/
 ├── App/
 │   ├── CMakeLists.txt
-│   └── main.cpp                              # 应用程序入口点
+│   ├── Application.h                          # 应用框架接口
+│   ├── Application.cpp                        # 应用初始化与主循环
+│   ├── main.cpp                               # 应用程序入口点
+│   └── Scene/
+│       ├── DemoScene.h                        # 演示场景接口
+│       └── DemoScene.cpp                      # 演示场景实现
 │
 ├── Assets/                                    # 游戏资源目录
+│   ├── Mesh/                                  # 3D 网格文件
+│   └── Textures/                              # 纹理图像文件
 │
 ├── Build/                                     # CMake 构建输出（自动生成）
 │
 ├── Core/
 │   ├── CMakeLists.txt
+│   ├── Time/
+│   │   ├── FrameClock.h                       # 帧计时接口
+│   │   └── FrameClock.cpp                     # 增量时间与 FPS 计算
 │   └── Window/
 │       ├── Win32Window.h                      # Win32 窗口封装接口
 │       └── Win32Window.cpp                    # 窗口创建与消息处理
@@ -34,37 +44,62 @@ manosaba-plus/
 │       ├── DX11SwapChain.h                    # 交换链封装接口
 │       ├── DX11SwapChain.cpp                  # 交换链创建与呈现逻辑
 │       ├── DX11Texture2D.h                    # 2D 纹理封装接口
-│       └── DX11Texture2D.cpp                  # 纹理创建与资源视图
+│       ├── DX11Texture2D.cpp                  # 纹理创建与资源视图
+│       ├── DX11DepthBuffer.h                  # 深度缓冲封装接口
+│       └── DX11DepthBuffer.cpp                # 深度模板缓冲管理
 │
 ├── Render/
 │   ├── CMakeLists.txt
 │   ├── DX11Renderer.h                         # 主渲染器接口
 │   ├── DX11Renderer.cpp                       # 帧管理与渲染协调
+│   ├── DX11CommonState.h                      # 通用渲染状态接口
+│   ├── DX11CommonState.cpp                    # 混合/光栅化/采样器状态创建
+│   ├── DX11RenderUtils.h                      # 渲染工具函数
+│   ├── RenderPlan.h                           # 渲染计划与通道调度
+│   │
+│   ├── Demo/
+│   │   ├── TriangleDemo.h                     # 三角形测试渲染器接口
+│   │   ├── TriangleDemo.cpp                   # 基础三角形渲染
+│   │   ├── CubeDemo.h                         # 立方体演示渲染器接口
+│   │   └── CubeDemo.cpp                       # 3D 立方体渲染演示
 │   │
 │   ├── Draw/
 │   │   ├── DrawItem.h                         # 绘制项结构与层级定义
 │   │   └── DrawList.h                         # 绘制队列与排序逻辑
 │   │
-│   ├── Pipeline/
-│   │   ├── SpritePipeline.h                   # 精灵渲染管线接口
-│   │   ├── SpritePipeline.cpp                 # 管线状态与着色器绑定
+│   ├── Passes/
+│   │   ├── IRenderPass.h                      # 渲染通道接口
+│   │   ├── RenderPassBase.h                   # 渲染通道基类实现
+│   │   ├── ComposePass.h                      # 合成通道接口
+│   │   ├── ComposePass.cpp                    # 全屏合成通道
+│   │   ├── SceneSpritePass.h                  # 场景精灵渲染通道接口
+│   │   ├── SceneSpritePass.cpp                # 2D 精灵场景渲染
+│   │   ├── CubePass.h                         # 立方体渲染通道接口
+│   │   └── CubePass.cpp                       # 3D 立方体渲染通道
+│   │
+│   ├── Pipelines/
+│   │   ├── SpritePipeline.h                   # 精灵管线接口
+│   │   ├── SpritePipeline.cpp                 # 2D 精灵管线状态与着色器绑定
 │   │   ├── ComposePipeline.h                  # 场景合成管线接口
-│   │   └── ComposePipeline.cpp                # 全屏合成通道
+│   │   ├── ComposePipeline.cpp                # 合成管线配置
+│   │   ├── MeshPipeline.h                     # 3D 网格管线接口
+│   │   └── MeshPipeline.cpp                   # 3D 网格渲染管线
 │   │
-│   ├── Primitives/
-│   │   ├── TriangleDemo.h                     # 三角形测试渲染器接口
-│   │   └── TriangleDemo.cpp                   # 基础三角形渲染
+│   ├── Renderers/
+│   │   ├── SpriteRenderer.h                   # 精灵批量渲染器接口
+│   │   └── SpriteRenderer.cpp                 # 顶点缓冲区管理与精灵批处理
 │   │
-│   ├── Shader/
-│   │   ├── ShaderManager.h                    # 着色器加载接口
-│   │   └── ShaderManager.cpp                  # 着色器缓存与磁盘加载
+│   ├── Scene3D/
+│   │   ├── Camera3D.h                         # 3D 相机接口
+│   │   └── Camera3D.cpp                       # 相机视图与投影矩阵
 │   │
-│   └── Sprite/
-│       ├── SpriteRenderer.h                   # 精灵批量渲染器接口
-│       └── SpriteRenderer.cpp                 # 顶点缓冲区管理与精灵批处理
+│   └── Shader/
+│       ├── ShaderManager.h                    # 着色器加载接口
+│       └── ShaderManager.cpp                  # 着色器缓存与磁盘加载
 │
 ├── Resources/
 │   ├── CMakeLists.txt
+│   ├── Audio/                                 # 音频资源文件
 │   └── Image/
 │       ├── WICImageLoader.h                   # WIC 图像加载器接口
 │       └── WICImageLoader.cpp                 # 通过 Windows Imaging Component 加载图像
@@ -72,7 +107,8 @@ manosaba-plus/
 ├── Shaders/
 │   ├── compose.hlsl                           # 合成着色器（VS + PS）
 │   ├── sprite.hlsl                            # 精灵着色器（VS + PS）
-│   └── triangle.hlsl                          # 调试三角形着色器（VS + PS）
+│   ├── triangle.hlsl                          # 调试三角形着色器（VS + PS）
+│   └── mesh.hlsl                              # 3D 网格着色器（VS + PS）
 │
 ├── Utils/
 │   ├── CMakeLists.txt
@@ -92,12 +128,22 @@ manosaba-plus/
 
 ### App/ - 应用层
 
-**程序入口**
-- `main.cpp` - Windows 应用程序入口点，初始化窗口和渲染器，主循环
+**应用框架**
+- `Application.h` - 应用框架接口
+- `Application.cpp` - 应用初始化、更新循环与场景管理
+- `main.cpp` - Windows 应用程序入口点，创建应用实例
+
+**场景系统**
+- `Scene/DemoScene.h` - 演示场景接口
+- `Scene/DemoScene.cpp` - 演示场景实现，包含精灵和 3D 渲染示例
 
 ---
 
 ### Core/ - 核心系统
+
+**时间管理**
+- `Time/FrameClock.h` - 帧计时接口
+- `Time/FrameClock.cpp` - 增量时间计算、FPS 跟踪、帧计时工具
 
 **窗口管理**
 - `Window/Win32Window.h` - Win32 窗口封装接口
@@ -121,6 +167,10 @@ manosaba-plus/
 - `DX11Texture2D.h` - 2D 纹理封装接口
 - `DX11Texture2D.cpp` - RGBA8 纹理创建、渲染目标创建、SRV/RTV 生成
 
+**深度缓冲**
+- `DX11DepthBuffer.h` - 深度缓冲封装接口
+- `DX11DepthBuffer.cpp` - 3D 渲染的深度模板缓冲创建与管理
+
 **通用工具**
 - `DX11Common.h` - 辅助宏（ThrowIfFailed）、通用头文件包含
 
@@ -139,28 +189,50 @@ manosaba-plus/
 **渲染器核心**
 - `DX11Renderer.h` - 主渲染器接口
 - `DX11Renderer.cpp` - 离屏渲染、帧管理、视口设置、多通道渲染协调
+- `DX11CommonState.h` - 通用渲染状态接口
+- `DX11CommonState.cpp` - 可复用的混合、光栅化、深度模板与采样器状态创建
+- `DX11RenderUtils.h` - 渲染工具函数与辅助功能
+- `RenderPlan.h` - 渲染计划结构、通道调度与执行逻辑
 
 **绘制系统**
 - `Draw/DrawItem.h` - 绘制项定义（SpriteDrawItem、Layer 枚举、几何结构体）
 - `Draw/DrawList.h` - 带有层级排序和 z 排序的绘制队列
 
+**渲染通道**
+- `Passes/IRenderPass.h` - 渲染通道接口定义
+- `Passes/RenderPassBase.h` - 带有通用功能的渲染通道基类
+- `Passes/ComposePass.h` - 合成通道接口
+- `Passes/ComposePass.cpp` - 从离屏 RT 到后备缓冲区的全屏合成
+- `Passes/SceneSpritePass.h` - 场景精灵渲染通道接口
+- `Passes/SceneSpritePass.cpp` - 2D 精灵渲染到场景渲染目标
+- `Passes/CubePass.h` - 立方体渲染通道接口
+- `Passes/CubePass.cpp` - 带深度测试的 3D 立方体渲染
+
 **精灵渲染**
-- `Sprite/SpriteRenderer.h` - 精灵批量渲染器接口
-- `Sprite/SpriteRenderer.cpp` - 动态顶点缓冲区管理、精灵批处理、绘制调用提交
+- `Renderers/SpriteRenderer.h` - 精灵批量渲染器接口
+- `Renderers/SpriteRenderer.cpp` - 动态顶点缓冲区管理、精灵批处理、绘制调用提交
 
 **管线配置**
-- `Pipeline/SpritePipeline.h` - 精灵渲染管线接口
-- `Pipeline/SpritePipeline.cpp` - 着色器绑定、渲染状态设置（混合、光栅化、采样器）、常量缓冲区管理
-- `Pipeline/ComposePipeline.h` - 场景合成管线接口
-- `Pipeline/ComposePipeline.cpp` - 从离屏 RT 到后备缓冲区的全屏合成
+- `Pipelines/SpritePipeline.h` - 精灵渲染管线接口
+- `Pipelines/SpritePipeline.cpp` - 2D 精灵着色器绑定与渲染状态设置
+- `Pipelines/ComposePipeline.h` - 场景合成管线接口
+- `Pipelines/ComposePipeline.cpp` - 合成管线配置
+- `Pipelines/MeshPipeline.h` - 3D 网格管线接口
+- `Pipelines/MeshPipeline.cpp` - 支持深度与光照的 3D 网格渲染管线
+
+**3D 场景系统**
+- `Scene3D/Camera3D.h` - 3D 相机接口
+- `Scene3D/Camera3D.cpp` - 相机视图与投影矩阵管理
 
 **着色器管理**
 - `Shader/ShaderManager.h` - 着色器加载与缓存接口
 - `Shader/ShaderManager.cpp` - 从磁盘加载编译后的着色器、着色器缓存管理
 
-**基元（调试/测试）**
-- `Primitives/TriangleDemo.h` - 简单三角形渲染测试
-- `Primitives/TriangleDemo.cpp` - 用于测试管线的基础三角形绘制
+**演示渲染器（测试）**
+- `Demo/TriangleDemo.h` - 简单三角形渲染测试
+- `Demo/TriangleDemo.cpp` - 用于测试管线的基础三角形绘制
+- `Demo/CubeDemo.h` - 3D 立方体演示接口
+- `Demo/CubeDemo.cpp` - 旋转 3D 立方体渲染演示
 
 ---
 
@@ -171,6 +243,9 @@ manosaba-plus/
 
 **精灵着色器**
 - `sprite.hlsl` - 精灵渲染（VS + PS 入口点）：像素坐标转 NDC、纹理采样
+
+**3D 网格着色器**
+- `mesh.hlsl` - 3D 网格渲染（VS + PS 入口点）：顶点变换、光照、纹理映射
 
 **调试着色器**
 - `triangle.hlsl` - 调试三角形渲染（VS + PS 入口点）

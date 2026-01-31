@@ -8,8 +8,7 @@ set(RENDER_SOURCES
     Pipelines/SpritePipeline.cpp
     Pipelines/ComposePipeline.cpp
     Pipelines/MeshPipeline.cpp
-
-    Renderers/SpriteRenderer.cpp
+    Pipelines/PipelineLibrary.cpp
 
     Shader/ShaderManager.cpp
 
@@ -18,6 +17,10 @@ set(RENDER_SOURCES
     Passes/SceneSpritePass.cpp
     Passes/ComposePass.cpp
     Passes/CubePass.cpp
+
+    Drawers/DrawServices.cpp
+    Drawers/SpriteBatcher.cpp
+    Drawers/MeshDrawer.cpp
 )
 
 set(RENDER_HEADERS
@@ -30,8 +33,7 @@ set(RENDER_HEADERS
     Pipelines/SpritePipeline.h
     Pipelines/ComposePipeline.h
     Pipelines/MeshPipeline.h
-
-    Renderers/SpriteRenderer.h
+    Pipelines/PipelineLibrary.h
 
     Draw/DrawItem.h
     Draw/DrawList.h
@@ -45,6 +47,10 @@ set(RENDER_HEADERS
     Passes/SceneSpritePass.h
     Passes/ComposePass.h
     Passes/CubePass.h
+    
+    Drawers/DrawServices.h
+    Drawers/SpriteBatcher.h
+    Drawers/MeshDrawer.h
 )
 
 set(TRIANGLE_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/triangle.hlsl)

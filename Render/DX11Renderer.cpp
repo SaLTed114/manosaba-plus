@@ -1,7 +1,7 @@
 // Render/DX11Renderer.cpp
 #include "DX11Renderer.h"
-#include "Utils/FileUtils.h"
 
+#include "Utils/FileUtils.h"
 #include "DX11RenderUtils.h"
 
 namespace Salt2D::Render {
@@ -16,11 +16,17 @@ DX11Renderer::DX11Renderer(HWND hwnd, uint32_t width, uint32_t height)
 
     InitShaderSearchPaths();
     InitSceneTargets(internalScale_);
-    InitPipelines();
-    InitStates();
 
-    cubeDemo_.Initialize(device_, shaderManager_);
+    pipelines_.Initialize(device_, shaderManager_);
+    draw_.Initialize(device_);
+
+    states_.Initialize(device_.GetDevice());
+    stateCache_.Reset();
+
+    cubeDemo_.Initialize(device_);
 }
+
+DX11Renderer::~DX11Renderer() = default;
 
 // ========================== Begin of Init Functions ==========================
 
@@ -45,16 +51,6 @@ void DX11Renderer::InitSceneTargets(float factor) {
 
     sceneRT_    = RHI::DX11::DX11Texture2D::CreateRenderTarget(device_, sceneW_, sceneH_);
     sceneDepth_ = RHI::DX11::DX11DepthBuffer::Create(device_, sceneW_, sceneH_);
-}
-
-void DX11Renderer::InitPipelines() {
-    compose_.Initialize(device_, shaderManager_);
-    spriteRenderer_.Initialize(device_, shaderManager_);
-}
-
-void DX11Renderer::InitStates() {
-    states_.Initialize(device_.GetDevice());
-    stateCache_.Reset();
 }
 
 // ========================== End of Init Functions ==========================
@@ -86,11 +82,9 @@ void DX11Renderer::Present(bool vsync) {
 }
 
 void DX11Renderer::ExecutePlan(const RenderPlan& plan, const FrameBlackboard& frame) {
-    auto ctx = device_.GetContext();
-
-    PassContext passCtx{
+    PassContext ctx{
         .device  = device_,
-        .ctx = ctx,
+        .ctx = device_.GetContext(),
 
         .sceneRTV = sceneRT_.RTV(),
         .sceneSRV = sceneRT_.SRV(),
@@ -105,15 +99,16 @@ void DX11Renderer::ExecutePlan(const RenderPlan& plan, const FrameBlackboard& fr
         .states = states_,
         .cache  = stateCache_,
 
-        .spriteRenderer = &spriteRenderer_,
-        .compose        = &compose_,
         .cubeDemo       = &cubeDemo_,
+        
+        .pipelines = &pipelines_,
+        .draw      = &draw_,
 
         .frame = &frame,
     };
 
     for (const auto& pass : plan.passes) {
-        pass->Record(passCtx);
+        pass->Record(ctx);
     }
 }
 

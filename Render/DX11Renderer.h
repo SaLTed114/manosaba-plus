@@ -13,17 +13,18 @@
 #include "Render/RenderPlan.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/Draw/DrawList.h"
-#include "Render/Renderers/SpriteRenderer.h"
-
-#include "Render/Pipelines/ComposePipeline.h"
 
 #include "Render/Demo/CubeDemo.h"
+
+#include "Render/Pipelines/PipelineLibrary.h"
+#include "Render/Drawers/DrawServices.h"
 
 namespace Salt2D::Render {
 
 class DX11Renderer {
 public:
     DX11Renderer(HWND hwnd, uint32_t width, uint32_t height);
+    ~DX11Renderer();
 
     void Resize(uint32_t width, uint32_t height);
 
@@ -39,8 +40,6 @@ public:
 private:
     void InitShaderSearchPaths();
     void InitSceneTargets(float factor);
-    void InitPipelines();
-    void InitStates();
 
 private:
     uint32_t canvasW_ = 0;
@@ -53,14 +52,15 @@ private:
     RHI::DX11::DX11SwapChain    swapChain_;
     RHI::DX11::DX11DepthBuffer  sceneDepth_;
 
+    ShaderManager shaderManager_;
+
     DX11CommonState states_;
     DX11StateCache  stateCache_;
 
-    ShaderManager     shaderManager_;
-    SpriteRenderer    spriteRenderer_;
-
     RHI::DX11::DX11Texture2D sceneRT_;
-    ComposePipeline compose_;
+
+    PipelineLibrary pipelines_;
+    DrawServices draw_;
 
     CubeDemo cubeDemo_;
 };

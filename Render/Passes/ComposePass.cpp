@@ -8,7 +8,8 @@ ComposePass::ComposePass(const char* name)
     : RenderPassBase(name, Target::BackBuffer, DepthMode::Off, BlendMode::Off) {}
 
 void ComposePass::Execute(PassContext& ctx) {
-    ctx.compose->Bind(ctx.ctx);
+    auto compose = ctx.pipelines->Compose();
+    compose.Bind(ctx.ctx);
 
     ID3D11ShaderResourceView* srvs[] = { ctx.sceneSRV };
     ctx.ctx->PSSetShaderResources(0, 1, srvs);

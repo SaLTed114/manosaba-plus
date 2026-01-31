@@ -8,20 +8,31 @@
 manosaba-plus/
 ├── App/
 │   ├── CMakeLists.txt
-│   └── main.cpp                              # Application entry point
+│   ├── Application.h                          # Application framework interface
+│   ├── Application.cpp                        # Application initialization and main loop
+│   ├── main.cpp                               # Application entry point
+│   └── Scene/
+│       ├── DemoScene.h                        # Demo scene interface
+│       └── DemoScene.cpp                      # Demo scene implementation
 │
 ├── Assets/                                    # Game assets directory
+│   ├── Mesh/                                  # 3D mesh files
+│   └── Textures/                              # Texture image files
 │
 ├── Build/                                     # CMake build output (generated)
 │
 ├── Core/
 │   ├── CMakeLists.txt
+│   ├── Time/
+│   │   ├── FrameClock.h                       # Frame timing interface
+│   │   └── FrameClock.cpp                     # Delta time and FPS calculation
 │   └── Window/
 │       ├── Win32Window.h                      # Win32 window wrapper interface
 │       └── Win32Window.cpp                    # Window creation and message processing
 │
 ├── Docs/
-│   └── ARCHITECTURE.md                        # This file
+│   ├── ARCHITECTURE.md                        # This file
+│   └── ARCHITECTURE_CN.md                     # Chinese architecture documentation
 │
 ├── RHI/
 │   ├── CMakeLists.txt
@@ -33,37 +44,62 @@ manosaba-plus/
 │       ├── DX11SwapChain.h                    # Swap chain wrapper interface
 │       ├── DX11SwapChain.cpp                  # Swap chain creation and present logic
 │       ├── DX11Texture2D.h                    # 2D texture wrapper interface
-│       └── DX11Texture2D.cpp                  # Texture creation and resource views
+│       ├── DX11Texture2D.cpp                  # Texture creation and resource views
+│       ├── DX11DepthBuffer.h                  # Depth buffer wrapper interface
+│       └── DX11DepthBuffer.cpp                # Depth stencil buffer management
 │
 ├── Render/
 │   ├── CMakeLists.txt
 │   ├── DX11Renderer.h                         # Main renderer interface
 │   ├── DX11Renderer.cpp                       # Frame management and rendering coordination
+│   ├── DX11CommonState.h                      # Common render states interface
+│   ├── DX11CommonState.cpp                    # Blend/rasterizer/sampler state creation
+│   ├── DX11RenderUtils.h                      # Rendering utility functions
+│   ├── RenderPlan.h                           # Render plan and pass scheduling
+│   │
+│   ├── Demo/
+│   │   ├── TriangleDemo.h                     # Triangle test renderer interface
+│   │   ├── TriangleDemo.cpp                   # Basic triangle rendering
+│   │   ├── CubeDemo.h                         # Cube demo renderer interface
+│   │   └── CubeDemo.cpp                       # 3D cube rendering demo
 │   │
 │   ├── Draw/
 │   │   ├── DrawItem.h                         # Draw item structures and layer definitions
 │   │   └── DrawList.h                         # Draw queue with sorting logic
 │   │
-│   ├── Pipeline/
+│   ├── Passes/
+│   │   ├── IRenderPass.h                      # Render pass interface
+│   │   ├── RenderPassBase.h                   # Base render pass implementation
+│   │   ├── ComposePass.h                      # Composition pass interface
+│   │   ├── ComposePass.cpp                    # Fullscreen composition pass
+│   │   ├── SceneSpritePass.h                  # Scene sprite rendering pass interface
+│   │   ├── SceneSpritePass.cpp                # 2D sprite scene rendering
+│   │   ├── CubePass.h                         # Cube rendering pass interface
+│   │   └── CubePass.cpp                       # 3D cube rendering pass
+│   │
+│   ├── Pipelines/
 │   │   ├── SpritePipeline.h                   # Sprite pipeline interface
-│   │   ├── SpritePipeline.cpp                 # Pipeline state and shader binding
+│   │   ├── SpritePipeline.cpp                 # 2D sprite pipeline state and shader binding
 │   │   ├── ComposePipeline.h                  # Scene composition pipeline interface
-│   │   └── ComposePipeline.cpp                # Fullscreen composition pass
+│   │   ├── ComposePipeline.cpp                # Composition pipeline configuration
+│   │   ├── MeshPipeline.h                     # 3D mesh pipeline interface
+│   │   └── MeshPipeline.cpp                   # 3D mesh rendering pipeline
 │   │
-│   ├── Primitives/
-│   │   ├── TriangleDemo.h                     # Triangle test renderer interface
-│   │   └── TriangleDemo.cpp                   # Basic triangle rendering
+│   ├── Renderers/
+│   │   ├── SpriteRenderer.h                   # Sprite batch renderer interface
+│   │   └── SpriteRenderer.cpp                 # Vertex buffer management and sprite batching
 │   │
-│   ├── Shader/
-│   │   ├── ShaderManager.h                    # Shader loading interface
-│   │   └── ShaderManager.cpp                  # Shader caching and loading from disk
+│   ├── Scene3D/
+│   │   ├── Camera3D.h                         # 3D camera interface
+│   │   └── Camera3D.cpp                       # Camera view and projection matrices
 │   │
-│   └── Sprite/
-│       ├── SpriteRenderer.h                   # Sprite batch renderer interface
-│       └── SpriteRenderer.cpp                 # Vertex buffer management and sprite batching
+│   └── Shader/
+│       ├── ShaderManager.h                    # Shader loading interface
+│       └── ShaderManager.cpp                  # Shader caching and loading from disk
 │
 ├── Resources/
 │   ├── CMakeLists.txt
+│   ├── Audio/                                 # Audio resource files
 │   └── Image/
 │       ├── WICImageLoader.h                   # WIC image loader interface
 │       └── WICImageLoader.cpp                 # Image loading via Windows Imaging Component
@@ -71,7 +107,8 @@ manosaba-plus/
 ├── Shaders/
 │   ├── compose.hlsl                           # Composition shaders (VS + PS)
 │   ├── sprite.hlsl                            # Sprite shaders (VS + PS)
-│   └── triangle.hlsl                          # Debug triangle shaders (VS + PS)
+│   ├── triangle.hlsl                          # Debug triangle shaders (VS + PS)
+│   └── mesh.hlsl                              # 3D mesh shaders (VS + PS)
 │
 ├── Utils/
 │   ├── CMakeLists.txt
@@ -91,12 +128,22 @@ manosaba-plus/
 
 ### App/ - Application Layer
 
-**Entry Point**
-- `main.cpp` - Windows application entry point, initializes window and renderer, main loop
+**Application Framework**
+- `Application.h` - Application framework interface
+- `Application.cpp` - Application initialization, update loop, and scene management
+- `main.cpp` - Windows application entry point, creates application instance
+
+**Scene System**
+- `Scene/DemoScene.h` - Demo scene interface
+- `Scene/DemoScene.cpp` - Demo scene implementation with sprite and 3D rendering examples
 
 ---
 
 ### Core/ - Core Systems
+
+**Time Management**
+- `Time/FrameClock.h` - Frame timing interface
+- `Time/FrameClock.cpp` - Delta time calculation, FPS tracking, frame timing utilities
 
 **Window Management**
 - `Window/Win32Window.h` - Win32 window wrapper interface
@@ -120,6 +167,10 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 - `DX11Texture2D.h` - 2D texture wrapper interface
 - `DX11Texture2D.cpp` - RGBA8 texture creation, render target creation, SRV/RTV generation
 
+**Depth Buffer**
+- `DX11DepthBuffer.h` - Depth buffer wrapper interface
+- `DX11DepthBuffer.cpp` - Depth stencil buffer creation and management for 3D rendering
+
 **Common Utilities**
 - `DX11Common.h` - Helper macros (ThrowIfFailed), common includes
 
@@ -138,28 +189,50 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 **Renderer Core**
 - `DX11Renderer.h` - Main renderer interface
 - `DX11Renderer.cpp` - Offscreen rendering, frame management, viewport setup, multi-pass rendering coordination
+- `DX11CommonState.h` - Common render states interface
+- `DX11CommonState.cpp` - Reusable blend, rasterizer, depth-stencil, and sampler state creation
+- `DX11RenderUtils.h` - Rendering utility functions and helpers
+- `RenderPlan.h` - Render plan structure, pass scheduling and execution logic
 
 **Draw System**
 - `Draw/DrawItem.h` - Draw item definitions (SpriteDrawItem, Layer enum, geometric structs)
 - `Draw/DrawList.h` - Draw queue with layer sorting and z-ordering
 
+**Render Passes**
+- `Passes/IRenderPass.h` - Render pass interface definition
+- `Passes/RenderPassBase.h` - Base render pass with common functionality
+- `Passes/ComposePass.h` - Composition pass interface
+- `Passes/ComposePass.cpp` - Fullscreen composition from offscreen RT to backbuffer
+- `Passes/SceneSpritePass.h` - Scene sprite rendering pass interface
+- `Passes/SceneSpritePass.cpp` - 2D sprite rendering to scene render target
+- `Passes/CubePass.h` - Cube rendering pass interface
+- `Passes/CubePass.cpp` - 3D cube rendering with depth testing
+
 **Sprite Rendering**
-- `Sprite/SpriteRenderer.h` - Sprite batch renderer interface
-- `Sprite/SpriteRenderer.cpp` - Dynamic vertex buffer management, sprite batching, draw call submission
+- `Renderers/SpriteRenderer.h` - Sprite batch renderer interface
+- `Renderers/SpriteRenderer.cpp` - Dynamic vertex buffer management, sprite batching, draw call submission
 
 **Pipeline Configuration**
-- `Pipeline/SpritePipeline.h` - Sprite render pipeline interface
-- `Pipeline/SpritePipeline.cpp` - Shader binding, render state setup (blend, rasterizer, sampler), constant buffer management
-- `Pipeline/ComposePipeline.h` - Scene composition pipeline interface
-- `Pipeline/ComposePipeline.cpp` - Fullscreen composition from offscreen RT to backbuffer
+- `Pipelines/SpritePipeline.h` - Sprite render pipeline interface
+- `Pipelines/SpritePipeline.cpp` - 2D sprite shader binding and render state setup
+- `Pipelines/ComposePipeline.h` - Scene composition pipeline interface
+- `Pipelines/ComposePipeline.cpp` - Composition pipeline configuration
+- `Pipelines/MeshPipeline.h` - 3D mesh pipeline interface
+- `Pipelines/MeshPipeline.cpp` - 3D mesh rendering pipeline with depth and lighting support
+
+**3D Scene System**
+- `Scene3D/Camera3D.h` - 3D camera interface
+- `Scene3D/Camera3D.cpp` - Camera view and projection matrix management
 
 **Shader Management**
 - `Shader/ShaderManager.h` - Shader loading and caching interface
 - `Shader/ShaderManager.cpp` - Compiled shader loading from disk, shader cache management
 
-**Primitives (Debug/Testing)**
-- `Primitives/TriangleDemo.h` - Simple triangle rendering test
-- `Primitives/TriangleDemo.cpp` - Basic triangle drawing for testing pipeline
+**Demo Renderers (Testing)**
+- `Demo/TriangleDemo.h` - Simple triangle rendering test
+- `Demo/TriangleDemo.cpp` - Basic triangle drawing for testing pipeline
+- `Demo/CubeDemo.h` - 3D cube demo interface
+- `Demo/CubeDemo.cpp` - Rotating 3D cube rendering demonstration
 
 ---
 
@@ -170,6 +243,9 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 
 **Sprite Shaders**
 - `sprite.hlsl` - Sprite rendering (VS + PS entry points): pixel coordinates to NDC, texture sampling
+
+**3D Mesh Shaders**
+- `mesh.hlsl` - 3D mesh rendering (VS + PS entry points): vertex transformation, lighting, texture mapping
 
 **Debug Shaders**
 - `triangle.hlsl` - Debug triangle rendering (VS + PS entry points)

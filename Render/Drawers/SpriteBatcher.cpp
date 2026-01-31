@@ -1,28 +1,30 @@
-// Render/Sprite/SpriteRenderer.cpp
-#include "SpriteRenderer.h"
-#include "Render/Shader/ShaderManager.h"
+// Render/Drawers/SpriteBatcher.cpp
+#include "SpriteBatcher.h"
+#include "Render/Pipelines/SpritePipeline.h"
 #include "RHI/DX11/DX11Common.h"
 #include "RHI/DX11/DX11Device.h"
 #include "RHI/DX11/DX11SwapChain.h"
 
 #include <stdexcept>
 
+// tmp
+const size_t kMinCapacity = 1024;
+
 namespace Salt2D::Render {
 
-void SpriteRenderer::Initialize(const RHI::DX11::DX11Device& device, ShaderManager& shaderManager) {
-    pipeline_.Initialize(device, shaderManager);
-    EnsureVB(device, 1024);
+void SpriteBatcher::Initialize(const RHI::DX11::DX11Device& device) {
+    EnsureVB(device, kMinCapacity);
 }
 
-void SpriteRenderer::EnsureVB(const RHI::DX11::DX11Device& device, size_t spriteCount) {
+void SpriteBatcher::EnsureVB(const RHI::DX11::DX11Device& device, size_t spriteCount) {
     if (spriteCount <= vbCapacity_ && vb_) return;
 
     auto d3dDevice = device.GetDevice();
 
-    vbCapacity_ = (spriteCount < 1024) ? 1024 : spriteCount;
+    vbCapacity_ = (std::max)(spriteCount, kMinCapacity);
 
     const UINT vertexCount = static_cast<UINT>(vbCapacity_ * 6);
-    const UINT byteSize = vertexCount * sizeof(Vertex);
+    const UINT byteSize = vertexCount * sizeof(SpriteVertex);
 
     D3D11_BUFFER_DESC vbDesc{};
     vbDesc.ByteWidth = byteSize;
@@ -31,25 +33,20 @@ void SpriteRenderer::EnsureVB(const RHI::DX11::DX11Device& device, size_t sprite
     vbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
     ThrowIfFailed(d3dDevice->CreateBuffer(&vbDesc, nullptr, vb_.GetAddressOf()),
-        "SpriteRenderer::EnsureVB: CreateBuffer for vertex buffer failed.");
+        "SpriteBatcher::EnsureVB: CreateBuffer for vertex buffer failed.");
 }
 
-void SpriteRenderer::Draw(
-    const RHI::DX11::DX11Device& device,
-    std::span<const SpriteDrawItem> sprites,
-    uint32_t screenW, uint32_t screenH
-) {
+void SpriteBatcher::DrawBatch(PassContext& ctx, std::span<const SpriteDrawItem> sprites) {
     if (sprites.empty()) return;
 
-    if (sprites.size() > vbCapacity_) EnsureVB(device, sprites.size());
-
-    auto context = device.GetContext();
+    if (sprites.size() > vbCapacity_) EnsureVB(ctx.device, sprites.size());
 
     D3D11_MAPPED_SUBRESOURCE mappedResource;
-    ThrowIfFailed(context->Map(vb_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource),
-        "SpriteRenderer::Draw: Map vertex buffer failed.");
 
-    auto* vtx = reinterpret_cast<Vertex*>(mappedResource.pData);
+    ThrowIfFailed(ctx.ctx->Map(vb_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource),
+        "SpriteBatcher::DrawBatch: Map vertex buffer failed.");
+
+    auto* vtx = reinterpret_cast<SpriteVertex*>(mappedResource.pData);
 
     for (const auto& sprite : sprites) {
         const float x0 = sprite.dstRect.x;
@@ -67,7 +64,7 @@ void SpriteRenderer::Draw(
         const float b = sprite.tint.b;
         const float a = sprite.tint.a;
 
-        Vertex quad[6] = {
+        SpriteVertex quad[6] = {
             {{x0, y0}, {u0, v0}, {r, g, b, a}},
             {{x1, y0}, {u1, v0}, {r, g, b, a}},
             {{x0, y1}, {u0, v1}, {r, g, b, a}},
@@ -81,25 +78,26 @@ void SpriteRenderer::Draw(
         vtx += 6;
     }
 
-    context->Unmap(vb_.Get(), 0);
+    ctx.ctx->Unmap(vb_.Get(), 0);
 
-    pipeline_.Bind(context);
-    pipeline_.SetFrameConstants(context, screenW, screenH);
+    auto pipeline = ctx.pipelines->Sprite();
+    pipeline.Bind(ctx.ctx);
+    pipeline.SetFrameConstants(ctx.ctx, ctx.canvasW, ctx.canvasH);
 
-    const UINT stride = sizeof(Vertex);
+    const UINT stride = sizeof(SpriteVertex);
     const UINT offset = 0;
     ID3D11Buffer* vbs[] = { vb_.Get() };
-    context->IASetVertexBuffers(0, 1, vbs, &stride, &offset);
-    context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    ctx.ctx->IASetVertexBuffers(0, 1, vbs, &stride, &offset);
+    ctx.ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     const auto spriteCount = static_cast<UINT>(sprites.size());
-    for (UINT i = 0; i < spriteCount; ++i) {
-        pipeline_.BindTexture(context, sprites[i].srv);
-        context->Draw(6, i * 6);
+    for (UINT i = 0; i < spriteCount; i++) {
+        pipeline.BindTexture(ctx.ctx, sprites[i].srv);
+        ctx.ctx->Draw(6, i * 6);
     }
-
+    
     ID3D11ShaderResourceView* nullSRV[] = { nullptr };
-    context->PSSetShaderResources(0, 1, nullSRV);
+    ctx.ctx->PSSetShaderResources(0, 1, nullSRV);
 }
 
 } // namespace Salt2D::Render

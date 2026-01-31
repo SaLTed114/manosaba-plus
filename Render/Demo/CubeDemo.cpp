@@ -1,5 +1,8 @@
 // Render/Demo/CubeDemo.cpp
 #include "CubeDemo.h"
+#include "Render/Pipelines/MeshPipeline.h"
+#include "Render/Drawers/MeshDrawer.h"
+#include "Render/RenderPlan.h"
 #include "RHI/DX11/DX11Device.h"
 #include "RHI/DX11/DX11Common.h"
 
@@ -52,15 +55,13 @@ static void BuildCube(std::vector<MeshPipeline::VertexCPU>& vtx, std::vector<uin
 
 } // anonymous namespace
 
-void CubeDemo::Initialize(const RHI::DX11::DX11Device& device, ShaderManager& shaderManager) {
-    meshPipeline_.Initialize(device, shaderManager);
-
+void CubeDemo::Initialize(const RHI::DX11::DX11Device& device) {
     auto d3dDevice = device.GetDevice();
 
     std::vector<MeshPipeline::VertexCPU> vertices;
     std::vector<uint16_t> indices;
     BuildCube(vertices, indices);
-    indexCount_ = static_cast<UINT>(indices.size());
+    indexCount_ = static_cast<uint32_t>(indices.size());
 
     D3D11_BUFFER_DESC vbDesc{};
     vbDesc.ByteWidth = static_cast<UINT>(sizeof(MeshPipeline::VertexCPU) * vertices.size());
@@ -85,20 +86,8 @@ void CubeDemo::Initialize(const RHI::DX11::DX11Device& device, ShaderManager& sh
         "CubeDemo::Initialize: Failed to create index buffer.");
 }
 
-void CubeDemo::Draw(const RHI::DX11::DX11Device& device, const DirectX::XMMATRIX& worldViewProj) {
-    auto context = device.GetContext();
-
-    meshPipeline_.Bind(context);
-    meshPipeline_.SetConstants(context, worldViewProj);
-
-    UINT stride = sizeof(MeshPipeline::VertexCPU);
-    UINT offset = 0;
-    ID3D11Buffer* vbArray[] = { vb_.Get() };
-    context->IASetVertexBuffers(0, 1, vbArray, &stride, &offset);
-    context->IASetIndexBuffer(ib_.Get(), DXGI_FORMAT_R16_UINT, 0);
-    context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    context->DrawIndexed(indexCount_, 0, 0);
+void CubeDemo::Draw(PassContext& ctx, const DirectX::XMMATRIX& worldViewProj) {
+    ctx.draw->Mesh().DrawMesh(ctx, vb_.Get(), ib_.Get(), indexCount_, worldViewProj);
 }
 
 } // namespace Salt2D::Render
