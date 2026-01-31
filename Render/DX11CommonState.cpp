@@ -22,7 +22,7 @@ void DX11CommonState::Initialize(ID3D11Device* device) {
         D3D11_DEPTH_STENCIL_DESC desc = {};
         desc.DepthEnable = TRUE;
         desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-        desc.DepthFunc = D3D11_COMPARISON_EQUAL;
+        desc.DepthFunc = D3D11_COMPARISON_LESS;
         desc.StencilEnable = FALSE;
 
         ThrowIfFailed(device->CreateDepthStencilState(&desc, depthRW.GetAddressOf()),

@@ -63,9 +63,8 @@ void DX11DepthBuffer::CreateResources(
     ThrowIfFailed(d3dDevice->CreateTexture2D(&texDesc, nullptr, texture_.GetAddressOf()),
         "DX11DepthBuffer::CreateResources: CreateTexture2D for depth buffer failed.");
 
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> dsv;
     ThrowIfFailed(d3dDevice->CreateDepthStencilView(
-        texture_.Get(), nullptr, dsv.GetAddressOf()),
+        texture_.Get(), nullptr, dsv_.GetAddressOf()),
         "DX11DepthBuffer::CreateResources: CreateDepthStencilView failed.");
 }
 
