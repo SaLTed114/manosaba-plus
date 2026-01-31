@@ -12,6 +12,7 @@ namespace Salt2D::Render {
 
 class ShaderManager;
 
+class CardPipeline;
 class ComposePipeline;
 class MeshPipeline;
 class SpritePipeline;
@@ -20,13 +21,16 @@ class PipelineLibrary {
 public:
     PipelineLibrary();
     ~PipelineLibrary();
+
     void Initialize(const RHI::DX11::DX11Device& device, ShaderManager& shaderManager);
 
+    CardPipeline&    Card()    { return *card_; }
     ComposePipeline& Compose() { return *compose_; }
     MeshPipeline&    Mesh()    { return *mesh_; }
     SpritePipeline&  Sprite()  { return *sprite_; }
 
 private:
+    std::unique_ptr<CardPipeline>    card_;
     std::unique_ptr<ComposePipeline> compose_;
     std::unique_ptr<MeshPipeline>    mesh_;
     std::unique_ptr<SpritePipeline>  sprite_;

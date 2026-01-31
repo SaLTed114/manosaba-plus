@@ -12,6 +12,7 @@ namespace Salt2D::Render {
 
 class SpriteBatcher;
 class MeshDrawer;
+class CardDrawer;
 
 class DrawServices {
 public:
@@ -22,10 +23,12 @@ public:
 
     SpriteBatcher& Sprite() { return *sprite_; }
     MeshDrawer&    Mesh()   { return *mesh_; }
+    CardDrawer&    Card()   { return *card_; }
 
 private:
     std::unique_ptr<SpriteBatcher> sprite_;
-    std::unique_ptr<MeshDrawer>     mesh_;
+    std::unique_ptr<MeshDrawer>    mesh_;
+    std::unique_ptr<CardDrawer>    card_;
 };
 
 } // namespace Salt2D::Render

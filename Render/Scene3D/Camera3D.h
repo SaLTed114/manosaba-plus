@@ -34,7 +34,7 @@ public:
     void SetFovY(float fovY) { fovY_ = fovY; }
 
 private:
-    DirectX::XMFLOAT3 position_{0.0f, 0.0f, -2.5f};
+    DirectX::XMFLOAT3 position_{0.0f, 0.0f, 0.0f};
     DirectX::XMFLOAT4 rotation_{0.0f, 0.0f, 0.0f, 1.0f}; // Quaternion (x, y, z, w)
 
     float fovY_  = DirectX::XM_PIDIV4; // 45 degrees

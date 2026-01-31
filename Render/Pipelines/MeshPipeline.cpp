@@ -9,7 +9,11 @@ using namespace DirectX;
 namespace Salt2D::Render {
 
 struct CBuffers {
-    XMFLOAT4X4 worldViewProj;
+    XMFLOAT4X4 worldViewProj;     // 64 bytes
+    XMFLOAT4X4 world;              // 64 bytes
+    XMFLOAT4X4 worldInvTranspose;  // 64 bytes
+    XMFLOAT4   lightDirWS;         // 16 bytes (changed from XMFLOAT3 + float)
+    XMFLOAT4   lightColorAndAmbient; // 16 bytes (rgb = color, w = ambient)
 };
 
 void MeshPipeline::Initialize(const RHI::DX11::DX11Device& device, ShaderManager& shaderManager) {
@@ -30,9 +34,9 @@ void MeshPipeline::Initialize(const RHI::DX11::DX11Device& device, ShaderManager
         "Failed to create MeshPipeline pixel shader.");
 
     D3D11_INPUT_ELEMENT_DESC layout[] = {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexCPU, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        // { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexCPU, normal), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        // { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, offsetof(VertexCPU, uv), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, offsetof(VertexCPU, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, offsetof(VertexCPU, normal), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, offsetof(VertexCPU, uv), D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offsetof(VertexCPU, color), D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
@@ -70,18 +74,41 @@ void MeshPipeline::Bind(ID3D11DeviceContext* context) {
 }
 
 void MeshPipeline::SetConstants(ID3D11DeviceContext* context, const DirectX::XMMATRIX& worldViewProj) {
+    // Use default world matrix (identity) and default lighting
+    XMMATRIX world = XMMatrixIdentity();
+    SetConstants(context, world, worldViewProj);
+}
+
+void MeshPipeline::SetConstants(
+    ID3D11DeviceContext* context,
+    const DirectX::XMMATRIX& world,
+    const DirectX::XMMATRIX& worldViewProj
+) {
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     ThrowIfFailed(context->Map(constantBuffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource),
         "Failed to map MeshPipeline constant buffer.");
 
     CBuffers* cbData = reinterpret_cast<CBuffers*>(mappedResource.pData);
-    XMMATRIX wvpTransposed = DirectX::XMMatrixTranspose(worldViewProj);
-    DirectX::XMStoreFloat4x4(&cbData->worldViewProj, wvpTransposed);
+    
+    // Store transposed matrices (HLSL uses column-major)
+    XMStoreFloat4x4(&cbData->worldViewProj, XMMatrixTranspose(worldViewProj));
+    XMStoreFloat4x4(&cbData->world, XMMatrixTranspose(world));
+    
+    // Calculate world inverse transpose for normal transformation
+    XMVECTOR det;
+    XMMATRIX worldInv = XMMatrixInverse(&det, world);
+    XMMATRIX worldInvTranspose = XMMatrixTranspose(worldInv);
+    XMStoreFloat4x4(&cbData->worldInvTranspose, XMMatrixTranspose(worldInvTranspose));
+    
+    // Default lighting parameters
+    cbData->lightDirWS = XMFLOAT4(0.0f, -1.0f, 1.0f, 0.0f);  // w unused
+    cbData->lightColorAndAmbient = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.3f);  // rgb = color, w = ambient
 
     context->Unmap(constantBuffer_.Get(), 0);
 
     ID3D11Buffer* cbuffers[] = { constantBuffer_.Get() };
     context->VSSetConstantBuffers(0, 1, cbuffers);
+    context->PSSetConstantBuffers(0, 1, cbuffers);
 }
 
 } // namespace Salt2D::Render

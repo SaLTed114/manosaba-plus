@@ -6,6 +6,7 @@
 #include "Render/Passes/SceneSpritePass.h"
 #include "Render/Passes/ComposePass.h"
 #include "Render/Passes/MeshPass.h"
+#include "Render/Passes/CardPass.h"
 #include "Render/Draw/MeshDrawItem.h"
 #include "Render/Pipelines/MeshPipeline.h"
 
@@ -40,19 +41,26 @@ void DemoScene::Initialize(Render::DX11Renderer& renderer) {
     auto rgba = MakeCheckerRGBA(256, 256);
     checker_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, 256, 256, rgba.data(), 256 * 4);
 
-    Resources::ImageRGBA8 img;
-    std::filesystem::path imgPath = "Assets/Image/667.png";
-    if (!Resources::LoadImageRGBA8_WIC(imgPath.string(), img)) {
-        throw std::runtime_error("Failed to load image in DemoScene: " + imgPath.string());
+    Resources::ImageRGBA8 img1;
+    std::filesystem::path img1Path = "Assets/Image/667.png";
+    if (!Resources::LoadImageRGBA8_WIC(img1Path.string(), img1)) {
+        throw std::runtime_error("Failed to load image in DemoScene: " + img1Path.string());
     }
-    img_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, img.width, img.height, img.pixels.data(), img.rowPitch);
+    img1_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, img1.width, img1.height, img1.pixels.data(), img1.rowPitch);
+
+    Resources::ImageRGBA8 img2;
+    std::filesystem::path img2Path = "Assets/Image/659.png";
+    if (!Resources::LoadImageRGBA8_WIC(img2Path.string(), img2)) {
+        throw std::runtime_error("Failed to load image in DemoScene: " + img2Path.string());
+    }
+    img2_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, img2.width, img2.height, img2.pixels.data(), img2.rowPitch);
 
     // Load cube mesh from OBJ file
     Resources::MeshLoadOptions options;
     options.triangulate = true;
     
-    auto meshData = Resources::MeshLoader::LoadOBJ("Assets/Mesh/cube.obj", options);
-    if (!meshData) throw std::runtime_error("Failed to load cube.obj");
+    auto meshData = Resources::MeshLoader::LoadOBJ("Assets/Mesh/ring13.obj", options);
+    if (!meshData) throw std::runtime_error("Failed to load ring13.obj");
     
     // Create red cube (front)
     auto redMeshData = *meshData;
@@ -67,14 +75,15 @@ void DemoScene::Initialize(Render::DX11Renderer& renderer) {
         v.color = DirectX::XMFLOAT3(0.2f, 1.0f, 0.2f);  // Green
     }
     greenCube_ = Render::Scene3D::MeshFactory::CreateMesh(device, greenMeshData);
+
+    camera_.SetPosition(0.0f, 1.4f, 0.0f);
+    camera_.SetFovY(60.0f * DirectX::XM_PI / 180.0f);
 }
 
 void DemoScene::Update(const Core::FrameTime& ft, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {
-    // (void)ft;
-    // float t = static_cast<float>(ft.totalSec);
-    angle_ += static_cast<float>(ft.dtSec) * 1.0f;
-    // float deg2rad = DirectX::XM_PI / 180.0f;
-    // camera_.SetYawPitchRoll(sinf(t) * 30.0f * deg2rad, sinf(t*2) * 20.0f * deg2rad, 0.0f);
+    float t = static_cast<float>(ft.totalSec);
+    angle_ += static_cast<float>(ft.dtSec) * 0.2f;
+    camera_.SetYawPitchRoll(angle_, sinf(t) * 0.02f, cos(t) * 0.01f);
 }
 
 void DemoScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sceneW, uint32_t sceneH) {
@@ -86,14 +95,20 @@ void DemoScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sce
 void DemoScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
     drawList.ReserveSprites(8);
 
-    drawList.PushSprite(Render::Layer::Background, checker_.SRV(),
-        Render::RectF{0,0,static_cast<float>(canvasW),static_cast<float>(canvasH)}, 0.0f);
+    (void)canvasW;
+    (void)canvasH;
 
-    drawList.PushSprite(Render::Layer::Stage, img_.SRV(),
-        Render::RectF{100,100,static_cast<float>(img_.GetWidth()),static_cast<float>(img_.GetHeight())}, 0.0f);
+    // drawList.PushSprite(Render::Layer::Background, checker_.SRV(),
+    //     Render::RectF{0,0,static_cast<float>(canvasW),static_cast<float>(canvasH)}, 0.0f);
+
+    // drawList.PushSprite(Render::Layer::Stage, img1_.SRV(),
+    //     Render::RectF{100,100,static_cast<float>(img1_.GetWidth()),static_cast<float>(img1_.GetHeight())}, 0.0f);
 
     drawList.PushSprite(Render::Layer::HUD, checker_.SRV(),
         Render::RectF{20,20,256,256}, 0.0f);
+
+    // drawList.PushSprite(Render::Layer::HUD, img2_.SRV(),
+    //     Render::RectF{300,20,static_cast<float>(img2_.GetWidth()),static_cast<float>(img2_.GetHeight())}, 0.0f);
 }
 
 void DemoScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& drawList) {
@@ -112,17 +127,41 @@ void DemoScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& draw
     meshItems_.clear();
     
     // Red cube (front) - slightly offset to the right
-    XMMATRIX worldRed = XMMatrixRotationY(angle_) * XMMatrixRotationX(angle_ * 0.5f) * 
-                        XMMatrixTranslation(0.5f, 0.0f, 0.0f);
+    XMMATRIX worldRed = XMMatrixTranslation(0.0, 0.0f, 0.0f);
     meshItems_.push_back({&redCube_, worldRed});
-    
-    // Green cube (back) - slightly offset to the left and farther
-    XMMATRIX worldGreen = XMMatrixRotationY(angle_ * 0.7f) * XMMatrixRotationX(angle_ * 0.3f) * 
-                          XMMatrixTranslation(-0.5f, 0.0f, 1.5f);
-    meshItems_.push_back({&greenCube_, worldGreen});
     
     auto p1 = std::make_unique<Render::MeshPass>("Scene_3D_Cubes", Target::Scene, DepthMode::RW, BlendMode::Off, meshItems_);
     plan.passes.push_back(std::move(p1));
+
+    cardItems_.clear();
+
+    // Create 13 cards in a circle around origin, all facing center
+    const int numCards = 13;
+    const float radius = 3.0f;
+    const float cardY = 0.0f;  // Card bottom position
+    
+    for (int i = 0; i < numCards; ++i) {
+        float angle = (float)i * (2.0f * DirectX::XM_PI / numCards);
+        
+        CardDrawItem card{};
+        card.srv = img2_.SRV();
+        card.size = DirectX::XMFLOAT2(1.0f, 1.9f);
+        
+        // Position on circle
+        card.pos = DirectX::XMFLOAT3(
+            radius * cosf(angle),
+            cardY,
+            radius * sinf(angle)
+        );
+        
+        // Face toward center (perpendicular to radius, opposite rotation)
+        card.yaw = -(angle + DirectX::XM_PIDIV2);  // -(angle + π/2)
+        
+        cardItems_.push_back(card);
+    }
+
+    auto pCard = std::make_unique<CardPass>("Scene_3D_Card", Target::Scene, DepthMode::RW, BlendMode::Alpha, cardItems_);
+    plan.passes.push_back(std::move(pCard));
 
     // Scene overlay sprites
     auto p2 = std::make_unique<SpritePass>("Scene_Overlay_2D", Target::Scene, DepthMode::Off, BlendMode::Alpha, overlay);

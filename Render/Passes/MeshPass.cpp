@@ -5,10 +5,8 @@
 namespace Salt2D::Render {
 
 MeshPass::MeshPass(
-    const char* name,
-    Target target,
-    DepthMode depth,
-    BlendMode blend,
+    const char* name, Target target,
+    DepthMode depth, BlendMode blend,
     std::span<const MeshDrawItem> meshes
 ) : RenderPassBase(name, target, depth, blend), meshes_(meshes) {}
 

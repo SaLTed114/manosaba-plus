@@ -27,6 +27,7 @@ public:
     void Bind(ID3D11DeviceContext* context);
 
     void SetConstants(ID3D11DeviceContext* context, const DirectX::XMMATRIX& worldViewProj);
+    void SetConstants(ID3D11DeviceContext* context, const DirectX::XMMATRIX& world, const DirectX::XMMATRIX& worldViewProj);
 
 private:
     Microsoft::WRL::ComPtr<ID3D11VertexShader> vs_;
