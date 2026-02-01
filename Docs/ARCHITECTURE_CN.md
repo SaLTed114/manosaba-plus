@@ -57,15 +57,23 @@ manosaba-plus/
 │   ├── DX11RenderUtils.h                      # 渲染工具函数
 │   ├── RenderPlan.h                           # 渲染计划与通道调度
 │   │
-│   ├── Demo/
-│   │   ├── TriangleDemo.h                     # 三角形测试渲染器接口
-│   │   ├── TriangleDemo.cpp                   # 基础三角形渲染
-│   │   ├── CubeDemo.h                         # 立方体演示渲染器接口
-│   │   └── CubeDemo.cpp                       # 3D 立方体渲染演示
+│   ├── Demo/                                  # (空目录 - 旧的演示已移除)
 │   │
 │   ├── Draw/
-│   │   ├── DrawItem.h                         # 绘制项结构与层级定义
+│   │   ├── CardDrawItem.h                     # 卡片绘制项结构
+│   │   ├── MeshDrawItem.h                     # 网格绘制项结构
+│   │   ├── SpriteDrawItem.h                   # 精灵绘制项结构
 │   │   └── DrawList.h                         # 绘制队列与排序逻辑
+│   │
+│   ├── Drawers/
+│   │   ├── CardDrawer.h                       # 卡片批量渲染器接口
+│   │   ├── CardDrawer.cpp                     # 卡片渲染实现
+│   │   ├── MeshDrawer.h                       # 网格渲染器接口
+│   │   ├── MeshDrawer.cpp                     # 网格渲染实现
+│   │   ├── SpriteBatcher.h                    # 精灵批量渲染器接口
+│   │   ├── SpriteBatcher.cpp                  # 顶点缓冲区管理与精灵批处理
+│   │   ├── DrawServices.h                     # 集中式绘制服务接口
+│   │   └── DrawServices.cpp                   # 绘制器工厂与管理
 │   │
 │   ├── Passes/
 │   │   ├── IRenderPass.h                      # 渲染通道接口
@@ -74,24 +82,29 @@ manosaba-plus/
 │   │   ├── ComposePass.cpp                    # 全屏合成通道
 │   │   ├── SceneSpritePass.h                  # 场景精灵渲染通道接口
 │   │   ├── SceneSpritePass.cpp                # 2D 精灵场景渲染
-│   │   ├── CubePass.h                         # 立方体渲染通道接口
-│   │   └── CubePass.cpp                       # 3D 立方体渲染通道
+│   │   ├── CardPass.h                         # 卡片渲染通道接口
+│   │   ├── CardPass.cpp                       # 卡片渲染通道实现
+│   │   ├── MeshPass.h                         # 网格渲染通道接口
+│   │   └── MeshPass.cpp                       # 3D 网格渲染通道
 │   │
 │   ├── Pipelines/
 │   │   ├── SpritePipeline.h                   # 精灵管线接口
 │   │   ├── SpritePipeline.cpp                 # 2D 精灵管线状态与着色器绑定
 │   │   ├── ComposePipeline.h                  # 场景合成管线接口
 │   │   ├── ComposePipeline.cpp                # 合成管线配置
+│   │   ├── CardPipeline.h                     # 卡片渲染管线接口
+│   │   ├── CardPipeline.cpp                   # 卡片管线配置
 │   │   ├── MeshPipeline.h                     # 3D 网格管线接口
-│   │   └── MeshPipeline.cpp                   # 3D 网格渲染管线
-│   │
-│   ├── Renderers/
-│   │   ├── SpriteRenderer.h                   # 精灵批量渲染器接口
-│   │   └── SpriteRenderer.cpp                 # 顶点缓冲区管理与精灵批处理
+│   │   ├── MeshPipeline.cpp                   # 3D 网格渲染管线
+│   │   ├── PipelineLibrary.h                  # 管线管理接口
+│   │   └── PipelineLibrary.cpp                # 管线缓存与管理
 │   │
 │   ├── Scene3D/
 │   │   ├── Camera3D.h                         # 3D 相机接口
-│   │   └── Camera3D.cpp                       # 相机视图与投影矩阵
+│   │   ├── Camera3D.cpp                       # 相机视图与投影矩阵
+│   │   ├── Mesh.h                             # 网格数据结构
+│   │   ├── MeshFactory.h                      # 程序化网格生成接口
+│   │   └── MeshFactory.cpp                    # 网格工厂实现
 │   │
 │   └── Shader/
 │       ├── ShaderManager.h                    # 着色器加载接口
@@ -107,6 +120,7 @@ manosaba-plus/
 ├── Shaders/
 │   ├── compose.hlsl                           # 合成着色器（VS + PS）
 │   ├── sprite.hlsl                            # 精灵着色器（VS + PS）
+│   ├── card.hlsl                              # 卡片渲染着色器（VS + PS）
 │   ├── triangle.hlsl                          # 调试三角形着色器（VS + PS）
 │   └── mesh.hlsl                              # 3D 网格着色器（VS + PS）
 │
@@ -195,8 +209,20 @@ manosaba-plus/
 - `RenderPlan.h` - 渲染计划结构、通道调度与执行逻辑
 
 **绘制系统**
-- `Draw/DrawItem.h` - 绘制项定义（SpriteDrawItem、Layer 枚举、几何结构体）
+- `Draw/CardDrawItem.h` - 卡片绘制项结构与定义
+- `Draw/MeshDrawItem.h` - 网格绘制项结构与定义
+- `Draw/SpriteDrawItem.h` - 精灵绘制项结构（Layer 枚举、几何结构体）
 - `Draw/DrawList.h` - 带有层级排序和 z 排序的绘制队列
+
+**绘制服务**
+- `Drawers/CardDrawer.h` - 卡片批量渲染器接口
+- `Drawers/CardDrawer.cpp` - 带批处理的卡片渲染实现
+- `Drawers/MeshDrawer.h` - 网格渲染器接口
+- `Drawers/MeshDrawer.cpp` - 3D 网格渲染实现
+- `Drawers/SpriteBatcher.h` - 精灵批量渲染器接口
+- `Drawers/SpriteBatcher.cpp` - 动态顶点缓冲区管理、精灵批处理、绘制调用提交
+- `Drawers/DrawServices.h` - 集中式绘制服务接口
+- `Drawers/DrawServices.cpp` - 绘制器工厂与管理系统
 
 **渲染通道**
 - `Passes/IRenderPass.h` - 渲染通道接口定义
@@ -205,34 +231,33 @@ manosaba-plus/
 - `Passes/ComposePass.cpp` - 从离屏 RT 到后备缓冲区的全屏合成
 - `Passes/SceneSpritePass.h` - 场景精灵渲染通道接口
 - `Passes/SceneSpritePass.cpp` - 2D 精灵渲染到场景渲染目标
-- `Passes/CubePass.h` - 立方体渲染通道接口
-- `Passes/CubePass.cpp` - 带深度测试的 3D 立方体渲染
-
-**精灵渲染**
-- `Renderers/SpriteRenderer.h` - 精灵批量渲染器接口
-- `Renderers/SpriteRenderer.cpp` - 动态顶点缓冲区管理、精灵批处理、绘制调用提交
+- `Passes/CardPass.h` - 卡片渲染通道接口
+- `Passes/CardPass.cpp` - 卡片渲染通道实现
+- `Passes/MeshPass.h` - 网格渲染通道接口
+- `Passes/MeshPass.cpp` - 带深度测试的 3D 网格渲染通道
 
 **管线配置**
 - `Pipelines/SpritePipeline.h` - 精灵渲染管线接口
 - `Pipelines/SpritePipeline.cpp` - 2D 精灵着色器绑定与渲染状态设置
 - `Pipelines/ComposePipeline.h` - 场景合成管线接口
 - `Pipelines/ComposePipeline.cpp` - 合成管线配置
+- `Pipelines/CardPipeline.h` - 卡片渲染管线接口
+- `Pipelines/CardPipeline.cpp` - 卡片管线配置
 - `Pipelines/MeshPipeline.h` - 3D 网格管线接口
 - `Pipelines/MeshPipeline.cpp` - 支持深度与光照的 3D 网格渲染管线
+- `Pipelines/PipelineLibrary.h` - 管线管理接口
+- `Pipelines/PipelineLibrary.cpp` - 管线缓存与集中式管理
 
 **3D 场景系统**
 - `Scene3D/Camera3D.h` - 3D 相机接口
 - `Scene3D/Camera3D.cpp` - 相机视图与投影矩阵管理
+- `Scene3D/Mesh.h` - 网格数据结构定义
+- `Scene3D/MeshFactory.h` - 程序化网格生成接口
+- `Scene3D/MeshFactory.cpp` - 用于创建常见网格类型（立方体、球体等）的工厂
 
 **着色器管理**
 - `Shader/ShaderManager.h` - 着色器加载与缓存接口
 - `Shader/ShaderManager.cpp` - 从磁盘加载编译后的着色器、着色器缓存管理
-
-**演示渲染器（测试）**
-- `Demo/TriangleDemo.h` - 简单三角形渲染测试
-- `Demo/TriangleDemo.cpp` - 用于测试管线的基础三角形绘制
-- `Demo/CubeDemo.h` - 3D 立方体演示接口
-- `Demo/CubeDemo.cpp` - 旋转 3D 立方体渲染演示
 
 ---
 
@@ -243,6 +268,9 @@ manosaba-plus/
 
 **精灵着色器**
 - `sprite.hlsl` - 精灵渲染（VS + PS 入口点）：像素坐标转 NDC、纹理采样
+
+**卡片着色器**
+- `card.hlsl` - 卡片渲染（VS + PS 入口点）：专门用于卡牌游戏元素的渲染
 
 **3D 网格着色器**
 - `mesh.hlsl` - 3D 网格渲染（VS + PS 入口点）：顶点变换、光照、纹理映射

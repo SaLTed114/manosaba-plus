@@ -55,26 +55,18 @@ void DemoScene::Initialize(Render::DX11Renderer& renderer) {
     }
     img2_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, img2.width, img2.height, img2.pixels.data(), img2.rowPitch);
 
+    Resources::ImageRGBA8 platformImg;
+    std::filesystem::path platformPath = "Assets/Image/platform.png";
+    if (!Resources::LoadImageRGBA8_WIC(platformPath.string(), platformImg)) {
+        throw std::runtime_error("Failed to load image in DemoScene: " + platformPath.string());
+    }
+    platform_ = RHI::DX11::DX11Texture2D::CreateRGBA8(
+        device, platformImg.width, platformImg.height,
+        platformImg.pixels.data(), platformImg.rowPitch);
+
     // Load cube mesh from OBJ file
-    Resources::MeshLoadOptions options;
-    options.triangulate = true;
-    
-    auto meshData = Resources::MeshLoader::LoadOBJ("Assets/Mesh/ring13.obj", options);
-    if (!meshData) throw std::runtime_error("Failed to load ring13.obj");
-    
-    // Create red cube (front)
-    auto redMeshData = *meshData;
-    for (auto& v : redMeshData.vertices) {
-        v.color = DirectX::XMFLOAT3(1.0f, 0.2f, 0.2f);  // Red
-    }
-    redCube_ = Render::Scene3D::MeshFactory::CreateMesh(device, redMeshData);
-    
-    // Create green cube (back)
-    auto greenMeshData = *meshData;
-    for (auto& v : greenMeshData.vertices) {
-        v.color = DirectX::XMFLOAT3(0.2f, 1.0f, 0.2f);  // Green
-    }
-    greenCube_ = Render::Scene3D::MeshFactory::CreateMesh(device, greenMeshData);
+    // auto meshData = Resources::MeshLoader::LoadOBJ("Assets/Mesh/ring13.obj");
+    // if (!meshData) throw std::runtime_error("Failed to load ring13.obj");
 
     camera_.SetPosition(0.0f, 1.4f, 0.0f);
     camera_.SetFovY(60.0f * DirectX::XM_PI / 180.0f);
@@ -95,20 +87,14 @@ void DemoScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sce
 void DemoScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
     drawList.ReserveSprites(8);
 
-    (void)canvasW;
-    (void)canvasH;
+    drawList.PushSprite(Render::Layer::Background, checker_.SRV(),
+        Render::RectF{0,0,static_cast<float>(canvasW),static_cast<float>(canvasH)}, 0.0f);
 
-    // drawList.PushSprite(Render::Layer::Background, checker_.SRV(),
-    //     Render::RectF{0,0,static_cast<float>(canvasW),static_cast<float>(canvasH)}, 0.0f);
-
-    // drawList.PushSprite(Render::Layer::Stage, img1_.SRV(),
-    //     Render::RectF{100,100,static_cast<float>(img1_.GetWidth()),static_cast<float>(img1_.GetHeight())}, 0.0f);
+    drawList.PushSprite(Render::Layer::Stage, img1_.SRV(),
+        Render::RectF{100,500,static_cast<float>(img1_.GetWidth()/4),static_cast<float>(img1_.GetHeight())/4}, 0.0f);
 
     drawList.PushSprite(Render::Layer::HUD, checker_.SRV(),
         Render::RectF{20,20,256,256}, 0.0f);
-
-    // drawList.PushSprite(Render::Layer::HUD, img2_.SRV(),
-    //     Render::RectF{300,20,static_cast<float>(img2_.GetWidth()),static_cast<float>(img2_.GetHeight())}, 0.0f);
 }
 
 void DemoScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& drawList) {
@@ -125,12 +111,7 @@ void DemoScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& draw
 
     // 3D cubes - depth testing with partial occlusion
     meshItems_.clear();
-    
-    // Red cube (front) - slightly offset to the right
-    XMMATRIX worldRed = XMMatrixTranslation(0.0, 0.0f, 0.0f);
-    meshItems_.push_back({&redCube_, worldRed});
-    
-    auto p1 = std::make_unique<Render::MeshPass>("Scene_3D_Cubes", Target::Scene, DepthMode::RW, BlendMode::Off, meshItems_);
+    auto p1 = std::make_unique<Render::MeshPass>("Scene_3D", Target::Scene, DepthMode::RW, BlendMode::Off, meshItems_);
     plan.passes.push_back(std::move(p1));
 
     cardItems_.clear();
@@ -158,6 +139,22 @@ void DemoScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& draw
         card.yaw = -(angle + DirectX::XM_PIDIV2);  // -(angle + π/2)
         
         cardItems_.push_back(card);
+
+        CardDrawItem platformCard{};
+        platformCard.srv = platform_.SRV();
+        platformCard.size = DirectX::XMFLOAT2(1.5f, 1.0f);
+
+        // Position on circle, slightly below the card
+        platformCard.pos = DirectX::XMFLOAT3(
+            (radius - 0.5f) * cosf(angle),
+            cardY,
+            (radius - 0.5f) * sinf(angle)
+        );
+        
+        // Face toward center
+        platformCard.yaw = -(angle + DirectX::XM_PIDIV2);  // -(angle + π/2)
+        
+        cardItems_.push_back(platformCard);
     }
 
     auto pCard = std::make_unique<CardPass>("Scene_3D_Card", Target::Scene, DepthMode::RW, BlendMode::Alpha, cardItems_);

@@ -57,15 +57,23 @@ manosaba-plus/
 │   ├── DX11RenderUtils.h                      # Rendering utility functions
 │   ├── RenderPlan.h                           # Render plan and pass scheduling
 │   │
-│   ├── Demo/
-│   │   ├── TriangleDemo.h                     # Triangle test renderer interface
-│   │   ├── TriangleDemo.cpp                   # Basic triangle rendering
-│   │   ├── CubeDemo.h                         # Cube demo renderer interface
-│   │   └── CubeDemo.cpp                       # 3D cube rendering demo
+│   ├── Demo/                                  # (Empty - legacy demos removed)
 │   │
 │   ├── Draw/
-│   │   ├── DrawItem.h                         # Draw item structures and layer definitions
+│   │   ├── CardDrawItem.h                     # Card draw item structures
+│   │   ├── MeshDrawItem.h                     # Mesh draw item structures
+│   │   ├── SpriteDrawItem.h                   # Sprite draw item structures
 │   │   └── DrawList.h                         # Draw queue with sorting logic
+│   │
+│   ├── Drawers/
+│   │   ├── CardDrawer.h                       # Card batch renderer interface
+│   │   ├── CardDrawer.cpp                     # Card rendering implementation
+│   │   ├── MeshDrawer.h                       # Mesh renderer interface
+│   │   ├── MeshDrawer.cpp                     # Mesh rendering implementation
+│   │   ├── SpriteBatcher.h                    # Sprite batch renderer interface
+│   │   ├── SpriteBatcher.cpp                  # Vertex buffer management and sprite batching
+│   │   ├── DrawServices.h                     # Centralized drawer services interface
+│   │   └── DrawServices.cpp                   # Drawer factory and management
 │   │
 │   ├── Passes/
 │   │   ├── IRenderPass.h                      # Render pass interface
@@ -74,24 +82,29 @@ manosaba-plus/
 │   │   ├── ComposePass.cpp                    # Fullscreen composition pass
 │   │   ├── SceneSpritePass.h                  # Scene sprite rendering pass interface
 │   │   ├── SceneSpritePass.cpp                # 2D sprite scene rendering
-│   │   ├── CubePass.h                         # Cube rendering pass interface
-│   │   └── CubePass.cpp                       # 3D cube rendering pass
+│   │   ├── CardPass.h                         # Card rendering pass interface
+│   │   ├── CardPass.cpp                       # Card rendering pass implementation
+│   │   ├── MeshPass.h                         # Mesh rendering pass interface
+│   │   └── MeshPass.cpp                       # 3D mesh rendering pass
 │   │
 │   ├── Pipelines/
 │   │   ├── SpritePipeline.h                   # Sprite pipeline interface
 │   │   ├── SpritePipeline.cpp                 # 2D sprite pipeline state and shader binding
 │   │   ├── ComposePipeline.h                  # Scene composition pipeline interface
 │   │   ├── ComposePipeline.cpp                # Composition pipeline configuration
+│   │   ├── CardPipeline.h                     # Card rendering pipeline interface
+│   │   ├── CardPipeline.cpp                   # Card pipeline configuration
 │   │   ├── MeshPipeline.h                     # 3D mesh pipeline interface
-│   │   └── MeshPipeline.cpp                   # 3D mesh rendering pipeline
-│   │
-│   ├── Renderers/
-│   │   ├── SpriteRenderer.h                   # Sprite batch renderer interface
-│   │   └── SpriteRenderer.cpp                 # Vertex buffer management and sprite batching
+│   │   ├── MeshPipeline.cpp                   # 3D mesh rendering pipeline
+│   │   ├── PipelineLibrary.h                  # Pipeline management interface
+│   │   └── PipelineLibrary.cpp                # Pipeline caching and management
 │   │
 │   ├── Scene3D/
 │   │   ├── Camera3D.h                         # 3D camera interface
-│   │   └── Camera3D.cpp                       # Camera view and projection matrices
+│   │   ├── Camera3D.cpp                       # Camera view and projection matrices
+│   │   ├── Mesh.h                             # Mesh data structure
+│   │   ├── MeshFactory.h                      # Procedural mesh generation interface
+│   │   └── MeshFactory.cpp                    # Mesh factory implementation
 │   │
 │   └── Shader/
 │       ├── ShaderManager.h                    # Shader loading interface
@@ -107,6 +120,7 @@ manosaba-plus/
 ├── Shaders/
 │   ├── compose.hlsl                           # Composition shaders (VS + PS)
 │   ├── sprite.hlsl                            # Sprite shaders (VS + PS)
+│   ├── card.hlsl                              # Card rendering shaders (VS + PS)
 │   ├── triangle.hlsl                          # Debug triangle shaders (VS + PS)
 │   └── mesh.hlsl                              # 3D mesh shaders (VS + PS)
 │
@@ -195,8 +209,20 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 - `RenderPlan.h` - Render plan structure, pass scheduling and execution logic
 
 **Draw System**
-- `Draw/DrawItem.h` - Draw item definitions (SpriteDrawItem, Layer enum, geometric structs)
+- `Draw/CardDrawItem.h` - Card draw item structures and definitions
+- `Draw/MeshDrawItem.h` - Mesh draw item structures and definitions
+- `Draw/SpriteDrawItem.h` - Sprite draw item structures (Layer enum, geometric structs)
 - `Draw/DrawList.h` - Draw queue with layer sorting and z-ordering
+
+**Drawer Services**
+- `Drawers/CardDrawer.h` - Card batch renderer interface
+- `Drawers/CardDrawer.cpp` - Card rendering implementation with batching
+- `Drawers/MeshDrawer.h` - Mesh renderer interface
+- `Drawers/MeshDrawer.cpp` - 3D mesh rendering implementation
+- `Drawers/SpriteBatcher.h` - Sprite batch renderer interface
+- `Drawers/SpriteBatcher.cpp` - Dynamic vertex buffer management, sprite batching, draw call submission
+- `Drawers/DrawServices.h` - Centralized drawer services interface
+- `Drawers/DrawServices.cpp` - Drawer factory and management system
 
 **Render Passes**
 - `Passes/IRenderPass.h` - Render pass interface definition
@@ -205,34 +231,33 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 - `Passes/ComposePass.cpp` - Fullscreen composition from offscreen RT to backbuffer
 - `Passes/SceneSpritePass.h` - Scene sprite rendering pass interface
 - `Passes/SceneSpritePass.cpp` - 2D sprite rendering to scene render target
-- `Passes/CubePass.h` - Cube rendering pass interface
-- `Passes/CubePass.cpp` - 3D cube rendering with depth testing
-
-**Sprite Rendering**
-- `Renderers/SpriteRenderer.h` - Sprite batch renderer interface
-- `Renderers/SpriteRenderer.cpp` - Dynamic vertex buffer management, sprite batching, draw call submission
+- `Passes/CardPass.h` - Card rendering pass interface
+- `Passes/CardPass.cpp` - Card rendering pass implementation
+- `Passes/MeshPass.h` - Mesh rendering pass interface
+- `Passes/MeshPass.cpp` - 3D mesh rendering pass with depth testing
 
 **Pipeline Configuration**
 - `Pipelines/SpritePipeline.h` - Sprite render pipeline interface
 - `Pipelines/SpritePipeline.cpp` - 2D sprite shader binding and render state setup
 - `Pipelines/ComposePipeline.h` - Scene composition pipeline interface
 - `Pipelines/ComposePipeline.cpp` - Composition pipeline configuration
+- `Pipelines/CardPipeline.h` - Card rendering pipeline interface
+- `Pipelines/CardPipeline.cpp` - Card pipeline configuration
 - `Pipelines/MeshPipeline.h` - 3D mesh pipeline interface
 - `Pipelines/MeshPipeline.cpp` - 3D mesh rendering pipeline with depth and lighting support
+- `Pipelines/PipelineLibrary.h` - Pipeline management interface
+- `Pipelines/PipelineLibrary.cpp` - Pipeline caching and centralized management
 
 **3D Scene System**
 - `Scene3D/Camera3D.h` - 3D camera interface
 - `Scene3D/Camera3D.cpp` - Camera view and projection matrix management
+- `Scene3D/Mesh.h` - Mesh data structure definitions
+- `Scene3D/MeshFactory.h` - Procedural mesh generation interface
+- `Scene3D/MeshFactory.cpp` - Factory for creating common mesh types (cube, sphere, etc.)
 
 **Shader Management**
 - `Shader/ShaderManager.h` - Shader loading and caching interface
 - `Shader/ShaderManager.cpp` - Compiled shader loading from disk, shader cache management
-
-**Demo Renderers (Testing)**
-- `Demo/TriangleDemo.h` - Simple triangle rendering test
-- `Demo/TriangleDemo.cpp` - Basic triangle drawing for testing pipeline
-- `Demo/CubeDemo.h` - 3D cube demo interface
-- `Demo/CubeDemo.cpp` - Rotating 3D cube rendering demonstration
 
 ---
 
@@ -243,6 +268,9 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 
 **Sprite Shaders**
 - `sprite.hlsl` - Sprite rendering (VS + PS entry points): pixel coordinates to NDC, texture sampling
+
+**Card Shaders**
+- `card.hlsl` - Card rendering (VS + PS entry points): specialized rendering for card game elements
 
 **3D Mesh Shaders**
 - `mesh.hlsl` - 3D mesh rendering (VS + PS entry points): vertex transformation, lighting, texture mapping
