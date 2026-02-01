@@ -28,7 +28,7 @@ public:
 
 private:
     void OnResized(uint32_t w, uint32_t h);
-    void Tick(const Core::FrameTime& ft);
+    void Tick(const Core::FrameTime& ft, const Core::InputState& in);
 
 private:
     std::unique_ptr<Core::Win32Window> window_;

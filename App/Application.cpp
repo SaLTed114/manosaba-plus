@@ -34,11 +34,11 @@ void Application::OnResized(uint32_t w, uint32_t h) {
     renderer_->Resize(w, h);
 }
 
-void Application::Tick(const Core::FrameTime& ft) {
-    scene_->Update(ft, canvasW_, canvasH_);
+void Application::Tick(const Core::FrameTime& ft, const Core::InputState& in) {
+    scene_->Update(renderer_->Device(), ft, in, canvasW_, canvasH_);
 
     drawList_.Clear();
-    scene_->BuildDrawList(renderer_->Device(), drawList_, canvasW_, canvasH_);
+    scene_->BuildDrawList(drawList_, canvasW_, canvasH_);
     drawList_.Sort();
 
     uint32_t sceneW = renderer_->GetSceneW();
@@ -53,8 +53,10 @@ void Application::Run() {
     clock_.Reset();
 
     while (window_->ProcessMessages()) {
+        auto& in = window_->GetInputState();
         auto ft = clock_.Tick();
-        Tick(ft);
+
+        Tick(ft, in);
 
         renderer_->ExecutePlan(plan_, frame_);
         renderer_->Present(vsync_);

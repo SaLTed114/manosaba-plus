@@ -1,6 +1,7 @@
 // Core/Window/Win32Window.cpp
 #include "Win32Window.h"
 
+#include <windowsx.h>
 #include <stdexcept>
 #include <iostream>
 
@@ -62,6 +63,8 @@ Win32Window::~Win32Window() {
 }
 
 bool Win32Window::ProcessMessages() {
+    input_.BeginFrame();
+
     MSG msg;
     while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
         if (msg.message == WM_QUIT) return false;
@@ -90,6 +93,74 @@ LRESULT Win32Window::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
+
+    // ==== Mouse Input ====
+
+    case WM_MOUSEMOVE: {
+        int x = GET_X_LPARAM(lParam);
+        int y = GET_Y_LPARAM(lParam);
+        input_.OnMouseMove(x, y);
+        return 0;
+    }
+
+    case WM_LBUTTONDOWN: 
+        SetCapture(hwnd_);
+        input_.OnKeyDown(VK_LBUTTON);
+        return 0;
+    case WM_LBUTTONUP: 
+        ReleaseCapture();
+        input_.OnKeyUp(VK_LBUTTON);
+        return 0;
+
+    case WM_RBUTTONDOWN: 
+        SetCapture(hwnd_);
+        input_.OnKeyDown(VK_RBUTTON);
+        return 0;
+    case WM_RBUTTONUP: 
+        ReleaseCapture();
+        input_.OnKeyUp(VK_RBUTTON);
+        return 0;
+    
+    case WM_MBUTTONDOWN: 
+        SetCapture(hwnd_);
+        input_.OnKeyDown(VK_MBUTTON);
+        return 0;
+    case WM_MBUTTONUP: 
+        ReleaseCapture();
+        input_.OnKeyUp(VK_MBUTTON);
+        return 0;
+    
+    case WM_MOUSEWHEEL: {
+        int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+        input_.OnMouseWheel(delta);
+        return 0;
+    }
+
+    // ==== Keyboard Input ====
+
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN: {
+        uint16_t vk = static_cast<uint16_t>(wParam);
+        input_.OnKeyDown(vk);
+        return 0;
+    }
+    case WM_KEYUP:
+    case WM_SYSKEYUP: {
+        uint16_t vk = static_cast<uint16_t>(wParam);
+        input_.OnKeyUp(vk);
+        return 0;
+    }
+
+    // ==== Focus ====
+
+    case WM_KILLFOCUS:
+        input_.ClearAll();
+        return 0;
+    case WM_ACTIVATEAPP:
+        if (wParam == FALSE) input_.ClearAll();
+        return 0;
+
+    // ==== Window Events ====
 
     case WM_SIZE: {
         width_  = LOWORD(lParam);

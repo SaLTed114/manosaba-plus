@@ -8,6 +8,9 @@ set(SALT2D_CORE_HEADERS
     Window/Win32Window.h
 
     Time/FrameClock.h
+
+    Input/InputState.h
+    Input/InputSystem.h
 )
 
 add_library(Core STATIC

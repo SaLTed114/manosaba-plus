@@ -7,6 +7,8 @@
 #include <functional>
 #include <cstdint>
 
+#include "Core/Input/InputSystem.h"
+
 namespace Salt2D::Core {
 
 class Win32Window {
@@ -22,6 +24,11 @@ public:
     Win32Window& operator=(const Win32Window&) = delete;
 
     bool ProcessMessages();
+
+    void BeginFrame() { input_.BeginFrame(); }
+
+    const InputState& GetInputState() const { return input_.state; }
+    InputState& GetInputState() { return input_.state; }
 
 public:
     HWND GetHWND()  const { return hwnd_; }
@@ -43,6 +50,8 @@ private:
     HWND hwnd_ = nullptr;
     int width_  = 0;
     int height_ = 0;
+
+    InputSystem input_;
 
     ResizedCallback onResized_ = nullptr;
     DpiChangedCallback onDpiChanged_ = nullptr;

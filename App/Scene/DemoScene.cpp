@@ -11,10 +11,6 @@
 #include "Render/Draw/MeshDrawItem.h"
 #include "Render/Pipelines/MeshPipeline.h"
 
-// tmp
-static Salt2D::Render::Text::TextBaker gText;
-static bool gTextInited = false;
-
 using namespace DirectX;
 
 namespace Salt2D::App {
@@ -75,12 +71,60 @@ void DemoScene::Initialize(Render::DX11Renderer& renderer) {
 
     camera_.SetPosition(0.0f, 1.4f, 0.0f);
     camera_.SetFovY(60.0f * DirectX::XM_PI / 180.0f);
+
+    style_.fontFamily = L"SimSun";
+    style_.fontSize = 32.0f;
+    textDirty_ = true;
+
+    // Create 13 cards in a circle around origin, all facing center
+    cardItems_.clear();
+    cardItems_.reserve(26); // 13 cards + 13 platforms
+
+    const int numCards = 13;
+    const float radius = 3.0f;
+    
+    for (int i = 0; i < numCards; ++i) {
+        float angle = (float)i * (2.0f * DirectX::XM_PI / numCards);
+        
+        Render::CardDrawItem card{};
+        card.srv = img2_.SRV();
+        card.size = DirectX::XMFLOAT2(1.0f, 1.9f);
+        card.pos = DirectX::XMFLOAT3(radius * cosf(angle), 0.0f, radius * sinf(angle));
+        card.yaw = -(angle + DirectX::XM_PIDIV2);  // -(angle + π/2)
+        
+        cardItems_.push_back(card);
+
+        Render::CardDrawItem platformCard{};
+        platformCard.srv = platform_.SRV();
+        platformCard.size = DirectX::XMFLOAT2(1.5f, 1.0f);
+        platformCard.pos = DirectX::XMFLOAT3((radius - 0.5f) * cosf(angle), 0.0f, (radius - 0.5f) * sinf(angle));
+        platformCard.yaw = -(angle + DirectX::XM_PIDIV2);  // -(angle + π/2)
+        
+        cardItems_.push_back(platformCard);
+    }
 }
 
-void DemoScene::Update(const Core::FrameTime& ft, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {
+void DemoScene::Update(const RHI::DX11::DX11Device& device, const Core::FrameTime& ft, const Core::InputState& in, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {
     float t = static_cast<float>(ft.totalSec);
     angle_ += static_cast<float>(ft.dtSec) * 0.2f;
     camera_.SetYawPitchRoll(angle_, sinf(t) * 0.02f, cos(t) * 0.01f);
+
+    if (!textInited_) { textBaker_.Initialize(); textInited_ = true; }
+
+    if (in.Pressed(Core::Key::LButton)) {
+        text_ = L"Mouse Clicked at (" + std::to_wstring(in.mouseX) + L", " + std::to_wstring(in.mouseY) + L")";
+        textDirty_ = true;
+    }
+    if (in.Released(Core::Key::LButton)) {
+        text_ = L"Mouse Released at (" + std::to_wstring(in.mouseX) + L", " + std::to_wstring(in.mouseY) + L")";
+        textDirty_ = true;
+    }
+
+    if (!textDirty_) return;
+
+    textDirty_ = false;
+    bakedText_ = textBaker_.BakeToTexture(
+        device, text_, style_, layoutW_, layoutH_);
 }
 
 void DemoScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sceneW, uint32_t sceneH) {
@@ -89,7 +133,7 @@ void DemoScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sce
     frame.viewProj = frame.view * frame.proj;
 }
 
-void DemoScene::BuildDrawList(const RHI::DX11::DX11Device& device, Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
+void DemoScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
     drawList.ReserveSprites(8);
 
     drawList.PushSprite(Render::Layer::Background, checker_.SRV(),
@@ -104,26 +148,8 @@ void DemoScene::BuildDrawList(const RHI::DX11::DX11Device& device, Render::DrawL
     drawList.PushSprite(Render::Layer::HUD, checker_.SRV(),
         Render::RectF{20,20,256,256}, 0.0f);
 
-    if (!gTextInited) { gText.Initialize(); gTextInited = true; }
-
-    Render::Text::TextStyle style;
-    style.fontFamily = L"SimSun";
-    style.fontSize = 32.0f;
-
-    bakedText_ = gText.BakeToTexture(
-        device,
-        L"Hello, Salt2D!\n欢迎使用 Salt2D 引擎！",
-        style,
-        512.0f,
-        256.0f);
-
-    Render::RectF dstRect;
-    dstRect.x = 50.0f;
-    dstRect.y = 300.0f;
-    dstRect.w = static_cast<float>(bakedText_.w);
-    dstRect.h = static_cast<float>(bakedText_.h);
-
-    drawList.PushSprite(Render::Layer::Text, bakedText_.tex.SRV(), dstRect, 0.0f);
+    drawList.PushSprite(Render::Layer::Text, bakedText_.tex.SRV(), 
+        Render::RectF{50,300,static_cast<float>(bakedText_.w),static_cast<float>(bakedText_.h)}, 0.0f);
 }
 
 void DemoScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& drawList) {
@@ -142,49 +168,6 @@ void DemoScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& draw
     meshItems_.clear();
     auto p1 = std::make_unique<Render::MeshPass>("Scene_3D", Target::Scene, DepthMode::RW, BlendMode::Off, meshItems_);
     plan.passes.push_back(std::move(p1));
-
-    cardItems_.clear();
-
-    // Create 13 cards in a circle around origin, all facing center
-    const int numCards = 13;
-    const float radius = 3.0f;
-    const float cardY = 0.0f;  // Card bottom position
-    
-    for (int i = 0; i < numCards; ++i) {
-        float angle = (float)i * (2.0f * DirectX::XM_PI / numCards);
-        
-        CardDrawItem card{};
-        card.srv = img2_.SRV();
-        card.size = DirectX::XMFLOAT2(1.0f, 1.9f);
-        
-        // Position on circle
-        card.pos = DirectX::XMFLOAT3(
-            radius * cosf(angle),
-            cardY,
-            radius * sinf(angle)
-        );
-        
-        // Face toward center (perpendicular to radius, opposite rotation)
-        card.yaw = -(angle + DirectX::XM_PIDIV2);  // -(angle + π/2)
-        
-        cardItems_.push_back(card);
-
-        CardDrawItem platformCard{};
-        platformCard.srv = platform_.SRV();
-        platformCard.size = DirectX::XMFLOAT2(1.5f, 1.0f);
-
-        // Position on circle, slightly below the card
-        platformCard.pos = DirectX::XMFLOAT3(
-            (radius - 0.5f) * cosf(angle),
-            cardY,
-            (radius - 0.5f) * sinf(angle)
-        );
-        
-        // Face toward center
-        platformCard.yaw = -(angle + DirectX::XM_PIDIV2);  // -(angle + π/2)
-        
-        cardItems_.push_back(platformCard);
-    }
 
     auto pCard = std::make_unique<CardPass>("Scene_3D_Card", Target::Scene, DepthMode::RW, BlendMode::Alpha, cardItems_);
     plan.passes.push_back(std::move(pCard));
