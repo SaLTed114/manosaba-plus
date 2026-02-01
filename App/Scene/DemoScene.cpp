@@ -3,12 +3,17 @@
 #include "Resources/Image/WICImageLoader.h"
 #include "Resources/Mesh/MeshLoader.h"
 #include "Render/Scene3D/MeshFactory.h"
+#include "Render/Text/TextBaker.h"
 #include "Render/Passes/SceneSpritePass.h"
 #include "Render/Passes/ComposePass.h"
 #include "Render/Passes/MeshPass.h"
 #include "Render/Passes/CardPass.h"
 #include "Render/Draw/MeshDrawItem.h"
 #include "Render/Pipelines/MeshPipeline.h"
+
+// tmp
+static Salt2D::Render::Text::TextBaker gText;
+static bool gTextInited = false;
 
 using namespace DirectX;
 
@@ -84,7 +89,7 @@ void DemoScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sce
     frame.viewProj = frame.view * frame.proj;
 }
 
-void DemoScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
+void DemoScene::BuildDrawList(const RHI::DX11::DX11Device& device, Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
     drawList.ReserveSprites(8);
 
     drawList.PushSprite(Render::Layer::Background, checker_.SRV(),
@@ -98,6 +103,27 @@ void DemoScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint
 
     drawList.PushSprite(Render::Layer::HUD, checker_.SRV(),
         Render::RectF{20,20,256,256}, 0.0f);
+
+    if (!gTextInited) { gText.Initialize(); gTextInited = true; }
+
+    Render::Text::TextStyle style;
+    style.fontFamily = L"SimSun";
+    style.fontSize = 32.0f;
+
+    bakedText_ = gText.BakeToTexture(
+        device,
+        L"Hello, Salt2D!\n欢迎使用 Salt2D 引擎！",
+        style,
+        512.0f,
+        256.0f);
+
+    Render::RectF dstRect;
+    dstRect.x = 50.0f;
+    dstRect.y = 300.0f;
+    dstRect.w = static_cast<float>(bakedText_.w);
+    dstRect.h = static_cast<float>(bakedText_.h);
+
+    drawList.PushSprite(Render::Layer::Text, bakedText_.tex.SRV(), dstRect, 0.0f);
 }
 
 void DemoScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& drawList) {

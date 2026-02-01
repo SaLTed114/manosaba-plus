@@ -2,9 +2,11 @@
 #include "DX11Device.h"
 #include "DX11Common.h"
 
+using Microsoft::WRL::ComPtr;
+
 namespace Salt2D::RHI::DX11 {
 
-DX11Device::DX11Device(const Microsoft::WRL::ComPtr<IDXGIAdapter1>& adapter) {
+DX11Device::DX11Device(const ComPtr<IDXGIAdapter1>& adapter) {
     adapter_ = adapter;
 
     UINT flags = 0;
@@ -60,10 +62,10 @@ DX11Device::DX11Device(const Microsoft::WRL::ComPtr<IDXGIAdapter1>& adapter) {
 
     ThrowIfFailed(hr, "Failed to create D3D11 device.");
 
-    Microsoft::WRL::ComPtr<IDXGIDevice> dxgiDevice;
+    ComPtr<IDXGIDevice> dxgiDevice;
     ThrowIfFailed(device_.As(&dxgiDevice),"Failed to get IDXGIDevice from ID3D11Device.");
 
-    Microsoft::WRL::ComPtr<IDXGIAdapter> dxgiAdapter;
+    ComPtr<IDXGIAdapter> dxgiAdapter;
     ThrowIfFailed(dxgiDevice->GetAdapter(&dxgiAdapter), "Failed to get IDXGIAdapter from IDXGIDevice.");
 
     if (!adapter_) {

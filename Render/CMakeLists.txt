@@ -13,6 +13,8 @@ set(RENDER_SOURCES
     Scene3D/Camera3D.cpp
     Scene3D/MeshFactory.cpp
 
+    Text/TextBaker.cpp
+
     Passes/SceneSpritePass.cpp
     Passes/ComposePass.cpp
     Passes/MeshPass.cpp
@@ -41,6 +43,8 @@ set(RENDER_HEADERS
 
     Scene3D/Camera3D.h
     Scene3D/MeshFactory.h
+
+    Text/TextBaker.h
 
     Passes/IRenderPass.h
     Passes/RenderPassBase.h
@@ -97,4 +101,7 @@ target_link_libraries(Render PUBLIC
     Utils
     Resources
     d3dcompiler
+    dwrite
+    d2d1
+    windowscodecs
 )
