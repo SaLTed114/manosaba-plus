@@ -90,8 +90,11 @@ void DemoScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint
     drawList.PushSprite(Render::Layer::Background, checker_.SRV(),
         Render::RectF{0,0,static_cast<float>(canvasW),static_cast<float>(canvasH)}, 0.0f);
 
-    drawList.PushSprite(Render::Layer::Stage, img1_.SRV(),
+    auto& s = drawList.PushSprite(Render::Layer::Stage, img1_.SRV(),
         Render::RectF{100,500,static_cast<float>(img1_.GetWidth()/4),static_cast<float>(img1_.GetHeight())/4}, 0.0f);
+
+    s.clipEnabled = true;
+    s.clipRect = Render::RectI{150,550,300,700};
 
     drawList.PushSprite(Render::Layer::HUD, checker_.SRV(),
         Render::RectF{20,20,256,256}, 0.0f);

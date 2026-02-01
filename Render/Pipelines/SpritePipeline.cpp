@@ -57,6 +57,7 @@ void SpritePipeline::Initialize(const RHI::DX11::DX11Device& device, ShaderManag
     rastDesc.FillMode = D3D11_FILL_SOLID;
     rastDesc.CullMode = D3D11_CULL_NONE;
     rastDesc.DepthClipEnable = TRUE;
+    rastDesc.ScissorEnable = TRUE;
 
     ThrowIfFailed(d3dDevice->CreateRasterizerState(&rastDesc, rast_.GetAddressOf()),
         "SpritePipeline::Initialize: CreateRasterizerState failed.");

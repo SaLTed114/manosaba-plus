@@ -90,8 +90,34 @@ void SpriteBatcher::DrawBatch(PassContext& ctx, std::span<const SpriteDrawItem> 
     ctx.ctx->IASetVertexBuffers(0, 1, vbs, &stride, &offset);
     ctx.ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+    D3D11_RECT full;
+    full.left   = 0;
+    full.top    = 0;
+    full.right  = static_cast<LONG>(ctx.canvasW);
+    full.bottom = static_cast<LONG>(ctx.canvasH);
+
+    auto rectEq = [](const D3D11_RECT& a, const D3D11_RECT& b) {
+        return a.left == b.left && a.top == b.top && a.right == b.right && a.bottom == b.bottom;
+    };
+
+    D3D11_RECT currentRect = full;
+    ctx.ctx->RSSetScissorRects(1, &currentRect);
+
     const auto spriteCount = static_cast<UINT>(sprites.size());
     for (UINT i = 0; i < spriteCount; i++) {
+        D3D11_RECT scissorRect = full;
+        if (sprites[i].clipEnabled) {
+            scissorRect.left   = static_cast<LONG>(sprites[i].clipRect.l);
+            scissorRect.top    = static_cast<LONG>(sprites[i].clipRect.t);
+            scissorRect.right  = static_cast<LONG>(sprites[i].clipRect.r);
+            scissorRect.bottom = static_cast<LONG>(sprites[i].clipRect.b);
+        }
+
+        if (!rectEq(scissorRect, currentRect)) {
+            ctx.ctx->RSSetScissorRects(1, &scissorRect);
+            currentRect = scissorRect;
+        }
+
         pipeline.BindTexture(ctx.ctx, sprites[i].srv);
         ctx.ctx->Draw(6, i * 6);
     }

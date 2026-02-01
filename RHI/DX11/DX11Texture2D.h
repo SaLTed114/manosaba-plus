@@ -27,6 +27,25 @@ public:
         uint32_t height,
         DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM);
 
+    static DX11Texture2D CreateImmutableSRV(
+        const DX11Device& device,
+        uint32_t width,
+        uint32_t height,
+        DXGI_FORMAT format,
+        const void* initData,
+        uint32_t rowPitchBytes);
+
+    static DX11Texture2D CreateDynamicSRV(
+        const DX11Device& device,
+        uint32_t width,
+        uint32_t height,
+        DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM);
+
+    void UpdateDynamic(
+        ID3D11DeviceContext* context,
+        const void* rgbaData,
+        uint32_t rowPitchBytes);
+
     uint32_t GetWidth()  const { return width_; }
     uint32_t GetHeight() const { return height_; }
     DXGI_FORMAT GetFormat() const { return format_; }
@@ -42,6 +61,9 @@ private:
     uint32_t width_  = 0;
     uint32_t height_ = 0;
     DXGI_FORMAT format_ = DXGI_FORMAT_UNKNOWN;
+
+    D3D11_USAGE usage_ = D3D11_USAGE_DEFAULT;
+    UINT cpuAccessFlags_ = 0;
 
     Microsoft::WRL::ComPtr<ID3D11Texture2D> texture_;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv_;

@@ -37,12 +37,22 @@ struct Color4F {
     float a = 1.0f;
 };
 
+struct RectI {
+    int32_t l = 0;
+    int32_t t = 0;
+    int32_t r = 0;
+    int32_t b = 0;
+};
+
 struct SpriteDrawItem {
     ID3D11ShaderResourceView* srv = nullptr;
 
     RectF   dstRect;
     UVRectF uv;
     Color4F tint;
+
+    bool clipEnabled = false;
+    RectI clipRect;
 
     Layer layer = Layer::Stage;
     float z = 0.0f;

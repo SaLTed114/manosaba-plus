@@ -9,6 +9,8 @@ DX11Device::DX11Device(const Microsoft::WRL::ComPtr<IDXGIAdapter1>& adapter) {
 
     UINT flags = 0;
 
+    flags |= D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+
 #if defined(_DEBUG)
     flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
