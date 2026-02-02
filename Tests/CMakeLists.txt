@@ -23,6 +23,25 @@ set_target_properties(StoryGraphLoaderTest PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Bin/$<CONFIG>
 )
 
+add_executable(StoryRuntimeTest
+    Game/Story/StoryRuntimeTest.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/StoryGraphLoader.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/StoryRuntime.cpp
+)
+
+target_include_directories(StoryRuntimeTest PRIVATE
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/ThirdParty
+)
+
+target_link_libraries(StoryRuntimeTest PRIVATE
+    Utils
+)
+
+set_target_properties(StoryRuntimeTest PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Bin/$<CONFIG>
+)
+
 # ========================================
 # Future Tests
 # ========================================
@@ -35,6 +54,6 @@ set_target_properties(StoryGraphLoaderTest PROPERTIES
 
 # Create a custom target that builds all tests
 add_custom_target(Tests
-    DEPENDS StoryGraphLoaderTest
+    DEPENDS StoryGraphLoaderTest StoryRuntimeTest
     COMMENT "Building all tests"
 )

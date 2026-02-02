@@ -30,8 +30,11 @@ cmake --build Build --target StoryGraphLoaderTest
 测试可执行文件位于 `Build/Bin/Debug/` 或 `Build/Bin/Release/` 目录下。
 
 ```powershell
-# 运行StoryGraphLoader测试
+# 运行 StoryGraphLoaderTest
 .\Build\Bin\Debug\StoryGraphLoaderTest.exe
+
+# 运行 StoryRuntimeTest
+.\Build\Bin\Debug\StoryRuntimeTest.exe
 ```
 
 ## 添加新测试
