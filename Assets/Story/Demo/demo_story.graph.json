@@ -1,0 +1,56 @@
+{
+  "nodes": [
+    { "id": "n0_intro", "type": "vn", "resource": "res/vn/n0_intro.txt" },
+    {
+      "id": "n1_interrogation",
+      "type": "debate",
+      "resource": "res/debate/n1_interrogation.json",
+      "params": { "time_limit_sec": 180, "be_node": "be_badend" }
+    },
+    { "id": "n2_no_commit", "type": "error", "resource": "res/vn/n2_no_commit.txt" },
+    { "id": "n3_opt1_correct", "type": "vn", "resource": "res/vn/n3_opt1_correct.txt" },
+    { "id": "n4_opt2_wrong", "type": "error", "resource": "res/vn/n4_opt2_wrong.txt" },
+    { "id": "n6_present_evidence", "type": "present", "resource": "res/present/n6_present_evidence.json" },
+    { "id": "n7_evid_correct", "type": "vn", "resource": "res/vn/n7_evid_correct.txt" },
+    { "id": "n8_evid_wrong", "type": "error", "resource": "res/vn/n8_evid_wrong.txt" },
+    { "id": "n10_next", "type": "vn", "resource": "res/vn/n10_next.txt" },
+    { "id": "be_badend", "type": "be", "resource": "res/vn/be_badend.txt" }
+  ],
+  "edges": [
+    { "from": "n0_intro", "to": "n1_interrogation", "trigger": "auto" },
+
+    { "from": "n1_interrogation", "to": "n2_no_commit", "trigger": "no_commit" },
+    { "from": "n2_no_commit", "to": "n1_interrogation", "trigger": "auto" },
+
+    {
+      "from": "n1_interrogation",
+      "to": "n3_opt1_correct",
+      "trigger": "option",
+      "key": "opt_rebut",
+      "effects": [ { "type": "cue", "name": "rebuttal" } ]
+    },
+    {
+      "from": "n1_interrogation",
+      "to": "n4_opt2_wrong",
+      "trigger": "option",
+      "key": "opt_agree"
+    },
+    { "from": "n4_opt2_wrong", "to": "n1_interrogation", "trigger": "auto" },
+
+    { "from": "n3_opt1_correct", "to": "n6_present_evidence", "trigger": "auto" },
+
+    {
+      "from": "n6_present_evidence",
+      "to": "n7_evid_correct",
+      "trigger": "pick",
+      "key": "evid_apple",
+      "effects": [ { "type": "cue", "name": "rebuttal_success" } ]
+    },
+    { "from": "n6_present_evidence", "to": "n8_evid_wrong", "trigger": "pick", "key": "evid_pen" },
+    { "from": "n8_evid_wrong", "to": "n6_present_evidence", "trigger": "auto" },
+
+    { "from": "n7_evid_correct", "to": "n10_next", "trigger": "auto" },
+
+    { "from": "n1_interrogation", "to": "be_badend", "trigger": "time_depleted" }
+  ]
+}

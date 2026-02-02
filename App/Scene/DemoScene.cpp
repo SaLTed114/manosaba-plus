@@ -73,7 +73,8 @@ void DemoScene::Initialize(Render::DX11Renderer& renderer) {
     camera_.SetFovY(60.0f * DirectX::XM_PI / 180.0f);
 
     style_.fontFamily = L"SimSun";
-    style_.fontSize = 32.0f;
+    style_.fontSize = 50.0f;
+    style_.weight = DWRITE_FONT_WEIGHT_HEAVY;
     textDirty_ = true;
 
     // Create 13 cards in a circle around origin, all facing center

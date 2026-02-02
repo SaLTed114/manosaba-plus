@@ -43,6 +43,31 @@ std::filesystem::path ResolvePath(
     int maxLevelsUp = 10
 );
 
-} // namespace SaltRT::Utils
+std::filesystem::path ResolveRelative(
+    const std::filesystem::path& baseDir,
+    const std::filesystem::path& relOrAbsPath
+);
+
+std::string ReadTextFileUtf8(
+    const std::filesystem::path& path,
+    bool normalizeNewLines = true
+);
+
+std::vector<uint8_t> ReadBinaryFile(
+    const std::filesystem::path& path
+);
+
+std::string ReadTextFileUtf8Resolved(
+    const std::filesystem::path& path,
+    int maxLevelsUp = 10,
+    bool normalizeNewLines = true
+);
+
+std::vector<uint8_t> ReadBinaryFileResolved(
+    const std::filesystem::path& path,
+    int maxLevelsUp = 10
+);
+
+} // namespace Salt2D::Utils
 
 #endif // UTILS_FILEUTILS_H

@@ -1,10 +1,13 @@
 set(UTILS_SOURCES
     FileUtils.cpp
+    DiskFileSystem.cpp
 )
 
 set(UTILS_HEADERS
     ConsoleUtils.h
     FileUtils.h
+    IFileSystem.h
+    DiskFileSystem.h
 )
 
 add_library(Utils STATIC

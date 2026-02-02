@@ -1,0 +1,7 @@
+{
+  "prompt": "出示证物",
+  "items": [
+    { "item_id": "evid_pen", "label": "希罗的钢笔" },
+    { "item_id": "evid_apple", "label": "有点大的苹果" }
+  ]
+}

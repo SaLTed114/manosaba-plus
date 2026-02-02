@@ -5,6 +5,27 @@
 namespace Salt2D::Utils {
 namespace fs = std::filesystem;
 
+static inline void StripUtf8Bom(std::string& content) {
+    const std::string utf8Bom = "\xEF\xBB\xBF";
+    if (content.rfind(utf8Bom, 0) == 0) {
+        content.erase(0, utf8Bom.size());
+    }
+}
+
+static inline void NormalizeNewLines(std::string& content) {
+    std::string normalized;
+    normalized.reserve(content.size());
+    for (size_t i = 0; i < content.size(); ++i) {
+        if (content[i] == '\r') {
+            if (i + 1 < content.size() && content[i + 1] == '\n') ++i;
+            normalized += '\n';
+        } else {
+            normalized += content[i];
+        }
+    }
+    content.swap(normalized);
+}
+
 fs::path GetExeDir() {
     wchar_t buffer[MAX_PATH];
     DWORD length = GetModuleFileNameW(NULL, buffer, MAX_PATH);
@@ -98,4 +119,50 @@ fs::path ResolvePath(const fs::path& path, int maxLevelsUp) {
     throw std::runtime_error("Could not resolve path: " + path.string());
 }
 
-} // namespace SaltRT::Utils
+fs::path ResolveRelative(const fs::path& baseDir, const fs::path& relOrAbsPath) {
+    if (relOrAbsPath.is_absolute()) return relOrAbsPath;
+    return fs::weakly_canonical(baseDir / relOrAbsPath);
+}
+
+std::string ReadTextFileUtf8(const fs::path& path, bool normalizeNewLines) {
+    std::ifstream ifs(path, std::ios::binary);
+    if (!ifs) throw std::runtime_error("Failed to open file: " + path.string());
+
+    std::string content(
+        (std::istreambuf_iterator<char>(ifs)),
+        std::istreambuf_iterator<char>()
+    );
+
+    StripUtf8Bom(content);
+    if (normalizeNewLines) NormalizeNewLines(content);
+    return content;
+}
+
+std::vector<uint8_t> ReadBinaryFile(const fs::path& path) {
+    std::ifstream ifs(path, std::ios::binary);
+    if (!ifs) throw std::runtime_error("Failed to open file: " + path.string());
+
+    ifs.seekg(0, std::ios::end);
+    std::streampos fileSize = ifs.tellg();
+    if (fileSize < 0) throw std::runtime_error("Failed to determine file size: " + path.string());
+    ifs.seekg(0, std::ios::beg);
+
+    std::vector<uint8_t> buffer(static_cast<size_t>(fileSize));
+    if (!buffer.empty()) {
+        ifs.read(reinterpret_cast<char*>(buffer.data()), fileSize);
+        if (!ifs) throw std::runtime_error("Failed to read file: " + path.string());
+    }
+    return buffer;
+}
+
+std::string ReadTextFileUtf8Resolved(const fs::path& path, int maxLevelsUp, bool normalizeNewLines) {
+    fs::path resolvedPath = ResolvePath(path, maxLevelsUp);
+    return ReadTextFileUtf8(resolvedPath, normalizeNewLines);
+}
+
+std::vector<uint8_t> ReadBinaryFileResolved(const fs::path& path, int maxLevelsUp) {
+    fs::path resolvedPath = ResolvePath(path, maxLevelsUp);
+    return ReadBinaryFile(resolvedPath);
+}
+
+} // namespace Salt2D::Utils

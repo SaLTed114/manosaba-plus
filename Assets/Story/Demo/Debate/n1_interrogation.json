@@ -1,0 +1,19 @@
+{
+  "statements": [
+    { "speaker": "樱羽 艾玛", "text": "所以，我们只需要在这里随便聊聊就行了？" },
+    { "speaker": "二阶堂 希罗", "text": "既然是模拟审判，当然要按流程走。" },
+    { "speaker": "月代 雪", "text": "当然，你也可以趁这个机会问问感兴趣的事情哦，艾玛。" },
+    { "speaker": "樱羽 艾玛", "text": "可以我感觉{sus:Q1}想不到{/sus}什么想问的事情" },
+    { "speaker": "月代 雪", "text": "哦，是吗？" }
+  ],
+  "menus": [
+    {
+      "menu_id": "m_q1",
+      "span_id": "Q1",
+      "options": [
+        { "option_id": "opt_rebut", "label": "（反驳）你有想问的事情" },
+        { "option_id": "opt_agree", "label": "（赞成）不必硬找话题" }
+      ]
+    }
+  ]
+}
