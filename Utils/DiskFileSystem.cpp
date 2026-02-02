@@ -9,11 +9,11 @@ bool DiskFileSystem::Exists(const std::filesystem::path& path) const {
 }
 
 std::string DiskFileSystem::ReadTextFileUtf8(const std::filesystem::path& path, bool normalizeNewLines) {
-    return ReadTextFileUtf8(path, normalizeNewLines);
+    return Utils::ReadTextFileUtf8(path, normalizeNewLines);
 }
 
 std::vector<uint8_t> DiskFileSystem::ReadBinaryFile(const std::filesystem::path& path) {
-    return ReadBinaryFile(path);
+    return Utils::ReadBinaryFile(path);
 }
 
 } // namespace Salt2D::Utils

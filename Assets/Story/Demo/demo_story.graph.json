@@ -1,20 +1,20 @@
 {
   "nodes": [
-    { "id": "n0_intro", "type": "vn", "resource": "res/vn/n0_intro.txt" },
+    { "id": "n0_intro", "type": "vn", "resource": "VN/n0_intro.txt" },
     {
       "id": "n1_interrogation",
       "type": "debate",
-      "resource": "res/debate/n1_interrogation.json",
+      "resource": "Debate/n1_interrogation.json",
       "params": { "time_limit_sec": 180, "be_node": "be_badend" }
     },
-    { "id": "n2_no_commit", "type": "error", "resource": "res/vn/n2_no_commit.txt" },
-    { "id": "n3_opt1_correct", "type": "vn", "resource": "res/vn/n3_opt1_correct.txt" },
-    { "id": "n4_opt2_wrong", "type": "error", "resource": "res/vn/n4_opt2_wrong.txt" },
-    { "id": "n6_present_evidence", "type": "present", "resource": "res/present/n6_present_evidence.json" },
-    { "id": "n7_evid_correct", "type": "vn", "resource": "res/vn/n7_evid_correct.txt" },
-    { "id": "n8_evid_wrong", "type": "error", "resource": "res/vn/n8_evid_wrong.txt" },
-    { "id": "n10_next", "type": "vn", "resource": "res/vn/n10_next.txt" },
-    { "id": "be_badend", "type": "be", "resource": "res/vn/be_badend.txt" }
+    { "id": "n2_no_commit", "type": "error", "resource": "VN/n2_no_commit.txt" },
+    { "id": "n3_opt1_correct", "type": "vn", "resource": "VN/n3_opt1_correct.txt" },
+    { "id": "n4_opt2_wrong", "type": "error", "resource": "VN/n4_opt2_wrong.txt" },
+    { "id": "n6_present_evidence", "type": "present", "resource": "Present/n6_present_evidence.json" },
+    { "id": "n7_evid_correct", "type": "vn", "resource": "VN/n7_evid_correct.txt" },
+    { "id": "n8_evid_wrong", "type": "error", "resource": "VN/n8_evid_wrong.txt" },
+    { "id": "n10_next", "type": "vn", "resource": "VN/n10_next.txt" },
+    { "id": "be_badend", "type": "be", "resource": "VN/be_badend.txt" }
   ],
   "edges": [
     { "from": "n0_intro", "to": "n1_interrogation", "trigger": "auto" },

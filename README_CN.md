@@ -29,6 +29,14 @@ cmake --build Build --config Release
 
 ```
 
+## 第三方库
+
+本项目使用了以下第三方库：
+
+- **[nlohmann/json](https://github.com/nlohmann/json)** (v3.12.0) - JSON for Modern C++ by Niels Lohmann，采用 MIT 许可证
+
+详见 [ThirdParty/nlohmann/README.md](ThirdParty/nlohmann/README.md)。
+
 ## 许可证
 
 本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
