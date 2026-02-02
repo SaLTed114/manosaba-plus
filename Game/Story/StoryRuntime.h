@@ -4,6 +4,7 @@
 
 #include "StoryGraph.h"
 #include "StoryTypes.h"
+#include "Game/Common/Logger.h"
 
 #include <functional>
 #include <string>
@@ -25,6 +26,7 @@ public:
     const Node&   CurrentNode()   const { return graph_.GetNode(current_); }
 
     void SetEffectCallback(EffectCallback callback) { onEffect_ = std::move(callback); }
+    void SetLogger(const Game::Logger* logger) { logger_ = logger; }
 
 private:
     void EnterNode(const NodeId& nodeId);
@@ -35,6 +37,7 @@ private:
     NodeId current_;
 
     EffectCallback onEffect_;
+    const Game::Logger* logger_ = nullptr;
 };
 
 } // namespace Salt2D::Game::Story

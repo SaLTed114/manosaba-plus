@@ -1,7 +1,6 @@
 // Game/Story/StoryRuntime.cpp
 #include "StoryRuntime.h"
 
-#include <iostream>
 #include <stdexcept>
 
 namespace Salt2D::Game::Story {
@@ -20,10 +19,12 @@ void StoryRuntime::PushEvent(const GraphEvent& event) {
 
     const Edge* edge = graph_.FindEdge(current_, event);
     if (!edge) {
-        std::cout
-            << "[StoryRuntime] WARN: No edge from '" << current_
-            << "' for event trigger=" << ToString(event.trigger)
-            << " key='" << event.key << "'\n";
+        if (logger_) {
+            logger_->Warn("StoryRuntime", 
+                "No edge from '" + current_ + 
+                "' for event trigger=" + std::string(ToString(event.trigger)) +
+                " key='" + event.key + "'");
+        }
         return;
     }
 
@@ -33,9 +34,11 @@ void StoryRuntime::PushEvent(const GraphEvent& event) {
 
 void StoryRuntime::ApplyEffects(const Edge& edge) {
     for (const auto& effect : edge.effects) {
-        std::cout
-            << "[StoryRuntime] Applying effect: type='" << effect.type
-            << "' name='" << effect.name << "'\n";
+        if (logger_) {
+            logger_->Debug("StoryRuntime", 
+                "Applying effect: type='" + effect.type + 
+                "' name='" + effect.name + "'");
+        }
         if (onEffect_) {
             onEffect_(effect);
         }
@@ -49,11 +52,12 @@ void StoryRuntime::EnterNode(const NodeId& nodeId) {
     current_ = nodeId;
 
     const Node& node = graph_.GetNode(current_);
-    std::cout
-        << "\n[StoryRuntime] Entered node '" << node.id
-        << "' (type=" << ToString(node.type)
-        << ", resource=" << node.resourcePath.string()
-        << ")\n";
+    if (logger_) {
+        logger_->Info("StoryRuntime", 
+            "Entered node '" + node.id + 
+            "' (type=" + std::string(ToString(node.type)) +
+            ", resource=" + node.resourcePath.string() + ")");
+    }
 }
 
 } // namespace Salt2D::Game::Story

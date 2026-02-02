@@ -35,6 +35,9 @@ cmake --build Build --target StoryGraphLoaderTest
 
 # 运行 StoryRuntimeTest
 .\Build\Bin\Debug\StoryRuntimeTest.exe
+
+# 运行 StoryPlayerTest
+.\Build\Bin\Debug\StoryPlayerTest.exe
 ```
 
 ## 添加新测试

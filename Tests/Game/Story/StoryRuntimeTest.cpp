@@ -1,6 +1,7 @@
 // Tests/Game/Story/StoryRuntimeTest.cpp
 #include "Game/Story/StoryGraphLoader.h"
 #include "Game/Story/StoryRuntime.h"
+#include "Game/Common/Logger.h"
 
 #include "Utils/DiskFileSystem.h"
 #include <iostream>
@@ -10,6 +11,9 @@ using namespace Salt2D::Game::Story;
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     try {
         std::cout << "=== StoryRuntime Test ===\n\n";
+
+        // 创建Logger
+        auto logger = Salt2D::Game::MakeConsoleLogger(Salt2D::Game::LogLevel::Debug);
 
         // 使用DiskFileSystem
         Salt2D::Utils::DiskFileSystem diskFS;
@@ -24,6 +28,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
         // 创建运行时
         StoryRuntime runtime(graph);
+        runtime.SetLogger(&logger);  // 设置Logger
 
         // 设置效果回调
         runtime.SetEffectCallback([](const Effect& effect) {
