@@ -16,13 +16,23 @@ manosaba-plus/
 │       └── DemoScene.cpp                      # 演示场景实现
 │
 ├── Assets/                                    # 游戏资源目录
+│   ├── Font/                                  # 字体文件
+│   ├── Image/                                 # 图像纹理文件
 │   ├── Mesh/                                  # 3D 网格文件
-│   └── Textures/                              # 纹理图像文件
+│   └── Story/
+│       └── Demo/
+│           ├── demo_story.graph.json          # 演示故事图定义
+│           ├── VN/                            # 视觉小说脚本文件 (.txt)
+│           ├── Present/                       # 证据出示定义 (.json)
+│           └── Debate/                        # 辩论定义文件 (.json)
 │
 ├── Build/                                     # CMake 构建输出（自动生成）
 │
 ├── Core/
 │   ├── CMakeLists.txt
+│   ├── Input/
+│   │   ├── InputState.h                       # 输入状态结构（键盘、鼠标）
+│   │   └── InputSystem.h                      # 输入系统接口
 │   ├── Time/
 │   │   ├── FrameClock.h                       # 帧计时接口
 │   │   └── FrameClock.cpp                     # 增量时间与 FPS 计算
@@ -33,6 +43,39 @@ manosaba-plus/
 ├── Docs/
 │   ├── ARCHITECTURE.md                        # 英文架构文档
 │   └── ARCHITECTURE_CN.md                     # 本文件
+│
+├── Game/
+│   ├── CMakeLists.txt
+│   ├── Common/
+│   │   ├── Logger.h                           # 日志接口
+│   │   └── Logger.cpp                         # 控制台日志实现
+│   └── Story/
+│       ├── CMakeLists.txt
+│       ├── StoryTypes.h                       # 核心故事类型定义（节点类型、触发器、效果）
+│       ├── StoryGraph.h                       # 故事图结构（节点与边）
+│       ├── StoryGraphLoader.h                 # 故事图 JSON 加载器接口
+│       ├── StoryGraphLoader.cpp               # JSON 解析与图构建
+│       ├── StoryRuntime.h                     # 故事运行时状态机接口
+│       ├── StoryRuntime.cpp                   # 图遍历与事件处理
+│       ├── StoryPlayer.h                      # 高层故事播放器接口
+│       ├── StoryPlayer.cpp                    # 故事编排与视图管理
+│       ├── StoryView.h                        # 统一视图数据结构（VN、Present、Debate）
+│       ├── Resources/
+│       │   ├── VnScript.h                     # 视觉小说脚本结构
+│       │   ├── VnScript.cpp                   # VN 脚本解析器
+│       │   ├── PresentDef.h                   # 证据出示定义
+│       │   ├── PresentDefLoader.h             # Present 定义加载器接口
+│       │   ├── PresentDefLoader.cpp           # Present 节点 JSON 解析
+│       │   ├── DebateDef.h                    # 辩论定义结构
+│       │   ├── DebateDefLoader.h              # 辩论定义加载器接口
+│       │   └── DebateDefLoader.cpp            # 辩论节点 JSON 解析
+│       └── Runners/
+│           ├── VnRunner.h                     # 视觉小说运行器接口
+│           ├── VnRunner.cpp                   # VN 文本显示与行管理
+│           ├── PresentRunner.h                # 证据出示运行器接口
+│           ├── PresentRunner.cpp              # Present 节点逻辑与验证
+│           ├── DebateRunner.h                 # 辩论运行器接口
+│           └── DebateRunner.cpp               # 陈述推进与菜单处理
 │
 ├── RHI/
 │   ├── CMakeLists.txt
@@ -112,10 +155,13 @@ manosaba-plus/
 │
 ├── Resources/
 │   ├── CMakeLists.txt
-│   ├── Audio/                                 # 音频资源文件
-│   └── Image/
-│       ├── WICImageLoader.h                   # WIC 图像加载器接口
-│       └── WICImageLoader.cpp                 # 通过 Windows Imaging Component 加载图像
+│   ├── Image/
+│   │   ├── WICImageLoader.h                   # WIC 图像加载器接口
+│   │   └── WICImageLoader.cpp                 # 通过 Windows Imaging Component 加载图像
+│   └── Mesh/
+│       ├── MeshData.h                         # 网格数据结构定义
+│       ├── MeshLoader.h                       # 网格文件加载器接口
+│       └── MeshLoader.cpp                     # 从磁盘加载网格
 │
 ├── Shaders/
 │   ├── compose.hlsl                           # 合成着色器（VS + PS）
@@ -129,6 +175,15 @@ manosaba-plus/
 │   ├── ConsoleUtils.h                         # 控制台附加工具
 │   ├── FileUtils.h                            # 文件路径解析工具
 │   └── FileUtils.cpp                          # 文件系统辅助函数
+│
+├── Tests/
+│   ├── CMakeLists.txt
+│   ├── README.md                              # 测试文档
+│   └── Game/
+│       └── Story/
+│           ├── StoryGraphLoaderTest.cpp       # 故事图加载测试
+│           ├── StoryRuntimeTest.cpp           # 运行时状态机测试
+│           └── StoryPlayerTest.cpp            # 交互式故事播放器测试
 │
 ├── CMakeLists.txt                             # 根 CMake 配置
 ├── LICENSE                                    # MIT 许可证
@@ -155,6 +210,10 @@ manosaba-plus/
 
 ### Core/ - 核心系统
 
+**输入系统**
+- `Input/InputState.h` - 输入状态结构（键盘和鼠标状态）
+- `Input/InputSystem.h` - 用于轮询输入状态的输入系统接口
+
 **时间管理**
 - `Time/FrameClock.h` - 帧计时接口
 - `Time/FrameClock.cpp` - 增量时间计算、FPS 跟踪、帧计时工具
@@ -162,6 +221,47 @@ manosaba-plus/
 **窗口管理**
 - `Window/Win32Window.h` - Win32 窗口封装接口
 - `Window/Win32Window.cpp` - Win32 窗口实现，处理窗口创建和消息处理
+
+---
+
+### Game/ - 游戏逻辑层
+
+**通用工具**
+- `Common/Logger.h` - 日志接口，支持多个日志级别（调试、信息、警告、错误）
+- `Common/Logger.cpp` - 带颜色编码输出的控制台日志实现
+
+**故事系统**
+
+故事系统实现了基于节点的叙事引擎，支持视觉小说对话、证据出示和辩论机制。
+
+**核心故事框架**
+- `Story/StoryTypes.h` - 核心类型定义（NodeType、Trigger、Effect、GraphEvent）
+- `Story/StoryGraph.h` - 故事图数据结构（节点、边、效果）
+- `Story/StoryGraphLoader.h` - 故事图 JSON 加载器接口
+- `Story/StoryGraphLoader.cpp` - 解析 JSON 图文件，构建节点/边关系
+- `Story/StoryRuntime.h` - 故事运行时状态机接口
+- `Story/StoryRuntime.cpp` - 图遍历、事件处理、效果触发
+- `Story/StoryPlayer.h` - 高层故事播放器接口
+- `Story/StoryPlayer.cpp` - 编排运行器、更新视图、处理用户操作
+- `Story/StoryView.h` - 所有节点类型的统一视图结构（VN、Present、Debate）
+
+**资源定义**
+- `Story/Resources/VnScript.h` - 视觉小说脚本结构（命令、说话人、文本）
+- `Story/Resources/VnScript.cpp` - 基于文本的对话文件的 VN 脚本解析器
+- `Story/Resources/PresentDef.h` - 证据出示定义（提示、项目）
+- `Story/Resources/PresentDefLoader.h` - Present 定义加载器接口
+- `Story/Resources/PresentDefLoader.cpp` - 证据选择节点的 JSON 解析器
+- `Story/Resources/DebateDef.h` - 辩论定义（陈述、菜单、选项）
+- `Story/Resources/DebateDefLoader.h` - 辩论定义加载器接口
+- `Story/Resources/DebateDefLoader.cpp` - 辩论机制的 JSON 解析器
+
+**节点运行器**
+- `Story/Runners/VnRunner.h` - 视觉小说运行器接口
+- `Story/Runners/VnRunner.cpp` - 文本显示动画、行推进、脚本完成
+- `Story/Runners/PresentRunner.h` - 证据出示运行器接口
+- `Story/Runners/PresentRunner.cpp` - 证据选择验证与事件生成
+- `Story/Runners/DebateRunner.h` - 辩论运行器接口
+- `Story/Runners/DebateRunner.cpp` - 陈述推进、可疑点菜单处理、选项验证
 
 ---
 
@@ -195,6 +295,11 @@ manosaba-plus/
 **图像加载**
 - `Image/WICImageLoader.h` - 基于 WIC 的图像加载器接口
 - `Image/WICImageLoader.cpp` - 使用 Windows Imaging Component 加载 PNG/JPEG/BMP 图像为 RGBA8 格式
+
+**网格加载**
+- `Mesh/MeshData.h` - 网格数据结构定义（顶点、索引、材质）
+- `Mesh/MeshLoader.h` - 网格文件加载器接口
+- `Mesh/MeshLoader.cpp` - 从磁盘加载网格文件（支持自定义格式）
 
 ---
 

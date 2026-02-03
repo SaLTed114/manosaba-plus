@@ -16,13 +16,23 @@ manosaba-plus/
 │       └── DemoScene.cpp                      # Demo scene implementation
 │
 ├── Assets/                                    # Game assets directory
+│   ├── Font/                                  # Font files
+│   ├── Image/                                 # Image texture files
 │   ├── Mesh/                                  # 3D mesh files
-│   └── Textures/                              # Texture image files
+│   └── Story/
+│       └── Demo/
+│           ├── demo_story.graph.json          # Demo story graph definition
+│           ├── VN/                            # Visual novel script files (.txt)
+│           ├── Present/                       # Evidence presentation definitions (.json)
+│           └── Debate/                        # Debate definition files (.json)
 │
 ├── Build/                                     # CMake build output (generated)
 │
 ├── Core/
 │   ├── CMakeLists.txt
+│   ├── Input/
+│   │   ├── InputState.h                       # Input state structure (keyboard, mouse)
+│   │   └── InputSystem.h                      # Input system interface
 │   ├── Time/
 │   │   ├── FrameClock.h                       # Frame timing interface
 │   │   └── FrameClock.cpp                     # Delta time and FPS calculation
@@ -33,6 +43,39 @@ manosaba-plus/
 ├── Docs/
 │   ├── ARCHITECTURE.md                        # This file
 │   └── ARCHITECTURE_CN.md                     # Chinese architecture documentation
+│
+├── Game/
+│   ├── CMakeLists.txt
+│   ├── Common/
+│   │   ├── Logger.h                           # Logging interface
+│   │   └── Logger.cpp                         # Console logger implementation
+│   └── Story/
+│       ├── CMakeLists.txt
+│       ├── StoryTypes.h                       # Core story type definitions (NodeType, Trigger, Effect)
+│       ├── StoryGraph.h                       # Story graph structure (nodes and edges)
+│       ├── StoryGraphLoader.h                 # Story graph JSON loader interface
+│       ├── StoryGraphLoader.cpp               # JSON parsing and graph construction
+│       ├── StoryRuntime.h                     # Story runtime state machine interface
+│       ├── StoryRuntime.cpp                   # Graph traversal and event handling
+│       ├── StoryPlayer.h                      # High-level story player interface
+│       ├── StoryPlayer.cpp                    # Story orchestration and view management
+│       ├── StoryView.h                        # Unified view data structures (VN, Present, Debate)
+│       ├── Resources/
+│       │   ├── VnScript.h                     # Visual novel script structure
+│       │   ├── VnScript.cpp                   # VN script parser
+│       │   ├── PresentDef.h                   # Evidence presentation definition
+│       │   ├── PresentDefLoader.h             # Present definition loader interface
+│       │   ├── PresentDefLoader.cpp           # JSON parsing for present nodes
+│       │   ├── DebateDef.h                    # Debate definition structure
+│       │   ├── DebateDefLoader.h              # Debate definition loader interface
+│       │   └── DebateDefLoader.cpp            # JSON parsing for debate nodes
+│       └── Runners/
+│           ├── VnRunner.h                     # Visual novel runner interface
+│           ├── VnRunner.cpp                   # VN text reveal and line management
+│           ├── PresentRunner.h                # Evidence presentation runner interface
+│           ├── PresentRunner.cpp              # Present node logic and validation
+│           ├── DebateRunner.h                 # Debate runner interface
+│           └── DebateRunner.cpp               # Statement progression and menu handling
 │
 ├── RHI/
 │   ├── CMakeLists.txt
@@ -112,10 +155,13 @@ manosaba-plus/
 │
 ├── Resources/
 │   ├── CMakeLists.txt
-│   ├── Audio/                                 # Audio resource files
-│   └── Image/
-│       ├── WICImageLoader.h                   # WIC image loader interface
-│       └── WICImageLoader.cpp                 # Image loading via Windows Imaging Component
+│   ├── Image/
+│   │   ├── WICImageLoader.h                   # WIC image loader interface
+│   │   └── WICImageLoader.cpp                 # Image loading via Windows Imaging Component
+│   └── Mesh/
+│       ├── MeshData.h                         # Mesh data structure definition
+│       ├── MeshLoader.h                       # Mesh file loader interface
+│       └── MeshLoader.cpp                     # Mesh loading from disk
 │
 ├── Shaders/
 │   ├── compose.hlsl                           # Composition shaders (VS + PS)
@@ -129,6 +175,15 @@ manosaba-plus/
 │   ├── ConsoleUtils.h                         # Console attachment utilities
 │   ├── FileUtils.h                            # File path resolution utilities
 │   └── FileUtils.cpp                          # File system helpers
+│
+├── Tests/
+│   ├── CMakeLists.txt
+│   ├── README.md                              # Testing documentation
+│   └── Game/
+│       └── Story/
+│           ├── StoryGraphLoaderTest.cpp       # Story graph loading test
+│           ├── StoryRuntimeTest.cpp           # Runtime state machine test
+│           └── StoryPlayerTest.cpp            # Interactive story player test
 │
 ├── CMakeLists.txt                             # Root CMake configuration
 ├── LICENSE                                    # MIT License
@@ -155,6 +210,10 @@ manosaba-plus/
 
 ### Core/ - Core Systems
 
+**Input System**
+- `Input/InputState.h` - Input state structure (keyboard and mouse state)
+- `Input/InputSystem.h` - Input system interface for polling input state
+
 **Time Management**
 - `Time/FrameClock.h` - Frame timing interface
 - `Time/FrameClock.cpp` - Delta time calculation, FPS tracking, frame timing utilities
@@ -162,6 +221,47 @@ manosaba-plus/
 **Window Management**
 - `Window/Win32Window.h` - Win32 window wrapper interface
 - `Window/Win32Window.cpp` - Win32 window implementation, handles window creation and message processing
+
+---
+
+### Game/ - Game Logic Layer
+
+**Common Utilities**
+- `Common/Logger.h` - Logging interface with multiple log levels (Debug, Info, Warning, Error)
+- `Common/Logger.cpp` - Console logger implementation with color-coded output
+
+**Story System**
+
+The story system implements a node-based narrative engine supporting visual novel dialogues, evidence presentation, and debate mechanics.
+
+**Core Story Framework**
+- `Story/StoryTypes.h` - Core type definitions (NodeType, Trigger, Effect, GraphEvent)
+- `Story/StoryGraph.h` - Story graph data structure (nodes, edges, effects)
+- `Story/StoryGraphLoader.h` - Story graph JSON loader interface
+- `Story/StoryGraphLoader.cpp` - Parses JSON graph files, constructs node/edge relationships
+- `Story/StoryRuntime.h` - Story runtime state machine interface
+- `Story/StoryRuntime.cpp` - Graph traversal, event handling, effect triggering
+- `Story/StoryPlayer.h` - High-level story player interface
+- `Story/StoryPlayer.cpp` - Orchestrates runners, updates views, handles user actions
+- `Story/StoryView.h` - Unified view structures for all node types (VN, Present, Debate)
+
+**Resource Definitions**
+- `Story/Resources/VnScript.h` - Visual novel script structure (commands, speaker, text)
+- `Story/Resources/VnScript.cpp` - VN script parser for text-based dialogue files
+- `Story/Resources/PresentDef.h` - Evidence presentation definition (prompt, items)
+- `Story/Resources/PresentDefLoader.h` - Present definition loader interface
+- `Story/Resources/PresentDefLoader.cpp` - JSON parser for evidence selection nodes
+- `Story/Resources/DebateDef.h` - Debate definition (statements, menus, options)
+- `Story/Resources/DebateDefLoader.h` - Debate definition loader interface
+- `Story/Resources/DebateDefLoader.cpp` - JSON parser for debate mechanics
+
+**Node Runners**
+- `Story/Runners/VnRunner.h` - Visual novel runner interface
+- `Story/Runners/VnRunner.cpp` - Text reveal animation, line progression, script completion
+- `Story/Runners/PresentRunner.h` - Evidence presentation runner interface
+- `Story/Runners/PresentRunner.cpp` - Evidence selection validation and event generation
+- `Story/Runners/DebateRunner.h` - Debate runner interface
+- `Story/Runners/DebateRunner.cpp` - Statement advancement, suspicion menu handling, option validation
 
 ---
 
@@ -195,6 +295,11 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 **Image Loading**
 - `Image/WICImageLoader.h` - WIC-based image loader interface
 - `Image/WICImageLoader.cpp` - Load PNG/JPEG/BMP images to RGBA8 format using Windows Imaging Component
+
+**Mesh Loading**
+- `Mesh/MeshData.h` - Mesh data structure definition (vertices, indices, materials)
+- `Mesh/MeshLoader.h` - Mesh file loader interface
+- `Mesh/MeshLoader.cpp` - Load mesh files from disk (custom format support)
 
 ---
 

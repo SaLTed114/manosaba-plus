@@ -8,6 +8,7 @@ namespace Salt2D::Game::Story {
 
 static inline bool IsCommentOrEnpty(const std::string& line) {
     for (char ch : line) {
+        if (ch == '@') return true; // temp: future director commands
         if (ch == '#') return true;
         if (!std::isspace(static_cast<unsigned char>(ch))) return false;
     }
