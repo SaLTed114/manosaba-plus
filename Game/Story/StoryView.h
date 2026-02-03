@@ -29,7 +29,22 @@ struct StoryView {
 
     std::optional<PresentView> present;
 
-    // placeholder for 'Debate' and 'Present' view data
+    struct DebateView {
+        int statementIndex = 0;
+        int statementCount = 0;
+
+        std::string speaker;
+        std::string fullText;
+
+        std::vector<std::string> spanIds;
+
+        bool menuOpen = false;
+        std::string openedSpanId;
+        // {optionId, label}
+        std::vector<std::pair<std::string, std::string>> options;
+    };
+
+    std::optional<DebateView> debate;
 };
 
 } // namespace Salt2D::Game::Story

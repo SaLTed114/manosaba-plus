@@ -7,6 +7,7 @@
 #include "Game/Story/StoryTypes.h"
 #include "Game/Story/Resources/PresentDef.h"
 #include "Utils/IFileSystem.h"
+#include "Game/Common/Logger.h"
 
 namespace Salt2D::Game::Story {
 
@@ -20,9 +21,12 @@ public:
 
     const PresentDef& Def() const { return def_; }
 
+    void SetLogger(const Game::Logger* logger) { logger_ = logger; }
+
 private:
     Utils::IFileSystem& fs_;
     PresentDef def_;
+    const Game::Logger* logger_ = nullptr;
 };
 
 } // namespace Salt2D::Game::Story

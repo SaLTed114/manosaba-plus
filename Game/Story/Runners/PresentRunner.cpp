@@ -14,13 +14,28 @@ void PresentRunner::Enter(const Node& node) {
     }
 
     def_ = LoadPresentDef(fs_, node.resourceFullPath);
+    
+    if (logger_) {
+        logger_->Debug("PresentRunner",
+            "Entered Present node: prompt=\"" + def_.prompt + 
+            "\", items=" + std::to_string(def_.items.size()));
+    }
 }
 
 std::optional<GraphEvent> PresentRunner::Pick(const std::string& itemId) {
     for (const auto& item : def_.items) {
         if (item.itemId == itemId) {
+            if (logger_) {
+                logger_->Debug("PresentRunner",
+                    "Picked valid item: " + itemId + " (" + item.label + ")");
+            }
             return GraphEvent{Trigger::Pick, itemId};
         }
+    }
+    
+    if (logger_) {
+        logger_->Debug("PresentRunner",
+            "Pick failed: itemId \"" + itemId + "\" not found in available items");
     }
     return std::nullopt;
 }

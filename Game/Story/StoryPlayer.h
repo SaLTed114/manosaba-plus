@@ -7,6 +7,7 @@
 #include "StoryView.h"
 #include "Game/Story/Runners/VnRunner.h"
 #include "Game/Story/Runners/PresentRunner.h"
+#include "Game/Story/Runners/DebateRunner.h"
 #include "Game/Common/Logger.h"
 
 namespace Salt2D::Game::Story {
@@ -23,13 +24,23 @@ public:
     void CommitOption(const std::string& optionId);
     void PickEvidence(const std::string& evidenceId);
 
+    void OpenSuspicion(const std::string& spanId);
+    void CloseDebateMenu();
+
     const NodeId& CurrentNodeId() const { return rt_.CurrentNodeId(); }
     const Node&   CurrentNode()   const { return rt_.CurrentNode(); }
 
     const StoryView& View() const { return view_; }
 
     void SetEffectCallback(StoryRuntime::EffectCallback callback) { rt_.SetEffectCallback(std::move(callback)); }
-    void SetLogger(const Game::Logger* logger) { logger_ = logger; rt_.SetLogger(logger); vn_.SetLogger(logger); }
+    
+    void SetLogger(const Game::Logger* logger) { 
+        logger_ = logger; 
+        rt_.SetLogger(logger); 
+        vn_.SetLogger(logger); 
+        present_.SetLogger(logger);
+        debate_.SetLogger(logger);
+    }
 
 private:
     void OnEnteredNode();
@@ -41,7 +52,8 @@ private:
     Utils::IFileSystem& fs_;
 
     VnRunner      vn_;
-    PresentRunner present_;    
+    PresentRunner present_;
+    DebateRunner  debate_; 
 
     StoryView view_;
 
