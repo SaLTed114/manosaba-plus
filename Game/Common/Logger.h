@@ -25,12 +25,15 @@ class Logger {
 public:
     using Sink = std::function<void(const LogMessage&)>;
 
+    struct SinkEntry {
+        LogLevel minLevel;
+        Sink sink;
+    };
+
+    void AddSink(LogLevel minLevel, Sink sink);
+    void ClearSinks();
+
     Logger() = default;
-
-    void SetMinLevel(LogLevel level) { minLevel_ = level; }
-    LogLevel GetMinLevel() const { return minLevel_; }
-
-    void SetSink(Sink sink) { sink_ = std::move(sink); }
 
     void Log(LogLevel level, const char* category, std::string message) const;
 
@@ -40,11 +43,14 @@ public:
     void Error(const char* cat, std::string msg) const { Log(LogLevel::Error, cat, std::move(msg)); }
 
 private:
-    LogLevel minLevel_ = LogLevel::Info;
-    Sink sink_;
+    std::vector<SinkEntry> sinks_;
 };
 
-Logger MakeConsoleLogger(LogLevel minLevel = LogLevel::Info);
+Logger MakeConsoleAndFileLogger(
+    const std::string& logFilePath,
+    LogLevel consoleMinLevel = LogLevel::Info,
+    LogLevel fileMinLevel = LogLevel::Debug
+);
 
 } // namespace Salt2D::Game
 
