@@ -4,7 +4,9 @@
 
 #include <optional>
 #include "StoryRuntime.h"
+#include "StoryView.h"
 #include "Game/Story/Runners/VnRunner.h"
+#include "Game/Story/Runners/PresentRunner.h"
 #include "Game/Common/Logger.h"
 
 namespace Salt2D::Game::Story {
@@ -24,20 +26,26 @@ public:
     const NodeId& CurrentNodeId() const { return rt_.CurrentNodeId(); }
     const Node&   CurrentNode()   const { return rt_.CurrentNode(); }
 
+    const StoryView& View() const { return view_; }
+
     void SetEffectCallback(StoryRuntime::EffectCallback callback) { rt_.SetEffectCallback(std::move(callback)); }
     void SetLogger(const Game::Logger* logger) { logger_ = logger; rt_.SetLogger(logger); vn_.SetLogger(logger); }
 
 private:
     void OnEnteredNode();
     void PumpAuto();
+    void UpdateView();
 
 private:
     StoryRuntime rt_;
     Utils::IFileSystem& fs_;
 
-    VnRunner vn_;
-    const Game::Logger* logger_ = nullptr;
+    VnRunner      vn_;
+    PresentRunner present_;    
 
+    StoryView view_;
+
+    const Game::Logger* logger_ = nullptr;
 };
 
 } // namespace Salt2D::Game::Story

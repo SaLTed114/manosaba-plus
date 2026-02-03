@@ -4,7 +4,7 @@
 namespace Salt2D::Game::Story {
 
 StoryPlayer::StoryPlayer(const StoryGraph& graph, Utils::IFileSystem& fs)
-    : rt_(graph), fs_(fs), vn_(fs) {}
+    : rt_(graph), fs_(fs), vn_(fs), present_(fs) {}
 
 void StoryPlayer::Start(const NodeId& startNode) {
     rt_.Start(startNode);
@@ -23,6 +23,7 @@ void StoryPlayer::Advance() {
             OnEnteredNode();
             PumpAuto();
         }
+        UpdateView();
         return;
     }
 
@@ -45,6 +46,7 @@ void StoryPlayer::FastForward() {
             OnEnteredNode();
             PumpAuto();
         }
+        UpdateView();
         return;
     }
 
@@ -82,12 +84,49 @@ void StoryPlayer::OnEnteredNode() {
         node.type == NodeType::Error
     ) {
         vn_.Enter(node);
+        UpdateView();
+        return;
+    }
+
+    if (node.type == NodeType::Present) {
+        present_.Enter(node);
+        UpdateView();
         return;
     }
 }
 
 void StoryPlayer::PumpAuto() {
     // placeholder for auto-pumping logic if needed in the future
+}
+
+void StoryPlayer::UpdateView() {
+    view_ = {};
+    const Node& node = rt_.CurrentNode();
+    view_.nodeType = node.type;
+
+    if (node.type == NodeType::VN ||
+        node.type == NodeType::BE ||
+        node.type == NodeType::Error
+    ) {
+        const VnState& state = vn_.State();
+        StoryView::VnView view;
+        view.speaker  = state.speaker;
+        view.fullText = state.fullText;
+        view.revealed = state.revealed;
+        view.lineDone = state.lineDone;
+        view.finished = state.finished;
+        view_.vn = std::move(view);
+    }
+
+    if (node.type == NodeType::Present) {
+        const PresentDef& def = present_.Def();
+        StoryView::PresentView view;
+        view.prompt = def.prompt;
+        for (const auto& item : def.items) {
+            view.items.emplace_back(item.itemId, item.label);
+        }
+        view_.present = std::move(view);
+    }
 }
 
 } // namespace Salt2D::Game::Story
