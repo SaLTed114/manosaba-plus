@@ -18,7 +18,7 @@ void StoryPlayer::Advance() {
         node.type == NodeType::BE ||
         node.type == NodeType::Error
     ) {
-        if (auto ev = vn_.Advance(); ev.has_value()) {
+        if (auto ev = vn_.SkipLine(); ev.has_value()) {
             rt_.PushEvent(*ev);
             OnEnteredNode();
             PumpAuto();

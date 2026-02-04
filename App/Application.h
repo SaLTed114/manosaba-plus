@@ -11,10 +11,12 @@
 #include "Render/DX11Renderer.h"
 #include "Render/RenderPlan.h"
 #include "Render/Draw/DrawList.h"
+#include "Utils/DiskFileSystem.h"
 
 namespace Salt2D::App {
 
 class DemoScene;
+class GameScene;
 
 class Application {
 public:
@@ -33,11 +35,13 @@ private:
 private:
     std::unique_ptr<Core::Win32Window> window_;
     std::unique_ptr<Render::DX11Renderer> renderer_;
-    std::unique_ptr<DemoScene> scene_;
+    // std::unique_ptr<DemoScene> scene_;
+    std::unique_ptr<GameScene> scene_;
 
     Render::DrawList drawList_;
     Render::RenderPlan plan_;
 
+    Utils::DiskFileSystem fs_;
     uint32_t canvasW_ = 0;
     uint32_t canvasH_ = 0;
     Render::FrameBlackboard frame_;

@@ -2,6 +2,7 @@ set(APP_SOURCES
     main.cpp
     Application.cpp
     Scene/DemoScene.cpp
+    Scene/GameScene.cpp
 )
 
 add_executable(manosaba_plus WIN32
@@ -16,6 +17,8 @@ target_link_libraries(manosaba_plus PRIVATE
     Core
     Render
     RHI_DX11
+    Game
+    Utils
     user32
     gdi32
 )

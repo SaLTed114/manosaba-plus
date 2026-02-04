@@ -165,4 +165,27 @@ std::vector<uint8_t> ReadBinaryFileResolved(const fs::path& path, int maxLevelsU
     return ReadBinaryFile(resolvedPath);
 }
 
+std::string GenerateTimestampedFilename(const std::string& basePath) {
+    fs::path p(basePath);
+    fs::path dir = p.parent_path();
+    fs::path stem = p.stem();
+    fs::path ext = p.extension();
+
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+
+    // Format timestamp: YYYYMMDD_HHMMSS
+    char timestamp[32];
+    snprintf(timestamp, sizeof(timestamp),
+        "%04d%02d%02d_%02d%02d%02d",
+        st.wYear, st.wMonth, st.wDay,
+        st.wHour, st.wMinute, st.wSecond);
+
+    // Combine new filename
+    fs::path newFilename = stem.string() + "_" + timestamp + ext.string();
+    fs::path result = dir / newFilename;
+
+    return result.string();
+}
+
 } // namespace Salt2D::Utils

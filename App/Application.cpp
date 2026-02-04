@@ -1,6 +1,7 @@
 // App/Application.cpp
 #include "Application.h"
 #include "Scene/DemoScene.h"
+#include "Scene/GameScene.h"
 
 #include <Windows.h>
 #include <objbase.h>
@@ -20,7 +21,10 @@ Application::Application(const char* title, uint32_t width, uint32_t height) {
 
     renderer_ = std::make_unique<Render::DX11Renderer>(window_->GetHWND(), canvasW_, canvasH_);
 
-    scene_ = std::make_unique<DemoScene>();
+    // scene_ = std::make_unique<DemoScene>();
+    // scene_->Initialize(*renderer_);
+
+    scene_ = std::make_unique<GameScene>(fs_);
     scene_->Initialize(*renderer_);
 }
 

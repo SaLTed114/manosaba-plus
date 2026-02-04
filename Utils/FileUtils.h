@@ -68,6 +68,10 @@ std::vector<uint8_t> ReadBinaryFileResolved(
     int maxLevelsUp = 10
 );
 
+std::string GenerateTimestampedFilename(
+    const std::string& basePath
+);
+
 } // namespace Salt2D::Utils
 
 #endif // UTILS_FILEUTILS_H

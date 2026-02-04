@@ -57,6 +57,14 @@ std::optional<GraphEvent> VnRunner::SkipLine() {
         logger_->Debug("VnRunner",
             "SkipLine: " + state_.speaker + ": " + state_.fullText);
     }
+    
+    LoadNextLineOrFinish();
+    if (state_.finished) {
+        if (logger_) {
+            logger_->Debug("VnRunner", "SkipLine: Finished script");
+        }
+        return GraphEvent{Trigger::Auto, ""};
+    }
     return std::nullopt;
 }
 

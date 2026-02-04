@@ -15,6 +15,9 @@ enum class Key : uint16_t {
     Ctrl=VK_CONTROL,
     Space=VK_SPACE,
     Escape=VK_ESCAPE,
+    Enter=VK_RETURN,
+
+    Up=VK_UP, Down=VK_DOWN, Left=VK_LEFT, Right=VK_RIGHT,
 
     F1=VK_F1, F2=VK_F2, F3=VK_F3,
 
