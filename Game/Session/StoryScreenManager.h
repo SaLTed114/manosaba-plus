@@ -5,6 +5,7 @@
 #include "Game/Screens/IStoryScreen.h"
 #include "Game/Screens/VnScreen.h"
 #include "Game/Screens/DebateScreen.h"
+#include "Game/Screens/PresentScreen.h"
 #include "Game/Story/StoryTypes.h"
 
 namespace Salt2D::Game::Session {
@@ -26,6 +27,7 @@ private:
 
     Screens::VnScreen vn_;
     Screens::DebateScreen debate_;
+    Screens::PresentScreen present_;
 
     Screens::IStoryScreen* active_ = nullptr;
 };

@@ -8,6 +8,7 @@ void StoryScreenManager::SetPlayer(Story::StoryPlayer* player) {
     player_ = player;
     vn_.SetPlayer(player);
     debate_.SetPlayer(player);
+    present_.SetPlayer(player);
 }
 
 Screens::IStoryScreen* StoryScreenManager::Pick(Story::NodeType type) {
@@ -18,6 +19,8 @@ Screens::IStoryScreen* StoryScreenManager::Pick(Story::NodeType type) {
         return &vn_;
     case Story::NodeType::Debate:
         return &debate_;
+    case Story::NodeType::Present:
+        return &present_;
     default:
         return nullptr;
     }

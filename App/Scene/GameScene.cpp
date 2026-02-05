@@ -1,11 +1,8 @@
 // App/Scene/GameScene.cpp
 #include "GameScene.h"
 
-#include "Game/Story/StoryGraphLoader.h"
-#include "Game/UI/VnHud.h"
 #include "Render/Passes/SceneSpritePass.h"
 #include "Render/Passes/ComposePass.h"
-#include "Utils/FileUtils.h"
 
 #include <iostream>
 #include <Windows.h>

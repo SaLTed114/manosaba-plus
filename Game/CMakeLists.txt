@@ -10,11 +10,12 @@ set(GAME_SOURCES
     Story/Runners/PresentRunner.cpp
     Story/Runners/DebateRunner.cpp
     UI/VnHud.cpp
-    # UI/PresentHud.cpp
+    UI/PresentHud.cpp
     UI/DebateHud.cpp
     RenderBridge/TextService.cpp
     Screens/VnScreen.cpp
     Screens/DebateScreen.cpp
+    Screens/PresentScreen.cpp
     Session/StoryScreenManager.cpp
     Session/StorySession.cpp
 )

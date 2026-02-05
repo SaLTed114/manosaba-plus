@@ -9,19 +9,12 @@
 #include "Render/DX11Renderer.h"
 #include "Render/RenderPlan.h"
 #include "Render/Draw/DrawList.h"
-#include "Render/Text/TextBaker.h"
-#include "Render/Text/TextCache.h"
 #include "RHI/DX11/DX11Texture2D.h"
 
 #include "Core/Time/FrameClock.h"
 #include "Core/Input/InputState.h"
 
 #include "Utils/DiskFileSystem.h"
-#include "Game/Story/StoryGraph.h"
-#include "Game/Story/StoryPlayer.h"
-
-#include "Game/UI/VnHud.h"
-#include "Game/UI/DebateHud.h"
 
 #include "Game/Session/StorySession.h"
 #include "Game/Session/StoryScreenManager.h"
