@@ -32,6 +32,7 @@ Win32Window::Win32Window(const std::string& title, int width, int height)
     wc.hInstance     = GetModuleHandle(nullptr);
     wc.lpszClassName = L"SaltRTWindowClass";
     wc.hCursor       = LoadCursor(nullptr, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 
     RegisterClass(&wc);
 

@@ -12,6 +12,11 @@ set(GAME_SOURCES
     UI/VnHud.cpp
     # UI/PresentHud.cpp
     UI/DebateHud.cpp
+    RenderBridge/TextService.cpp
+    Screens/VnScreen.cpp
+    Screens/DebateScreen.cpp
+    Session/StoryScreenManager.cpp
+    Session/StorySession.cpp
 )
 
 add_library(Game STATIC

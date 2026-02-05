@@ -1,0 +1,35 @@
+// Game/Session/StoryScreenManager.h
+#ifndef GAME_SESSION_STORYSCREENMANAGER_H
+#define GAME_SESSION_STORYSCREENMANAGER_H
+
+#include "Game/Screens/IStoryScreen.h"
+#include "Game/Screens/VnScreen.h"
+#include "Game/Screens/DebateScreen.h"
+#include "Game/Story/StoryTypes.h"
+
+namespace Salt2D::Game::Session {
+
+class StoryScreenManager {
+public:
+    void SetPlayer(Story::StoryPlayer* player);
+
+    void Tick(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH);
+    void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service);
+    void EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* whiteSRV);
+
+private:
+    Screens::IStoryScreen* Pick(Story::NodeType type);
+
+private:
+    Story::StoryPlayer* player_ = nullptr;
+    Story::NodeType lastType_ = Story::NodeType::Unknown;
+
+    Screens::VnScreen vn_;
+    Screens::DebateScreen debate_;
+
+    Screens::IStoryScreen* active_ = nullptr;
+};
+
+} // namespace Salt2D::Game::Session
+
+#endif // GAME_SESSION_STORYSCREENMANAGER_H
