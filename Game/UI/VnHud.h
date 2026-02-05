@@ -6,22 +6,9 @@
 #include <cstring>
 #include <string>
 #include "Render/Draw/SpriteDrawItem.h"
+#include "Game/UI/UITypes.h"
 
 namespace Salt2D::Game::UI {
-
-enum class TextStyleId : uint8_t {
-    Speaker,
-    Body,
-};
-
-struct TextRequest {
-    TextStyleId style;
-    std::string textUtf8;
-    float layoutW = 0.0f;
-    float layoutH = 0.0f;
-    float x = 0.0f;
-    float y = 0.0f;
-};
 
 struct VnHudConfig {
     float margin     = 24.0f;
@@ -55,8 +42,6 @@ public:
 private:
     VnHudConfig cfg_{};
     VnHudDrawData drawData_{};
-    uint32_t lastW_ = 0;
-    uint32_t lastH_ = 0;
 };
 
 } // namespace Salt2D::Game::UI

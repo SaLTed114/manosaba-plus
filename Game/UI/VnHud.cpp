@@ -26,7 +26,7 @@ const VnHudDrawData& VnHud::Build(const VnHudModel& model, uint32_t canvasW, uin
     const float innerH = (std::max)(1.0f, drawData_.panel.h - cfg_.pad * 2.0f);
 
     // Speaker
-    drawData_.speaker.style = TextStyleId::Speaker;
+    drawData_.speaker.style = TextStyleId::VnSpeaker;
     drawData_.speaker.textUtf8 = model.speakerUtf8;
     drawData_.speaker.layoutW = innerW;
     drawData_.speaker.layoutH = cfg_.speakerH;
@@ -36,7 +36,7 @@ const VnHudDrawData& VnHud::Build(const VnHudModel& model, uint32_t canvasW, uin
     y += cfg_.speakerH + cfg_.speakerGap;
 
     // Body
-    drawData_.body.style = TextStyleId::Body;
+    drawData_.body.style = TextStyleId::VnBody;
     drawData_.body.textUtf8 = model.bodyUtf8;
     drawData_.body.layoutW = innerW;
     drawData_.body.layoutH = (std::max)(1.0f, innerH - cfg_.speakerH - cfg_.speakerGap);

@@ -10,6 +10,8 @@ set(GAME_SOURCES
     Story/Runners/PresentRunner.cpp
     Story/Runners/DebateRunner.cpp
     UI/VnHud.cpp
+    # UI/PresentHud.cpp
+    UI/DebateHud.cpp
 )
 
 add_library(Game STATIC

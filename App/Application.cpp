@@ -29,6 +29,10 @@ Application::Application(const char* title, uint32_t width, uint32_t height) {
 }
 
 Application::~Application() {
+    scene_.reset();
+    renderer_.reset();
+    window_.reset();
+    
     CoUninitialize();
 }
 

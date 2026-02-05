@@ -9,10 +9,11 @@ namespace Salt2D::Core {
 
 enum class Key : uint16_t {
     W='W', A='A', S='S', D='D',
-    Q='Q', E='E', M='M',
+    Q='Q', E='E', F='F', R='R', M='M',
     C='C', V='V', L='L',
     Shift=VK_SHIFT,
     Ctrl=VK_CONTROL,
+    Alt=VK_MENU,
     Space=VK_SPACE,
     Escape=VK_ESCAPE,
     Enter=VK_RETURN,

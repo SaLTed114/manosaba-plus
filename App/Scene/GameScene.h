@@ -21,6 +21,7 @@
 #include "Game/Story/StoryPlayer.h"
 
 #include "Game/UI/VnHud.h"
+#include "Game/UI/DebateHud.h"
 
 namespace Salt2D::App {
 
@@ -41,6 +42,28 @@ public:
 private:
     void EnsureTextSystem();
 
+    void UpdateVN(const RHI::DX11::DX11Device& device,
+        const Core::InputState& in,
+        uint32_t canvasW, uint32_t canvasH);
+    void UpdateDebate(const RHI::DX11::DX11Device& device,
+        const Core::InputState& in,
+        uint32_t canvasW, uint32_t canvasH);
+
+    void HandleDebateInput(const Core::InputState& in, const Game::Story::StoryView::DebateView& view);
+    void BuildDebateUI(uint32_t canvasW, uint32_t canvasH, const Game::Story::StoryView::DebateView& view);
+    void BakeDebate(const RHI::DX11::DX11Device& device);
+
+private:
+    Render::Text::BakedText BakeRequiredText(
+        const RHI::DX11::DX11Device& device,
+        uint8_t styleId,
+        const Render::Text::TextStyle& style,
+        const Game::UI::TextRequest& req);
+
+private:
+    void DrawVN(Render::DrawList& drawList);
+    void DrawDebate(Render::DrawList& drawList);
+
 private:
     Utils::DiskFileSystem& fs_;
     Game::Story::StoryGraph graph_;
@@ -51,6 +74,13 @@ private:
     Game::UI::VnHud vnHud_;
     Game::UI::VnHudDrawData vnDraw_;
 
+    Game::UI::DebateHud debateHud_;
+    Game::UI::DebateHudDrawData debateDraw_;
+
+    int debateSelSpan_ = 0;
+    int debateSelOption_ = 0;
+
+private:
     Render::Text::TextCache textCache_;
 
     RHI::DX11::DX11Texture2D white1x1_;
@@ -58,11 +88,20 @@ private:
     Render::Text::TextBaker textBaker_;
     bool textInited_ = false;
 
-    Render::Text::TextStyle speakerStyle_;
-    Render::Text::TextStyle bodyStyle_;
+    Render::Text::TextStyle vnSpeakerStyle_;
+    Render::Text::TextStyle vnBodyStyle_;
 
-    Render::Text::BakedText speakerTex_;
-    Render::Text::BakedText bodyTex_;
+    Render::Text::BakedText vnSpeakerText_;
+    Render::Text::BakedText vnBodyText_;
+
+    Render::Text::TextStyle debateSpeakerStyle_;
+    Render::Text::TextStyle debateBodyStyle_;
+    Render::Text::TextStyle debateSmallStyle_;
+
+    Render::Text::BakedText debateSpeakerText_;
+    Render::Text::BakedText debateBodyText_;
+    std::vector<Render::Text::BakedText> debateSpanTexts_;
+    std::vector<Render::Text::BakedText> debateOptionTexts_;
 };
 
 } // namespace Salt2D::App
