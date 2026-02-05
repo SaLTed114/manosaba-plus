@@ -2,6 +2,7 @@
 #ifndef GAME_SESSION_STORYSCREENMANAGER_H
 #define GAME_SESSION_STORYSCREENMANAGER_H
 
+#include "Game/Session/StoryActionMap.h"
 #include "Game/Screens/IStoryScreen.h"
 #include "Game/Screens/VnScreen.h"
 #include "Game/Screens/DebateScreen.h"
@@ -20,10 +21,13 @@ public:
 
 private:
     Screens::IStoryScreen* Pick(Story::NodeType type);
+    void SwitchTo(Story::NodeType type, uint32_t canvasW, uint32_t canvasH);
 
 private:
     Story::StoryPlayer* player_ = nullptr;
     Story::NodeType lastType_ = Story::NodeType::Unknown;
+
+    Session::StoryActionMap actionMap_;
 
     Screens::VnScreen vn_;
     Screens::DebateScreen debate_;

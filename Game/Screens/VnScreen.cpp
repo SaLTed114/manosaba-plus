@@ -1,10 +1,10 @@
 // Game/Screens/VnScreen.cpp
 #include "VnScreen.h"
 
+#include "Game/Session/StoryActions.h"
 #include "Game/Story/StoryPlayer.h"
 #include "Game/RenderBridge/TextService.h"
 #include "Render/Draw/DrawList.h"
-#include "Core/Input/InputState.h"
 
 #include <Windows.h>
 
@@ -24,13 +24,27 @@ void VnScreen::EnsureStyles() {
     stylesInited_ = true;
 }
 
-void VnScreen::HandleInput(const Core::InputState& in) {
+void VnScreen::HandleInput(Session::ActionFrame& af) {
     const auto& view = player_->View().vn;
     if (!view.has_value()) { draw_.visible = false; return; }
 
-    if (in.Pressed(VK_RETURN) || in.Pressed(VK_SPACE)) {
-        if (in.Down(VK_SHIFT)) player_->FastForward();
-        else player_->Advance();
+    const auto accel = af.actions.accelHolded;
+    const auto history = af.actions.vnHistoryUp;
+    const auto confirm = af.actions.ConsumeConfirm();
+
+    if (accel) {
+        player_->FastForward();
+        return;
+    }
+
+    if (history) {
+        // TODO
+        return;
+    }
+
+    if (confirm) {
+        player_->Advance();
+        return;
     }
 }
 
@@ -46,11 +60,11 @@ void VnScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     draw_ = hud_.Build(model, canvasW, canvasH);
 }
 
-void VnScreen::Tick(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH) {
+void VnScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
     if (!player_) return;
     EnsureStyles();
 
-    HandleInput(in);
+    HandleInput(af);
     BuildUI(canvasW, canvasH);
 }
 

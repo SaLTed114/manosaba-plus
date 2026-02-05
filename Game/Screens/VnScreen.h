@@ -13,7 +13,8 @@ class VnScreen final : public IStoryScreen {
 public:
     void SetPlayer(Story::StoryPlayer* player) override { player_ = player; }
 
-    void Tick(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH) override;
+    void Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) override;
+    void Sync(uint32_t canvasW, uint32_t canvasH) override { BuildUI(canvasW, canvasH); }
     void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) override;
     void EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* whiteSRV) override;
 
@@ -24,7 +25,7 @@ public:
 
 private:
     void EnsureStyles();
-    void HandleInput(const Core::InputState& in);
+    void HandleInput(Session::ActionFrame& af);
     void BuildUI(uint32_t canvasW, uint32_t canvasH);
 
 private:

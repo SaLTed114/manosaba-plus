@@ -1,10 +1,10 @@
 // Game/Screens/PresentScreen.cpp
 #include "PresentScreen.h"
 
+#include "Game/Session/StoryActions.h"
 #include "Game/Story/StoryPlayer.h"
 #include "Game/RenderBridge/TextService.h"
 #include "Render/Draw/DrawList.h"
-#include "Core/Input/InputState.h"
 
 #include <Windows.h>
 
@@ -31,26 +31,21 @@ void PresentScreen::EnsureStyles() {
     stylesInited_ = true;
 }
 
-void PresentScreen::HandleInput(const Core::InputState& in) {
+void PresentScreen::HandleInput(Session::ActionFrame& af) {
     const auto& view = player_->View().present;
     if (!view.has_value()) { draw_.visible = false; return; }
 
     const int itemCount = static_cast<int>(view->items.size());
     if (itemCount == 0) { draw_.visible = false; return; }
 
-    if (in.Pressed(VK_UP))   --selectedItem_;
-    if (in.Pressed(VK_DOWN)) ++selectedItem_;
-    
-    for (int k = 0; k < 9; ++k) {
-        if (in.Pressed(static_cast<uint16_t>('1' + k))) {
-            selectedItem_ = k;
-            break;
-        }
-    }
+    const auto navY = af.actions.ConsumeNavY();
+    const bool confirm = af.actions.ConsumeConfirm();
+
+    if (navY < 0) --selectedItem_;
+    if (navY > 0) ++selectedItem_;
 
     selectedItem_ = ClampWarp(selectedItem_, itemCount);
 
-    const bool confirm = in.Pressed(VK_RETURN) || in.Pressed(VK_SPACE);
     if (!confirm) return;
 
     const auto& itemId = view->items[selectedItem_].first;
@@ -71,11 +66,11 @@ void PresentScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     draw_ = hud_.Build(model, canvasW, canvasH);
 }
 
-void PresentScreen::Tick(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH) {
+void PresentScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
     if (!player_) return;
     EnsureStyles();
 
-    HandleInput(in);
+    HandleInput(af);
     BuildUI(canvasW, canvasH);
 }
 

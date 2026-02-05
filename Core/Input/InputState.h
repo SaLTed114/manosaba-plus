@@ -4,6 +4,7 @@
 
 #include <array>
 #include <cstdint>
+#include <Windows.h>
 
 namespace Salt2D::Core {
 

@@ -6,10 +6,6 @@
 
 struct ID3D11ShaderResourceView;
 
-namespace Salt2D::Core {
-    struct InputState;
-} // namespace Salt2D::Core
-
 namespace Salt2D::RHI::DX11 {
     class DX11Device;
 } // namespace Salt2D::RHI::DX11
@@ -26,6 +22,10 @@ namespace Salt2D::Game::RenderBridge {
     class TextService;
 } // namespace Salt2D::Game::RenderBridge
 
+namespace Salt2D::Game::Session {
+    struct ActionFrame;
+} // namespace Salt2D::Game::Session
+
 namespace Salt2D::Game::Screens {
 
 class IStoryScreen {
@@ -34,7 +34,8 @@ public:
 
     virtual void SetPlayer(Story::StoryPlayer* player) = 0;
 
-    virtual void Tick(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH) = 0;
+    virtual void Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) = 0;
+    virtual void Sync(uint32_t /*canvasW*/, uint32_t /*canvasH*/) {}
     virtual void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) = 0;
     virtual void EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* whiteSRV) = 0;
 

@@ -1,10 +1,10 @@
 // Game/Sceens/DebateScreen.cpp
 #include "DebateScreen.h"
 
+#include "Game/Session/StoryActions.h"
 #include "Game/Story/StoryPlayer.h"
 #include "Game/RenderBridge/TextService.h"
 #include "Render/Draw/DrawList.h"
-#include "Core/Input/InputState.h"
 
 #include <Windows.h>
 
@@ -35,26 +35,29 @@ void DebateScreen::EnsureStyles() {
     stylesInited_ = true;
 }
 
-void DebateScreen::HandleInput(const Core::InputState& in) {
+void DebateScreen::HandleInput(Session::ActionFrame& af) {
     const auto& view = player_->View().debate;
     if (!view.has_value()) { draw_.visible = false; return; }
 
-    if (view->menuOpen && in.Pressed(VK_ESCAPE)) {
+    const auto navY = af.actions.ConsumeNavY();
+    const auto confirm = af.actions.ConsumeConfirm();
+    const auto cancel = af.actions.ConsumeCancel();
+    const auto openMenu = af.actions.debateOpenMenuPressed;
+
+    if (view->menuOpen && cancel) {
         player_->CloseDebateMenu();
         return;
     }
 
-    if (in.Pressed(VK_UP)) {
+    if (navY < 0) {
         if (view->menuOpen) --selectedOption_;
         else --selectedSpan_;
     }
-    if (in.Pressed(VK_DOWN)) {
+    if (navY > 0) {
         if (view->menuOpen) ++selectedOption_;
         else ++selectedSpan_;
     }
 
-    const bool confirm = in.Pressed(VK_RETURN) || in.Pressed(VK_SPACE);
-    const bool openMenu = in.Pressed('M');
     if (!confirm && !openMenu) return;
 
     if (!view->menuOpen) {
@@ -93,11 +96,11 @@ void DebateScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     draw_ = hud_.Build(model, canvasW, canvasH);
 }
 
-void DebateScreen::Tick(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH) {
+void DebateScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
     if (!player_) return;
     EnsureStyles();
 
-    HandleInput(in);
+    HandleInput(af);
     BuildUI(canvasW, canvasH);
 }
 
