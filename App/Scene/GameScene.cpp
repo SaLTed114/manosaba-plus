@@ -2,6 +2,7 @@
 #include "GameScene.h"
 
 #include "Game/Story/StoryGraphLoader.h"
+#include "Game/UI/VnHud.h"
 #include "Render/Passes/SceneSpritePass.h"
 #include "Render/Passes/ComposePass.h"
 #include "Utils/FileUtils.h"
@@ -15,15 +16,6 @@ using namespace DirectX;
 namespace Salt2D::App {
 
 GameScene::GameScene(Utils::DiskFileSystem& fs) : fs_(fs) {}
-
-std::wstring GameScene::Utf8ToWString(const std::string& str) {
-    if (str.empty()) return L"";
-    int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), NULL, 0);
-    if (size_needed <= 0) return L"";
-    std::wstring wstrTo(size_needed, 0);
-    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), &wstrTo[0], size_needed);
-    return wstrTo;
-}
 
 void GameScene::EnsureTextSystem() {
     if (textInited_) return;
@@ -47,6 +39,8 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
         Utils::GenerateTimestampedFilename("Logs/game_scene.log"),
         Game::LogLevel::Debug, Game::LogLevel::Debug);
 
+    textCache_.Clear();
+
     EnsureTextSystem();
 
     {
@@ -66,59 +60,7 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
 
         player_->Start("n0_intro");
         player_->SetLogger(&logger_);
-        vnTextDirty_ = true;
     }
-}
-
-void GameScene::UpdateUILayout(uint32_t canvasW, uint32_t canvasH) {
-    if (canvasW == lastCanvasW_ && canvasH == lastCanvasH_) return;
-
-    lastCanvasW_ = canvasW;
-    lastCanvasH_ = canvasH;
-
-    const float margin = 24.0f;
-    const float boxH = (std::min)(260.0f, canvasH * 0.3f);
-
-    vnBox_.x = margin;
-    vnBox_.y = static_cast<float>(canvasH - margin - boxH);
-    vnBox_.w = static_cast<float>(canvasW - margin * 2.0f);
-    vnBox_.h = boxH;
-
-    const float innerW = (std::max)(1.0f, vnBox_.w - vnPad_ * 2.0f);
-    const float innerH = (std::max)(1.0f, vnBox_.h - vnPad_ * 2.0f);
-
-    speakerLayoutW_ = innerW;
-    speakerLayoutH_ = 44.0f;
-
-    bodyLayoutW_ = innerW;
-    bodyLayoutH_ = (std::max)(1.0f, innerH - speakerLayoutH_ - 8.0f);
-
-    vnTextDirty_ = true;
-}
-
-void GameScene::BakeVNIfDirty(const RHI::DX11::DX11Device& device) {
-    if (!player_) return;
-
-    const auto& view = player_->View();
-    if (!view.vn.has_value()) return;
-
-    const auto& vn = view.vn.value();
-    const std::string& speaker = vn.speaker;
-    const std::string& body = vn.fullText;
-
-    if (!vnTextDirty_ && speaker == lastSpeaker_ && body == lastBody_) return;
-
-    lastSpeaker_ = speaker;
-    lastBody_ = body;
-    vnTextDirty_ = false;
-
-    speakerTex_ = textBaker_.BakeToTexture(
-        device, Utf8ToWString(speaker), speakerStyle_,
-        speakerLayoutW_, speakerLayoutH_);
-
-    bodyTex_ = textBaker_.BakeToTexture(
-        device, Utf8ToWString(body), bodyStyle_,
-        bodyLayoutW_, bodyLayoutH_);
 }
 
 void GameScene::Update(
@@ -129,16 +71,36 @@ void GameScene::Update(
 ) {
     if (!player_) return;
 
-    UpdateUILayout(canvasW, canvasH);
-
     const bool advancePressed = in.Pressed(VK_SPACE) || in.Pressed(VK_RETURN);
     if (advancePressed) {
         if (in.Down(VK_SHIFT)) player_->FastForward();
         else player_->Advance();
-        vnTextDirty_ = true;
     }
 
-    BakeVNIfDirty(device);
+    Game::UI::VnHudModel vnModel;
+    const auto& vnView = player_->View().vn;
+    if (vnView.has_value()) {
+        vnModel.visible = true;
+        vnModel.speakerUtf8 = vnView->speaker;
+        vnModel.bodyUtf8 = vnView->fullText;
+    } else {
+        vnModel.visible = false;
+    }
+
+    vnDraw_ = vnHud_.Build(vnModel, canvasW, canvasH);
+    if (!vnDraw_.visible) return;
+
+    speakerTex_ = textCache_.GetOrBake(
+        device, textBaker_,
+        static_cast<uint8_t>(Game::UI::TextStyleId::Speaker),
+        speakerStyle_, vnModel.speakerUtf8,
+        vnDraw_.speaker.layoutW, vnDraw_.speaker.layoutH);
+
+    bodyTex_ = textCache_.GetOrBake(
+        device, textBaker_,
+        static_cast<uint8_t>(Game::UI::TextStyleId::Body),
+        bodyStyle_, vnModel.bodyUtf8,
+        vnDraw_.body.layoutW, vnDraw_.body.layoutH);
 }
 
 void GameScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t /*sceneW*/, uint32_t /*sceneH*/) {
@@ -153,35 +115,30 @@ void GameScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint
 
     if (!player_) return;
 
-    const auto& view = player_->View();
-    if (!view.vn.has_value()) return;
+    if (!vnDraw_.visible) return;
 
     // VN panel background
     {
-        Render::Color4F panelTint{0.0f, 0.0f, 0.0f, 0.55f};
-        drawList.PushSprite(Render::Layer::HUD, white1x1_.SRV(), vnBox_, 0.0f, {}, panelTint);
+        drawList.PushSprite(Render::Layer::HUD, white1x1_.SRV(),
+            vnDraw_.panel, 0.0f, {}, vnDraw_.panelTint);
     }
-
-    const float x = vnBox_.x + vnPad_;
-    float y = vnBox_.y + vnPad_;
 
     // Speaker
     if (speakerTex_.tex.SRV()) {
         Render::RectF dst{
-            x, y,
-            (float)speakerTex_.w,
-            (float)speakerTex_.h
+            vnDraw_.speaker.x, vnDraw_.speaker.y,
+            static_cast<float>(speakerTex_.w),
+            static_cast<float>(speakerTex_.h)
         };
         drawList.PushSprite(Render::Layer::HUD, speakerTex_.tex.SRV(), dst);
-        y += (float)speakerTex_.h + 8.0f;
     }
 
     // Body
     if (bodyTex_.tex.SRV()) {
         Render::RectF dst{
-            x, y,
-            (float)bodyTex_.w,
-            (float)bodyTex_.h
+            vnDraw_.body.x, vnDraw_.body.y,
+            static_cast<float>(bodyTex_.w),
+            static_cast<float>(bodyTex_.h)
         };
         drawList.PushSprite(Render::Layer::HUD, bodyTex_.tex.SRV(), dst);
     }
