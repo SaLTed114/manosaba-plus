@@ -14,10 +14,10 @@ void StoryPlayer::Start(const NodeId& startNode) {
 void StoryPlayer::Advance() {
     const Node& node = rt_.CurrentNode();
 
-    if (node.type == NodeType::VN ||
-        node.type == NodeType::BE ||
-        node.type == NodeType::Error
-    ) {
+    switch (node.type) {
+    case NodeType::VN:
+    case NodeType::BE:
+    case NodeType::Error:
         if (auto ev = vn_.SkipLine(); ev.has_value()) {
             rt_.PushEvent(*ev);
             OnEnteredNode();
@@ -25,9 +25,7 @@ void StoryPlayer::Advance() {
         }
         UpdateView();
         return;
-    }
-
-    if (node.type == NodeType::Debate) {
+    case NodeType::Debate:
         if (auto ev = debate_.AdvanceStatement(); ev.has_value()) {
             rt_.PushEvent(*ev);
             OnEnteredNode();
@@ -35,22 +33,24 @@ void StoryPlayer::Advance() {
         }
         UpdateView();
         return;
-    }
-
-    if (logger_) {
-        logger_->Debug("StoryPlayer",
-            std::string("Advance ignored for node type=") +
-            std::string(ToString(node.type)));
+    case NodeType::Present:
+    default:
+        if (logger_) {
+            logger_->Debug("StoryPlayer",
+                std::string("Advance ignored for node type=") +
+                std::string(ToString(node.type)));
+        }
+        return;
     }
 }
 
 void StoryPlayer::FastForward() {
     const Node& node = rt_.CurrentNode();
 
-    if (node.type == NodeType::VN ||
-        node.type == NodeType::BE ||
-        node.type == NodeType::Error
-    ) {
+    switch (node.type) {
+    case NodeType::VN:
+    case NodeType::BE:
+    case NodeType::Error:
         if (auto ev = vn_.FastForwardAll(); ev.has_value()) {
             rt_.PushEvent(*ev);
             OnEnteredNode();
@@ -58,12 +58,15 @@ void StoryPlayer::FastForward() {
         }
         UpdateView();
         return;
-    }
-
-    if (logger_) {
-        logger_->Debug("StoryPlayer",
-            std::string("FastForward ignored for node type=") +
-            std::string(ToString(node.type)));
+    case NodeType::Debate:
+    case NodeType::Present:
+    default:
+        if (logger_) {
+            logger_->Debug("StoryPlayer",
+                std::string("FastForward ignored for node type=") +
+                std::string(ToString(node.type)));
+        }
+        return;
     }
 }
 
@@ -115,25 +118,27 @@ void StoryPlayer::OnEnteredNode() {
             " type=" + std::string(ToString(node.type)));
     }
 
-    if (node.type == NodeType::VN ||
-        node.type == NodeType::BE ||
-        node.type == NodeType::Error
-    ) {
+    switch (node.type) {
+    case NodeType::VN:
+    case NodeType::BE:
+    case NodeType::Error:
         vn_.Enter(node);
         UpdateView();
         return;
-    }
-
-    if (node.type == NodeType::Present) {
+    case NodeType::Present:
         present_.Enter(node);
         UpdateView();
         return;
-    }
-
-    if (node.type == NodeType::Debate) {
+    case NodeType::Debate:
         debate_.Enter(node);
         UpdateView();
         return;
+    default:
+        if (logger_) {
+            logger_->Warn("StoryPlayer",
+                "OnEnteredNode: Unsupported node type=" +
+                std::string(ToString(node.type)));
+        }
     }
 }
 
@@ -146,10 +151,10 @@ void StoryPlayer::UpdateView() {
     const Node& node = rt_.CurrentNode();
     view_.nodeType = node.type;
 
-    if (node.type == NodeType::VN ||
-        node.type == NodeType::BE ||
-        node.type == NodeType::Error
-    ) {
+    switch (node.type) {
+    case NodeType::VN:
+    case NodeType::BE:
+    case NodeType::Error: {
         const VnState& state = vn_.State();
         StoryView::VnView view;
         view.speaker  = state.speaker;
@@ -158,9 +163,9 @@ void StoryPlayer::UpdateView() {
         view.lineDone = state.lineDone;
         view.finished = state.finished;
         view_.vn = std::move(view);
+        break;
     }
-
-    if (node.type == NodeType::Present) {
+    case NodeType::Present: {
         const PresentDef& def = present_.Def();
         StoryView::PresentView view;
         view.prompt = def.prompt;
@@ -168,9 +173,9 @@ void StoryPlayer::UpdateView() {
             view.items.emplace_back(item.itemId, item.label);
         }
         view_.present = std::move(view);
+        break;
     }
-
-    if (node.type == NodeType::Debate) {
+    case NodeType::Debate: {
         StoryView::DebateView view;
         view.statementIndex = debate_.StatementIndex();
         view.statementCount = debate_.StatementCount();
@@ -185,6 +190,10 @@ void StoryPlayer::UpdateView() {
         view.options      = debate_.CurrentOptions();
 
         view_.debate = std::move(view);
+        break;
+    }
+    default:
+        break;
     }
 }
 
