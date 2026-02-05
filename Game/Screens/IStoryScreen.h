@@ -24,6 +24,7 @@ namespace Salt2D::Game::RenderBridge {
 
 namespace Salt2D::Game::Session {
     struct ActionFrame;
+    class StoryHistory;
 } // namespace Salt2D::Game::Session
 
 namespace Salt2D::Game::Screens {
@@ -33,6 +34,7 @@ public:
     virtual ~IStoryScreen() = default;
 
     virtual void SetPlayer(Story::StoryPlayer* player) = 0;
+    virtual void SetHistory(Session::StoryHistory* /*history*/) {}
 
     virtual void Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) = 0;
     virtual void Sync(uint32_t /*canvasW*/, uint32_t /*canvasH*/) {}

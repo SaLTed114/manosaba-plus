@@ -4,11 +4,17 @@
 
 namespace Salt2D::Game::Session {
 
-void StoryScreenManager::SetPlayer(Story::StoryPlayer* player) {
+void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* history) {
     player_ = player;
+    history_ = history;
+
     vn_.SetPlayer(player);
     debate_.SetPlayer(player);
     present_.SetPlayer(player);
+
+    vn_.SetHistory(history);
+    debate_.SetHistory(history);
+    present_.SetHistory(history);
 }
 
 Screens::IStoryScreen* StoryScreenManager::Pick(Story::NodeType type) {

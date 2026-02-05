@@ -15,6 +15,7 @@ namespace Salt2D::Game::Screens {
 class PresentScreen final : public IStoryScreen {
 public:
     void SetPlayer(Story::StoryPlayer* player) override { player_ = player; }
+    void SetHistory(Session::StoryHistory* history) override { history_ = history; }
 
     void Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) override;
     void Sync(uint32_t canvasW, uint32_t canvasH) override { BuildUI(canvasW, canvasH); }
@@ -35,6 +36,7 @@ private:
 
 private:
     Story::StoryPlayer* player_ = nullptr;
+    Session::StoryHistory* history_ = nullptr;
 
     UI::PresentHud hud_;
     UI::PresentHudDrawData draw_;

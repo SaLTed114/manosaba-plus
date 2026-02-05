@@ -3,6 +3,7 @@
 #define GAME_SESSION_STORYSCREENMANAGER_H
 
 #include "Game/Session/StoryActionMap.h"
+#include "Game/Session/StoryHistory.h"
 #include "Game/Screens/IStoryScreen.h"
 #include "Game/Screens/VnScreen.h"
 #include "Game/Screens/DebateScreen.h"
@@ -13,7 +14,7 @@ namespace Salt2D::Game::Session {
 
 class StoryScreenManager {
 public:
-    void SetPlayer(Story::StoryPlayer* player);
+    void Initialize(Story::StoryPlayer* player, StoryHistory* history);
 
     void Tick(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH);
     void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service);
@@ -24,10 +25,11 @@ private:
     void SwitchTo(Story::NodeType type, uint32_t canvasW, uint32_t canvasH);
 
 private:
-    Story::StoryPlayer* player_ = nullptr;
+    Story::StoryPlayer* player_  = nullptr;
+    StoryHistory*       history_ = nullptr;
     Story::NodeType lastType_ = Story::NodeType::Unknown;
 
-    Session::StoryActionMap actionMap_;
+    StoryActionMap actionMap_;
 
     Screens::VnScreen vn_;
     Screens::DebateScreen debate_;

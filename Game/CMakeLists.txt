@@ -19,6 +19,7 @@ set(GAME_SOURCES
     Session/StoryScreenManager.cpp
     Session/StorySession.cpp
     Session/StoryActionMap.cpp
+    Session/StoryHistory.cpp
 )
 
 add_library(Game STATIC

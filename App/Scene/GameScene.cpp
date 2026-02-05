@@ -30,7 +30,7 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
 
     auto graphPath = std::filesystem::path("Assets/Story/Demo/demo_story.graph.json");
     session_.Initialize(graphPath, "n0_intro");
-    screens_.SetPlayer(&session_.Player());
+    screens_.Initialize(&session_.Player(), &session_.History());
 }
 
 // ========================= End of Initialization ==========================

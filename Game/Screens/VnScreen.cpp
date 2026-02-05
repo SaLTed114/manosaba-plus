@@ -2,6 +2,7 @@
 #include "VnScreen.h"
 
 #include "Game/Session/StoryActions.h"
+#include "Game/Session/StoryHistory.h"
 #include "Game/Story/StoryPlayer.h"
 #include "Game/RenderBridge/TextService.h"
 #include "Render/Draw/DrawList.h"
@@ -31,19 +32,28 @@ void VnScreen::HandleInput(Session::ActionFrame& af) {
     const auto accel = af.actions.accelHolded;
     const auto history = af.actions.vnHistoryUp;
     const auto confirm = af.actions.ConsumeConfirm();
+    const auto cancel = af.actions.ConsumeCancel();
+
+    if (logOpened_) {
+        if (cancel) logOpened_ = false;
+        return;
+    }
 
     if (accel) {
         player_->FastForward();
+        LogHistory();
         return;
     }
 
     if (history) {
-        // TODO
+        if (history_) history_->DumpToLogger();
+        logOpened_ = true;
         return;
     }
 
     if (confirm) {
         player_->Advance();
+        LogHistory();
         return;
     }
 }
@@ -115,10 +125,23 @@ void VnScreen::EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* wh
     }
 }
 
+void VnScreen::LogHistory() {
+    if (!player_ || !history_) return;
+    const auto& view = player_->View().vn;
+    if (!view.has_value()) return;
+
+    std::string lineKey = view->speaker + ":" + view->fullText;
+    if (lineKey == lastLineKey_) return;
+
+    history_->Push(Story::NodeType::VN, view->speaker, view->fullText);
+    lastLineKey_ = std::move(lineKey);
+}
+
 void VnScreen::OnEnter() {
     draw_.visible = false;
     speakerText_ = {};
     bodyText_ = {};
+    LogHistory();
 }
 
 void VnScreen::OnExit() {

@@ -2,6 +2,7 @@
 #include "DebateScreen.h"
 
 #include "Game/Session/StoryActions.h"
+#include "Game/Session/StoryHistory.h"
 #include "Game/Story/StoryPlayer.h"
 #include "Game/RenderBridge/TextService.h"
 #include "Render/Draw/DrawList.h"
@@ -46,6 +47,8 @@ void DebateScreen::HandleInput(Session::ActionFrame& af) {
 
     if (view->menuOpen && cancel) {
         player_->CloseDebateMenu();
+        if (history_) history_->Push(Story::NodeType::Debate,
+            Session::HistoryKind::MenuBack, "", "");
         return;
     }
 
@@ -63,16 +66,35 @@ void DebateScreen::HandleInput(Session::ActionFrame& af) {
     if (!view->menuOpen) {
         if (!view->spanIds.empty() && openMenu) {
             const int index = ClampWarp(selectedSpan_, static_cast<int>(view->spanIds.size()));
-            player_->OpenSuspicion(view->spanIds[index]);
+            const std::string spanId = view->spanIds[index];
+            player_->OpenSuspicion(spanId);
+
+            const auto& updatedView = player_->View().debate;
+            if (updatedView.has_value() && updatedView->menuOpen) {
+                std::string line = "Options: ";
+                for (const auto& [id, label] : updatedView->options) line += "| " + label;
+                line += " | [Back]";
+                if (history_) history_->Push(Story::NodeType::Debate,
+                    Session::HistoryKind::MenuOpen, "", line, updatedView->openedSpanId);
+            }
         }
 
         if (confirm) {
             player_->Advance();
+            LogHistory();
         }
     } else {
-        const int index = ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
         if (!view->options.empty() && confirm) {
-            player_->CommitOption(view->options[index].first);
+            const int index = ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
+            const auto& option = view->options[index];
+            
+            const std::string optionId = option.first;
+            const std::string optionLabel = option.second;
+            
+            player_->CommitOption(optionId);     
+            if (history_) history_->Push(Story::NodeType::Debate,
+                Session::HistoryKind::OptionPick, "", optionLabel, optionId);
+            LogHistory();
         }
     }
 }
@@ -207,6 +229,18 @@ void DebateScreen::EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView
     }
 }
 
+void DebateScreen::LogHistory() {
+    if (!player_ || !history_) return;
+    const auto& view = player_->View().debate;
+    if (!view.has_value()) return;
+
+    // Log each statement once when it first appears.
+    if (view->statementIndex <= lastStmtInx_) return;
+    lastStmtInx_ = view->statementIndex;
+
+    history_->Push(Story::NodeType::Debate, view->speaker, view->fullText);
+}
+
 void DebateScreen::OnEnter() {
     selectedSpan_ = 0;
     selectedOption_ = 0;
@@ -216,7 +250,11 @@ void DebateScreen::OnEnter() {
     bodyText_ = {};
     spanTexts_.clear();
     optionTexts_.clear();
+
+    lastStmtInx_ = -283;
+    LogHistory();
 }
+
 void DebateScreen::OnExit() {
     draw_.visible = false;
     speakerText_ = {};

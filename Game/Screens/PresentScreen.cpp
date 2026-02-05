@@ -2,6 +2,7 @@
 #include "PresentScreen.h"
 
 #include "Game/Session/StoryActions.h"
+#include "Game/Session/StoryHistory.h"
 #include "Game/Story/StoryPlayer.h"
 #include "Game/RenderBridge/TextService.h"
 #include "Render/Draw/DrawList.h"
@@ -48,8 +49,11 @@ void PresentScreen::HandleInput(Session::ActionFrame& af) {
 
     if (!confirm) return;
 
-    const auto& itemId = view->items[selectedItem_].first;
+    const std::string itemId = view->items[selectedItem_].first;
+    const std::string itemLabel = view->items[selectedItem_].second;
     player_->PickEvidence(itemId);
+    if (history_) history_->Push(Story::NodeType::Present,
+        Session::HistoryKind::PresentPick, "", itemLabel, itemId);
 }
 
 void PresentScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
@@ -142,8 +146,12 @@ void PresentScreen::OnEnter() {
     draw_.visible = false;
     promptText_ = {};
     itemTexts_.clear();
-}
 
+    const auto& view = player_->View().present;
+    if (!view.has_value()) return;
+    if (history_) history_->Push(Story::NodeType::Present,
+        Session::HistoryKind::PresentPrompt, "", view->prompt);
+}
 
 void PresentScreen::OnExit() {
     draw_.visible = false;

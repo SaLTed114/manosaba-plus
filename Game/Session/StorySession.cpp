@@ -14,6 +14,9 @@ void StorySession::Initialize(const std::filesystem::path& graphPath, const Stor
         Utils::GenerateTimestampedFilename("Logs/game_scene.log"),
         LogLevel::Debug, LogLevel::Debug);
 
+    history_.SetLogger(&logger_);
+    history_.Clear();
+
     graph_ = Story::LoadStoryGraph(fs_, graphPath);
 
     player_ = std::make_unique<Story::StoryPlayer>(graph_, fs_);
