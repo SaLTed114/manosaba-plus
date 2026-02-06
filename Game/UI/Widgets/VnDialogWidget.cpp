@@ -20,9 +20,10 @@ void VnDialogWidget::Build(const VnHudModel& model, uint32_t canvasW, uint32_t c
 
     SpriteOp panelOp;
     panelOp.layer = Render::Layer::HUD;
+    panelOp.texId = TextureId::Checker;
     panelOp.srv = nullptr;
     panelOp.dst = panel;
-    panelOp.tint = cfg_.panelTint;
+    panelOp.tint = Render::Color4F{1,1,1,1};//cfg_.panelTint;
     panelOp.z = 0.0f;
     frame.sprites.push_back(std::move(panelOp));
 

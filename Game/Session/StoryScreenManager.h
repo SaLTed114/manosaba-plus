@@ -20,7 +20,7 @@ public:
 
     void Tick(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH);
     void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service);
-    void EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* whiteSRV);
+    void EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service);
 
 private:
     Screens::IStoryScreen* Pick(Story::NodeType type);

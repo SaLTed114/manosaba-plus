@@ -75,11 +75,11 @@ void VnScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextServi
     dialog_.AfterBake(frame_);
 }
 
-void VnScreen::EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* whiteSRV) {
+void VnScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {
     if (!player_) return;
     if (!dialog_.Visible()) return;
 
-    emitter_.Emit(drawList, whiteSRV, frame_);
+    emitter_.Emit(drawList, service, frame_);
 }
 
 void VnScreen::LogHistory() {

@@ -1,11 +1,19 @@
-// Game/UI/UiTypes.h
+// Game/UI/UITypes.h
 #ifndef GAME_UI_UITYPES_H
 #define GAME_UI_UITYPES_H
 
 #include <cstdint>
 #include <string>
 
+#include "Render/Draw/SpriteDrawItem.h"
+
 namespace Salt2D::Game::UI {
+
+enum class TextureId : uint8_t {
+    White = 0,
+    Checker = 1,
+    Count
+};
 
 enum class TextStyleId : uint8_t {
     VnSpeaker       = 0,

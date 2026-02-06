@@ -3,14 +3,23 @@
 
 namespace Salt2D::Game::UI {
 
+static inline ID3D11ShaderResourceView* ResolveTextureSRV(
+    const SpriteOp& sprite,
+    RenderBridge::TextureService& service
+) {
+    if (sprite.srv) return sprite.srv;
+    if (auto* srv = service.Get(sprite.texId)) return srv;
+    return service.Get(TextureId::White);
+}
+
 void UIEmitter::Emit(Render::DrawList& drawList,
-    ID3D11ShaderResourceView* whiteSRV,
+    RenderBridge::TextureService& service,
     const UIFrame& frame
 ) {
     for (const auto& sprite : frame.sprites) {
         Render::SpriteDrawItem& item = drawList.PushSprite(
             sprite.layer,
-            sprite.srv ? sprite.srv : whiteSRV,
+            ResolveTextureSRV(sprite, service),
             sprite.dst,
             sprite.z,
             sprite.uv,

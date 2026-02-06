@@ -19,6 +19,7 @@
 #include "Game/Session/StorySession.h"
 #include "Game/Session/StoryScreenManager.h"
 #include "Game/RenderBridge/TextService.h"
+#include "Game/RenderBridge/TextureService.h"
 
 namespace Salt2D::App {
 
@@ -42,6 +43,7 @@ private:
     Game::Session::StorySession session_;
     Game::Session::StoryScreenManager screens_;
     Game::RenderBridge::TextService text_;
+    Game::RenderBridge::TextureService texture_;
 
     RHI::DX11::DX11Texture2D white1x1_;
     RHI::DX11::DX11Texture2D checker_;

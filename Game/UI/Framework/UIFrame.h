@@ -20,7 +20,10 @@ enum class HitAction : uint8_t {
 
 struct SpriteOp {
     Render::Layer layer = Render::Layer::HUD;
-    ID3D11ShaderResourceView* srv = nullptr; // nullptr for white texture
+
+    TextureId texId = TextureId::White;
+    ID3D11ShaderResourceView* srv = nullptr; // optional override
+    
     Render::RectF dst{};
     Render::UVRectF uv{};
     Render::Color4F tint{1,1,1,1};

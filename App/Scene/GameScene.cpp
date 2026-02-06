@@ -24,6 +24,8 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
     text_.Initialize();
     text_.ClearCache();
 
+    texture_.Clear();
+
     {
         uint8_t whitePixel[4] = { 255, 255, 255, 255 };
         white1x1_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, 1, 1, whitePixel, 4);
@@ -55,6 +57,11 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
         }
         checker_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, size, size, checkerData.data(), size * 4);
     }
+
+    texture_.Register(Game::UI::TextureId::White, white1x1_.SRV(), 1, 1);
+    texture_.Register(Game::UI::TextureId::Checker, checker_.SRV(), 64, 64);
+
+    texture_.SetMissing(Game::UI::TextureId::Checker);
 
     auto graphPath = std::filesystem::path("Assets/Story/Demo/demo_story.graph.json");
     session_.Initialize(graphPath, "n0_intro");
@@ -99,7 +106,7 @@ void GameScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t /*s
 void GameScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
     (void)canvasW; (void)canvasH;
 
-    screens_.EmitDraw(drawList, white1x1_.SRV());
+    screens_.EmitDraw(drawList, texture_);
 
     // tmp
     const float magicScale = 1080.0f / 2048.0f; // scale down the 4096x2048 background to fit 1080p height

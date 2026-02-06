@@ -3,6 +3,7 @@
 #define GAME_UI_FRAMEWORK_UIEMITTER_H
 
 #include "UIFrame.h"
+#include "Game/RenderBridge/TextureService.h"
 #include "Render/Draw/DrawList.h"
 
 namespace Salt2D::Game::UI {
@@ -10,7 +11,7 @@ namespace Salt2D::Game::UI {
 class UIEmitter {
 public:
     void Emit(Render::DrawList& drawList,
-        ID3D11ShaderResourceView* whiteSRV,
+        RenderBridge::TextureService& service,
         const UIFrame& frame);
 };
 

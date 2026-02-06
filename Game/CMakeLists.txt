@@ -19,6 +19,7 @@ set(GAME_SOURCES
     UI/Framework/UIEmitter.cpp
     UI/Widgets/VnDialogWidget.cpp
     RenderBridge/TextService.cpp
+    RenderBridge/TextureService.cpp
     Screens/VnScreen.cpp
     Screens/DebateScreen.cpp
     Screens/PresentScreen.cpp

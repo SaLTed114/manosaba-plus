@@ -20,6 +20,7 @@ namespace Salt2D::Game::Story {
 
 namespace Salt2D::Game::RenderBridge {
     class TextService;
+    class TextureService;
 } // namespace Salt2D::Game::RenderBridge
 
 namespace Salt2D::Game::Session {
@@ -39,7 +40,7 @@ public:
     virtual void Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) = 0;
     virtual void Sync(uint32_t /*canvasW*/, uint32_t /*canvasH*/) {}
     virtual void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) = 0;
-    virtual void EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* whiteSRV) = 0;
+    virtual void EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) = 0;
 
     virtual void OnEnter() = 0;
     virtual void OnExit() = 0;

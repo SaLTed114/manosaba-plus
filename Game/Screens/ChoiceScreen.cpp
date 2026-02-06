@@ -5,6 +5,7 @@
 #include "Game/Session/StoryHistory.h"
 #include "Game/Story/StoryPlayer.h"
 #include "Game/RenderBridge/TextService.h"
+#include "Game/RenderBridge/TextureService.h"
 #include "Render/Draw/DrawList.h"
 
 #include <Windows.h>
@@ -90,12 +91,12 @@ void ChoiceScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextS
     }
 }
 
-void ChoiceScreen::EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* whiteSRV) {
+void ChoiceScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {
     if (!draw_.visible) return;
 
     // Panel background
     {
-        drawList.PushSprite(Render::Layer::HUD, whiteSRV,
+        drawList.PushSprite(Render::Layer::HUD, service.Get(UI::TextureId::White),
             draw_.panel, 0.0f, {}, draw_.panelTint);
     }
 
@@ -114,7 +115,7 @@ void ChoiceScreen::EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView
 
     // Highlights
     for (const auto& hlReq : draw_.highlightRects) {
-        drawList.PushSprite(Render::Layer::HUD, whiteSRV,
+        drawList.PushSprite(Render::Layer::HUD, service.Get(UI::TextureId::White),
             hlReq, 0.0f, {}, draw_.highlightTint);
     }
 }

@@ -71,8 +71,8 @@ void StoryScreenManager::Bake(const RHI::DX11::DX11Device& device, RenderBridge:
     if (active_) active_->Bake(device, service);
 }
 
-void StoryScreenManager::EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* whiteSRV) {
-    if (active_) active_->EmitDraw(drawList, whiteSRV);
+void StoryScreenManager::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {
+    if (active_) active_->EmitDraw(drawList, service);
 }
 
 } // namespace Salt2D::Game::Session
