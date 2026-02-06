@@ -10,20 +10,6 @@
 
 namespace Salt2D::Game::Screens {
 
-void VnScreen::EnsureStyles() {
-    if (stylesInited_) return;
-
-    speakerStyle_.fontFamily = L"SimSun";
-    speakerStyle_.fontSize = 24.0f;
-    speakerStyle_.weight = DWRITE_FONT_WEIGHT_BOLD;
-
-    bodyStyle_.fontFamily = L"SimSun";
-    bodyStyle_.fontSize = 20.0f;
-    bodyStyle_.weight = DWRITE_FONT_WEIGHT_REGULAR;
-
-    stylesInited_ = true;
-}
-
 void VnScreen::HandleInput(Session::ActionFrame& af) {
     const auto& view = player_->View().vn;
     if (!view.has_value()) { dialog_.SetVisible(false); return; }
@@ -58,6 +44,10 @@ void VnScreen::HandleInput(Session::ActionFrame& af) {
 }
 
 void VnScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
+    frame_.Clear();
+    dialog_.SetVisible(false);
+
+    if (!player_) return;
     const auto& view = player_->View().vn;
     if (!view.has_value()) { dialog_.SetVisible(false); return; }
 
@@ -70,9 +60,7 @@ void VnScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
 }
 
 void VnScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
-    frame_.Clear();
-    if (!player_) return;
-    EnsureStyles();
+    if (!player_) { frame_.Clear(); dialog_.SetVisible(false); return; }
 
     HandleInput(af);
     BuildUI(canvasW, canvasH);
@@ -81,8 +69,9 @@ void VnScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH
 void VnScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
     if (!player_) return;
     if (!dialog_.Visible()) return;
+    if (!theme_) return;
 
-    baker_.Bake(device, service, speakerStyle_, frame_);
+    baker_.Bake(device, service, frame_);
 }
 
 void VnScreen::EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* whiteSRV) {
@@ -106,6 +95,7 @@ void VnScreen::LogHistory() {
 
 void VnScreen::OnEnter() {
     dialog_.SetVisible(false);
+    baker_.SetTheme(theme_);
     LogHistory();
 }
 

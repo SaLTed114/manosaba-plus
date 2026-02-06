@@ -16,6 +16,7 @@ enum class TextStyleId : uint8_t {
     PresentPrompt   = 5,
     PresentSmall    = 6,
     ChoiceSmall     = 7,
+    Count
 };
 
 struct TextRequest {

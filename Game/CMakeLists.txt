@@ -11,7 +11,7 @@ set(GAME_SOURCES
     Story/Runners/PresentRunner.cpp
     Story/Runners/DebateRunner.cpp
     Story/Runners/ChoiceRunner.cpp
-    UI/VnHud.cpp
+    # UI/VnHud.cpp
     UI/PresentHud.cpp
     UI/DebateHud.cpp
     UI/ChoiceHud.cpp

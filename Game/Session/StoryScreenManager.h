@@ -10,6 +10,7 @@
 #include "Game/Screens/PresentScreen.h"
 #include "Game/Screens/ChoiceScreen.h"
 #include "Game/Story/StoryTypes.h"
+#include "Game/UI/Theme/TextTheme.h"
 
 namespace Salt2D::Game::Session {
 
@@ -29,6 +30,9 @@ private:
     Story::StoryPlayer* player_  = nullptr;
     StoryHistory*       history_ = nullptr;
     Story::NodeType lastType_ = Story::NodeType::Unknown;
+
+    UI::TextTheme theme_;
+    bool themeInited_ = false;
 
     StoryActionMap actionMap_;
 
