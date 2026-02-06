@@ -1,5 +1,6 @@
 // Game/UI/Widgets/VnDialogWidget.cpp
 #include "VnDialogWidget.h"
+#include "Utils/StringUtils.h"
 
 namespace Salt2D::Game::UI {
 
@@ -32,15 +33,42 @@ void VnDialogWidget::Build(const VnHudModel& model, uint32_t canvasW, uint32_t c
     const float innerH = (std::max)(1.0f, panel.h - cfg_.pad * 2.0f);
 
     // Speaker
-    TextOp speakerOp;
-    speakerOp.layer = Render::Layer::HUD;
-    speakerOp.styleId = TextStyleId::VnSpeaker;
-    speakerOp.textUtf8 = model.speakerUtf8;
-    speakerOp.layoutW = innerW;
-    speakerOp.layoutH = cfg_.speakerH;
-    speakerOp.x = x; speakerOp.y = y;
-    speakerOp.z = 0.2f;
-    frame.texts.push_back(std::move(speakerOp));
+    idxFam1_   = -1; idxFamRest_   = -1;
+    idxGiven1_ = -1; idxGivenRest_ = -1;
+    nameBaseX_ = x; nameBaseY_ = y;
+
+    std::string family, given;
+    Utils::SplitNameFamilyGiven(model.speakerUtf8, family, given);
+
+    std::string fam1, famRest, giv1, givRest;
+    Utils::SplitFirstCp(family, fam1, famRest);
+    Utils::SplitFirstCp(given,  giv1, givRest);
+
+    auto PushText = [&](TextStyleId id, std::string str, Render::Color4F tint) {
+        if (str.empty()) return -1;
+        TextOp op;
+        op.layer = Render::Layer::HUD;
+        op.styleId = id;
+        op.textUtf8 = std::move(str);
+
+        op.layoutW = innerW; // will be updated in AfterBake
+        op.layoutH = cfg_.speakerH; // will be updated in AfterBake
+
+        op.x = nameBaseX_;
+        op.y = nameBaseY_;
+        op.tint = tint;
+        op.z = 0.2f;
+
+        int idx = static_cast<int>(frame.texts.size());
+        frame.texts.push_back(std::move(op));
+        return idx;
+    };
+
+    const auto accent = cfg_.nameAccentTint;
+    idxFam1_      = PushText(TextStyleId::VnNameFamilyBig, std::move(fam1),    accent);
+    idxFamRest_   = PushText(TextStyleId::VnNameRest,      std::move(famRest), Render::Color4F{1,1,1,1});
+    idxGiven1_    = PushText(TextStyleId::VnNameGivenBig,  std::move(giv1),    Render::Color4F{1,1,1,1});
+    idxGivenRest_ = PushText(TextStyleId::VnNameRest,      std::move(givRest), Render::Color4F{1,1,1,1});
 
     y += cfg_.speakerH + cfg_.speakerGap;
 
@@ -57,6 +85,58 @@ void VnDialogWidget::Build(const VnHudModel& model, uint32_t canvasW, uint32_t c
 
     // Hit area
     // placeholder: whole panel is clickable
+}
+
+void VnDialogWidget::AfterBake(UIFrame& frame) {
+    if (!visible_) return;
+
+    auto& texts = frame.texts;
+    auto GetText = [&](int idx) -> TextOp* {
+        if (idx < 0 || static_cast<size_t>(idx) >= texts.size()) return nullptr;
+        return &texts[idx];
+    };
+
+    TextOp* opFam1 = GetText(idxFam1_);
+    TextOp* opFamR = GetText(idxFamRest_);
+    TextOp* opGiv1 = GetText(idxGiven1_);
+    TextOp* opGivR = GetText(idxGivenRest_);
+
+    if (!opFam1 && !opFamR && !opGiv1 && !opGivR) return; // no name text, skip
+
+    float maxH = 0.0f;
+    auto UpdateMaxH = [&](TextOp* op) {
+        if (!op) return;
+        maxH = (std::max)(maxH, static_cast<float>(op->baked.h));
+    };
+    UpdateMaxH(opFam1); UpdateMaxH(opFamR);
+    UpdateMaxH(opGiv1); UpdateMaxH(opGivR);
+
+    auto AlignBottom = [&](TextOp* op) {
+        if (!op) return;
+        op->y = nameBaseY_ + maxH - static_cast<float>(op->baked.h);
+    };
+    AlignBottom(opFam1); AlignBottom(opFamR);
+    AlignBottom(opGiv1); AlignBottom(opGivR);
+
+    float x = nameBaseX_;
+
+    auto Place = [&](TextOp* op, float gap) {
+        if (!op) return;
+        op->x = x;
+        x += static_cast<float>(op->baked.w) + gap;
+    };
+
+    // family
+    Place(opFam1, opFamR ? cfg_.nameSegGap : 0.0f);
+    Place(opFamR, 0.0f);
+
+    const bool hasFamily = (opFam1 || opFamR);
+    const bool hasGiven  = (opGiv1 || opGivR);
+    if (hasFamily && hasGiven) x += cfg_.namePartGap; // extra gap between family and given
+
+    // given
+    Place(opGiv1, opGivR ? cfg_.nameSegGap : 0.0f);
+    Place(opGivR, 0.0f);
 }
 
 } // namespace Salt2D::Game::UI

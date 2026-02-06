@@ -29,6 +29,33 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
         white1x1_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, 1, 1, whitePixel, 4);
     }
 
+    // purple-black checkerboard texture placeholder
+    {
+        const uint32_t size = 64;
+        const uint32_t cell = 8;
+        std::vector<uint8_t> checkerData(size * size * 4);
+
+        auto setPx = [&](uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+            uint32_t idx = (y * size + x) * 4;
+            checkerData[idx + 0] = r;
+            checkerData[idx + 1] = g;
+            checkerData[idx + 2] = b;
+            checkerData[idx + 3] = a;
+        };
+
+        const uint8_t pR=120, pG= 0, pB=120, pA=255;
+        const uint8_t bR= 15, bG=15, bB= 18, bA=255;
+
+        for (uint32_t y = 0; y < size; ++y) {
+            for (uint32_t x = 0; x < size; ++x) {
+                bool isPurple = ((x / cell) ^ (y / cell)) & 1;
+                if (isPurple) setPx(x, y, pR, pG, pB, pA);
+                else setPx(x, y, bR, bG, bB, bA);
+            }
+        }
+        checker_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, size, size, checkerData.data(), size * 4);
+    }
+
     auto graphPath = std::filesystem::path("Assets/Story/Demo/demo_story.graph.json");
     session_.Initialize(graphPath, "n0_intro");
     screens_.Initialize(&session_.Player(), &session_.History());

@@ -51,6 +51,21 @@ struct TextTheme {
         choiceSmall.fontFamily = L"SimSun";
         choiceSmall.fontSize   = 18.0f;
         choiceSmall.weight     = DWRITE_FONT_WEIGHT_REGULAR;
+
+        auto& vnNameFamilyBig = styles[static_cast<size_t>(TextStyleId::VnNameFamilyBig)];
+        vnNameFamilyBig.fontFamily = L"SimSun";
+        vnNameFamilyBig.fontSize   = 36.0f;
+        vnNameFamilyBig.weight     = DWRITE_FONT_WEIGHT_BOLD;
+
+        auto& vnNameGivenBig = styles[static_cast<size_t>(TextStyleId::VnNameGivenBig)];
+        vnNameGivenBig.fontFamily = L"SimSun";
+        vnNameGivenBig.fontSize   = 32.0f;
+        vnNameGivenBig.weight     = DWRITE_FONT_WEIGHT_BOLD;
+
+        auto& vnNameRest = styles[static_cast<size_t>(TextStyleId::VnNameRest)];
+        vnNameRest.fontFamily = L"SimSun";
+        vnNameRest.fontSize   = 28.0f;
+        vnNameRest.weight     = DWRITE_FONT_WEIGHT_BOLD;
     }
 
     const Render::Text::TextStyle& GetStyle(TextStyleId id) const {

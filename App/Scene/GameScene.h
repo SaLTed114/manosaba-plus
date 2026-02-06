@@ -44,6 +44,7 @@ private:
     Game::RenderBridge::TextService text_;
 
     RHI::DX11::DX11Texture2D white1x1_;
+    RHI::DX11::DX11Texture2D checker_;
 
     // tmp
     RHI::DX11::DX11Texture2D background_;

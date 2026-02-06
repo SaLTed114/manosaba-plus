@@ -16,6 +16,9 @@ enum class TextStyleId : uint8_t {
     PresentPrompt   = 5,
     PresentSmall    = 6,
     ChoiceSmall     = 7,
+    VnNameFamilyBig = 8,
+    VnNameGivenBig  = 9,
+    VnNameRest      = 10,
     Count
 };
 
@@ -33,8 +36,14 @@ struct VnHudConfig {
     float pad        = 16.0f;
     float maxBoxH    = 260.0f;
     float boxHRatio  = 0.30f;
+
     float speakerH   = 44.0f;
     float speakerGap = 8.0f;
+
+    float nameSegGap  = 2.0f;
+    float namePartGap = 2.0f;
+    Render::Color4F nameAccentTint{0.85f, 0.55f, 1.0f, 1.0f};
+
     Render::Color4F panelTint{0.0f, 0.0f, 0.0f, 0.55f};
 };
 
