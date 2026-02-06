@@ -24,7 +24,8 @@ manosaba-plus/
 │           ├── demo_story.graph.json          # Demo story graph definition
 │           ├── VN/                            # Visual novel script files (.txt)
 │           ├── Present/                       # Evidence presentation definitions (.json)
-│           └── Debate/                        # Debate definition files (.json)
+│           ├── Debate/                        # Debate definition files (.json)
+│           └── Choice/                        # Choice definition files (.json)
 │
 ├── Build/                                     # CMake build output (generated)
 │
@@ -49,33 +50,81 @@ manosaba-plus/
 │   ├── Common/
 │   │   ├── Logger.h                           # Logging interface
 │   │   └── Logger.cpp                         # Console logger implementation
-│   └── Story/
-│       ├── CMakeLists.txt
-│       ├── StoryTypes.h                       # Core story type definitions (NodeType, Trigger, Effect)
-│       ├── StoryGraph.h                       # Story graph structure (nodes and edges)
-│       ├── StoryGraphLoader.h                 # Story graph JSON loader interface
-│       ├── StoryGraphLoader.cpp               # JSON parsing and graph construction
-│       ├── StoryRuntime.h                     # Story runtime state machine interface
-│       ├── StoryRuntime.cpp                   # Graph traversal and event handling
-│       ├── StoryPlayer.h                      # High-level story player interface
-│       ├── StoryPlayer.cpp                    # Story orchestration and view management
-│       ├── StoryView.h                        # Unified view data structures (VN, Present, Debate)
-│       ├── Resources/
-│       │   ├── VnScript.h                     # Visual novel script structure
-│       │   ├── VnScript.cpp                   # VN script parser
-│       │   ├── PresentDef.h                   # Evidence presentation definition
-│       │   ├── PresentDefLoader.h             # Present definition loader interface
-│       │   ├── PresentDefLoader.cpp           # JSON parsing for present nodes
-│       │   ├── DebateDef.h                    # Debate definition structure
-│       │   ├── DebateDefLoader.h              # Debate definition loader interface
-│       │   └── DebateDefLoader.cpp            # JSON parsing for debate nodes
-│       └── Runners/
-│           ├── VnRunner.h                     # Visual novel runner interface
-│           ├── VnRunner.cpp                   # VN text reveal and line management
-│           ├── PresentRunner.h                # Evidence presentation runner interface
-│           ├── PresentRunner.cpp              # Present node logic and validation
-│           ├── DebateRunner.h                 # Debate runner interface
-│           └── DebateRunner.cpp               # Statement progression and menu handling
+│   ├── RenderBridge/
+│   │   ├── TextService.h                      # Text rendering service interface
+│   │   ├── TextService.cpp                    # Text rendering service implementation
+│   │   ├── TextureService.h                   # Texture management service interface
+│   │   └── TextureService.cpp                 # Texture management service implementation
+│   ├── Screens/
+│   │   ├── IStoryScreen.h                     # Story screen interface
+│   │   ├── VnScreen.h                         # Visual novel screen interface
+│   │   ├── VnScreen.cpp                       # VN screen implementation
+│   │   ├── PresentScreen.h                    # Evidence presentation screen interface
+│   │   ├── PresentScreen.cpp                  # Present screen implementation
+│   │   ├── DebateScreen.h                     # Debate screen interface
+│   │   ├── DebateScreen.cpp                   # Debate screen implementation
+│   │   ├── ChoiceScreen.h                     # Choice screen interface
+│   │   └── ChoiceScreen.cpp                   # Choice screen implementation
+│   ├── Session/
+│   │   ├── StorySession.h                     # Story session state management interface
+│   │   ├── StorySession.cpp                   # Session state and control flow
+│   │   ├── StoryScreenManager.h               # Screen lifecycle manager interface
+│   │   ├── StoryScreenManager.cpp             # Screen creation and switching
+│   │   ├── StoryHistory.h                     # Story history tracking interface
+│   │   ├── StoryHistory.cpp                   # State history and rollback support
+│   │   ├── StoryActionMap.h                   # Action mapping interface
+│   │   ├── StoryActionMap.cpp                 # Input to action mapping
+│   │   └── StoryActions.h                     # Story action definitions
+│   ├── Story/
+│   │   ├── StoryTypes.h                       # Core story type definitions (NodeType, Trigger, Effect)
+│   │   ├── StoryGraph.h                       # Story graph structure (nodes and edges)
+│   │   ├── StoryGraphLoader.h                 # Story graph JSON loader interface
+│   │   ├── StoryGraphLoader.cpp               # JSON parsing and graph construction
+│   │   ├── StoryRuntime.h                     # Story runtime state machine interface
+│   │   ├── StoryRuntime.cpp                   # Graph traversal and event handling
+│   │   ├── StoryPlayer.h                      # High-level story player interface
+│   │   ├── StoryPlayer.cpp                    # Story orchestration and view management
+│   │   ├── StoryView.h                        # Unified view data structures (VN, Present, Debate, Choice)
+│   │   ├── Resources/
+│   │   │   ├── VnScript.h                     # Visual novel script structure
+│   │   │   ├── VnScript.cpp                   # VN script parser
+│   │   │   ├── PresentDef.h                   # Evidence presentation definition
+│   │   │   ├── PresentDefLoader.h             # Present definition loader interface
+│   │   │   ├── PresentDefLoader.cpp           # JSON parsing for present nodes
+│   │   │   ├── DebateDef.h                    # Debate definition structure
+│   │   │   ├── DebateDefLoader.h              # Debate definition loader interface
+│   │   │   ├── DebateDefLoader.cpp            # JSON parsing for debate nodes
+│   │   │   ├── ChoiceDef.h                    # Choice definition structure
+│   │   │   ├── ChoiceDefLoader.h              # Choice definition loader interface
+│   │   │   └── ChoiceDefLoader.cpp            # JSON parsing for choice nodes
+│   │   └── Runners/
+│   │       ├── VnRunner.h                     # Visual novel runner interface
+│   │       ├── VnRunner.cpp                   # VN text reveal and line management
+│   │       ├── PresentRunner.h                # Evidence presentation runner interface
+│   │       ├── PresentRunner.cpp              # Present node logic and validation
+│   │       ├── DebateRunner.h                 # Debate runner interface
+│   │       ├── DebateRunner.cpp               # Statement progression and menu handling
+│   │       ├── ChoiceRunner.h                 # Choice runner interface
+│   │       └── ChoiceRunner.cpp               # Choice option selection and validation
+│   └── UI/
+│       ├── UITypes.h                          # UI type definitions
+│       ├── ChoiceHud.h                        # Choice HUD interface
+│       ├── ChoiceHud.cpp                      # Choice HUD implementation
+│       ├── DebateHud.h                        # Debate HUD interface
+│       ├── DebateHud.cpp                      # Debate HUD implementation
+│       ├── PresentHud.h                       # Present HUD interface
+│       ├── PresentHud.cpp                     # Present HUD implementation
+│       ├── Framework/
+│       │   ├── UIFrame.h                      # UI frame structure
+│       │   ├── UIBaker.h                      # UI baking interface
+│       │   ├── UIBaker.cpp                    # UI element baking
+│       │   ├── UIEmitter.h                    # UI emission interface
+│       │   └── UIEmitter.cpp                  # UI element emission
+│       ├── Theme/
+│       │   └── TextTheme.h                    # Text styling theme
+│       └── Widgets/
+│           ├── VnDialogWidget.h               # VN dialog widget interface
+│           └── VnDialogWidget.cpp             # VN dialog widget implementation
 │
 ├── RHI/
 │   ├── CMakeLists.txt
@@ -99,8 +148,6 @@ manosaba-plus/
 │   ├── DX11CommonState.cpp                    # Blend/rasterizer/sampler state creation
 │   ├── DX11RenderUtils.h                      # Rendering utility functions
 │   ├── RenderPlan.h                           # Render plan and pass scheduling
-│   │
-│   ├── Demo/                                  # (Empty - legacy demos removed)
 │   │
 │   ├── Draw/
 │   │   ├── CardDrawItem.h                     # Card draw item structures
@@ -151,8 +198,11 @@ manosaba-plus/
 │   │
 │   └── Shader/
 │       ├── ShaderManager.h                    # Shader loading interface
-│       └── ShaderManager.cpp                  # Shader caching and loading from disk
-│
+│       └── ShaderManager.cpp                  # Shader caching and loading from disk│   │
+│   └── Text/
+│       ├── TextBaker.h                        # Text baking interface
+│       ├── TextBaker.cpp                      # Text to sprite conversion
+│       └── TextCache.h                        # Text rendering cache│
 ├── Resources/
 │   ├── CMakeLists.txt
 │   ├── Image/
@@ -173,8 +223,12 @@ manosaba-plus/
 ├── Utils/
 │   ├── CMakeLists.txt
 │   ├── ConsoleUtils.h                         # Console attachment utilities
+│   ├── IFileSystem.h                          # File system abstraction interface
+│   ├── DiskFileSystem.h                       # Disk file system interface
+│   ├── DiskFileSystem.cpp                     # Disk file system implementation
 │   ├── FileUtils.h                            # File path resolution utilities
-│   └── FileUtils.cpp                          # File system helpers
+│   ├── FileUtils.cpp                          # File system helpers
+│   └── StringUtils.h                          # String manipulation utilities
 │
 ├── Tests/
 │   ├── CMakeLists.txt
@@ -230,6 +284,34 @@ manosaba-plus/
 - `Common/Logger.h` - Logging interface with multiple log levels (Debug, Info, Warning, Error)
 - `Common/Logger.cpp` - Console logger implementation with color-coded output
 
+**Render Bridge**
+- `RenderBridge/TextService.h` - Text rendering service interface
+- `RenderBridge/TextService.cpp` - Bridging text rendering with game logic
+- `RenderBridge/TextureService.h` - Texture management service interface
+- `RenderBridge/TextureService.cpp` - Centralized texture loading and caching
+
+**Screen System**
+- `Screens/IStoryScreen.h` - Base interface for all story screens
+- `Screens/VnScreen.h` - Visual novel screen interface
+- `Screens/VnScreen.cpp` - Handles VN dialogue display and progression
+- `Screens/PresentScreen.h` - Evidence presentation screen interface
+- `Screens/PresentScreen.cpp` - Manages evidence selection interface
+- `Screens/DebateScreen.h` - Debate screen interface
+- `Screens/DebateScreen.cpp` - Handles debate mechanics display
+- `Screens/ChoiceScreen.h` - Choice screen interface
+- `Screens/ChoiceScreen.cpp` - Manages choice option display and selection
+
+**Session Management**
+- `Session/StorySession.h` - Story session state management interface
+- `Session/StorySession.cpp` - Coordinates overall story session state
+- `Session/StoryScreenManager.h` - Screen lifecycle manager interface
+- `Session/StoryScreenManager.cpp` - Handles screen creation and transitions
+- `Session/StoryHistory.h` - Story history tracking interface
+- `Session/StoryHistory.cpp` - Implements state history and rollback functionality
+- `Session/StoryActionMap.h` - Action mapping interface
+- `Session/StoryActionMap.cpp` - Maps input to story actions
+- `Session/StoryActions.h` - Story action type definitions
+
 **Story System**
 
 The story system implements a node-based narrative engine supporting visual novel dialogues, evidence presentation, and debate mechanics.
@@ -243,7 +325,7 @@ The story system implements a node-based narrative engine supporting visual nove
 - `Story/StoryRuntime.cpp` - Graph traversal, event handling, effect triggering
 - `Story/StoryPlayer.h` - High-level story player interface
 - `Story/StoryPlayer.cpp` - Orchestrates runners, updates views, handles user actions
-- `Story/StoryView.h` - Unified view structures for all node types (VN, Present, Debate)
+- `Story/StoryView.h` - Unified view structures for all node types (VN, Present, Debate, Choice)
 
 **Resource Definitions**
 - `Story/Resources/VnScript.h` - Visual novel script structure (commands, speaker, text)
@@ -254,6 +336,9 @@ The story system implements a node-based narrative engine supporting visual nove
 - `Story/Resources/DebateDef.h` - Debate definition (statements, menus, options)
 - `Story/Resources/DebateDefLoader.h` - Debate definition loader interface
 - `Story/Resources/DebateDefLoader.cpp` - JSON parser for debate mechanics
+- `Story/Resources/ChoiceDef.h` - Choice definition structure
+- `Story/Resources/ChoiceDefLoader.h` - Choice definition loader interface
+- `Story/Resources/ChoiceDefLoader.cpp` - JSON parser for choice nodes
 
 **Node Runners**
 - `Story/Runners/VnRunner.h` - Visual novel runner interface
@@ -262,6 +347,25 @@ The story system implements a node-based narrative engine supporting visual nove
 - `Story/Runners/PresentRunner.cpp` - Evidence selection validation and event generation
 - `Story/Runners/DebateRunner.h` - Debate runner interface
 - `Story/Runners/DebateRunner.cpp` - Statement advancement, suspicion menu handling, option validation
+- `Story/Runners/ChoiceRunner.h` - Choice runner interface
+- `Story/Runners/ChoiceRunner.cpp` - Choice option display and selection handling
+
+**UI System**
+- `UI/UITypes.h` - UI type definitions and common structures
+- `UI/ChoiceHud.h` - Choice HUD interface
+- `UI/ChoiceHud.cpp` - Visual rendering of choice options
+- `UI/DebateHud.h` - Debate HUD interface
+- `UI/DebateHud.cpp` - Visual rendering of debate interface
+- `UI/PresentHud.h` - Present HUD interface
+- `UI/PresentHud.cpp` - Visual rendering of evidence presentation
+- `UI/Framework/UIFrame.h` - UI frame structure definitions
+- `UI/Framework/UIBaker.h` - UI baking interface
+- `UI/Framework/UIBaker.cpp` - Converts UI elements to drawable format
+- `UI/Framework/UIEmitter.h` - UI emission interface
+- `UI/Framework/UIEmitter.cpp` - Emits UI draw commands
+- `UI/Theme/TextTheme.h` - Text styling and theme definitions
+- `UI/Widgets/VnDialogWidget.h` - VN dialog widget interface
+- `UI/Widgets/VnDialogWidget.cpp` - Reusable VN dialog box widget
 
 ---
 
@@ -364,6 +468,11 @@ Low-level DirectX 11 resource wrappers providing RAII management.
 - `Shader/ShaderManager.h` - Shader loading and caching interface
 - `Shader/ShaderManager.cpp` - Compiled shader loading from disk, shader cache management
 
+**Text Rendering**
+- `Text/TextBaker.h` - Text baking interface
+- `Text/TextBaker.cpp` - Converts text to renderable sprites
+- `Text/TextCache.h` - Text rendering cache for performance optimization
+
 ---
 
 ### Shaders/ - HLSL Shader Sources
@@ -393,8 +502,14 @@ Note: Each .hlsl file contains both vertex shader (VS) and pixel shader (PS) ent
 - `ConsoleUtils.h` - Console attachment for debugging in Windows GUI applications
 
 **File System Utilities**
+- `IFileSystem.h` - Abstract file system interface
+- `DiskFileSystem.h` - Disk-based file system interface
+- `DiskFileSystem.cpp` - Implementation of disk file operations
 - `FileUtils.h` - File path resolution interface
 - `FileUtils.cpp` - Path resolution helpers for locating assets and shaders
+
+**String Utilities**
+- `StringUtils.h` - String manipulation and conversion utilities
 
 ---
 

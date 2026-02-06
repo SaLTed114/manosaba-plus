@@ -24,7 +24,8 @@ manosaba-plus/
 │           ├── demo_story.graph.json          # 演示故事图定义
 │           ├── VN/                            # 视觉小说脚本文件 (.txt)
 │           ├── Present/                       # 证据出示定义 (.json)
-│           └── Debate/                        # 辩论定义文件 (.json)
+│           ├── Debate/                        # 辩论定义文件 (.json)
+│           └── Choice/                        # 选择定义文件 (.json)
 │
 ├── Build/                                     # CMake 构建输出（自动生成）
 │
@@ -49,33 +50,81 @@ manosaba-plus/
 │   ├── Common/
 │   │   ├── Logger.h                           # 日志接口
 │   │   └── Logger.cpp                         # 控制台日志实现
-│   └── Story/
-│       ├── CMakeLists.txt
-│       ├── StoryTypes.h                       # 核心故事类型定义（节点类型、触发器、效果）
-│       ├── StoryGraph.h                       # 故事图结构（节点与边）
-│       ├── StoryGraphLoader.h                 # 故事图 JSON 加载器接口
-│       ├── StoryGraphLoader.cpp               # JSON 解析与图构建
-│       ├── StoryRuntime.h                     # 故事运行时状态机接口
-│       ├── StoryRuntime.cpp                   # 图遍历与事件处理
-│       ├── StoryPlayer.h                      # 高层故事播放器接口
-│       ├── StoryPlayer.cpp                    # 故事编排与视图管理
-│       ├── StoryView.h                        # 统一视图数据结构（VN、Present、Debate）
-│       ├── Resources/
-│       │   ├── VnScript.h                     # 视觉小说脚本结构
-│       │   ├── VnScript.cpp                   # VN 脚本解析器
-│       │   ├── PresentDef.h                   # 证据出示定义
-│       │   ├── PresentDefLoader.h             # Present 定义加载器接口
-│       │   ├── PresentDefLoader.cpp           # Present 节点 JSON 解析
-│       │   ├── DebateDef.h                    # 辩论定义结构
-│       │   ├── DebateDefLoader.h              # 辩论定义加载器接口
-│       │   └── DebateDefLoader.cpp            # 辩论节点 JSON 解析
-│       └── Runners/
-│           ├── VnRunner.h                     # 视觉小说运行器接口
-│           ├── VnRunner.cpp                   # VN 文本显示与行管理
-│           ├── PresentRunner.h                # 证据出示运行器接口
-│           ├── PresentRunner.cpp              # Present 节点逻辑与验证
-│           ├── DebateRunner.h                 # 辩论运行器接口
-│           └── DebateRunner.cpp               # 陈述推进与菜单处理
+│   ├── RenderBridge/
+│   │   ├── TextService.h                      # 文本渲染服务接口
+│   │   ├── TextService.cpp                    # 文本渲染服务实现
+│   │   ├── TextureService.h                   # 纹理管理服务接口
+│   │   └── TextureService.cpp                 # 纹理管理服务实现
+│   ├── Screens/
+│   │   ├── IStoryScreen.h                     # 故事屏幕接口
+│   │   ├── VnScreen.h                         # 视觉小说屏幕接口
+│   │   ├── VnScreen.cpp                       # VN 屏幕实现
+│   │   ├── PresentScreen.h                    # 证据出示屏幕接口
+│   │   ├── PresentScreen.cpp                  # Present 屏幕实现
+│   │   ├── DebateScreen.h                     # 辩论屏幕接口
+│   │   ├── DebateScreen.cpp                   # 辩论屏幕实现
+│   │   ├── ChoiceScreen.h                     # 选择屏幕接口
+│   │   └── ChoiceScreen.cpp                   # 选择屏幕实现
+│   ├── Session/
+│   │   ├── StorySession.h                     # 故事会话状态管理接口
+│   │   ├── StorySession.cpp                   # 会话状态与控制流
+│   │   ├── StoryScreenManager.h               # 屏幕生命周期管理器接口
+│   │   ├── StoryScreenManager.cpp             # 屏幕创建与切换
+│   │   ├── StoryHistory.h                     # 故事历史跟踪接口
+│   │   ├── StoryHistory.cpp                   # 状态历史与回滚支持
+│   │   ├── StoryActionMap.h                   # 动作映射接口
+│   │   ├── StoryActionMap.cpp                 # 输入到动作的映射
+│   │   └── StoryActions.h                     # 故事动作定义
+│   ├── Story/
+│   │   ├── StoryTypes.h                       # 核心故事类型定义（节点类型、触发器、效果）
+│   │   ├── StoryGraph.h                       # 故事图结构（节点与边）
+│   │   ├── StoryGraphLoader.h                 # 故事图 JSON 加载器接口
+│   │   ├── StoryGraphLoader.cpp               # JSON 解析与图构建
+│   │   ├── StoryRuntime.h                     # 故事运行时状态机接口
+│   │   ├── StoryRuntime.cpp                   # 图遍历与事件处理
+│   │   ├── StoryPlayer.h                      # 高层故事播放器接口
+│   │   ├── StoryPlayer.cpp                    # 故事编排与视图管理
+│   │   ├── StoryView.h                        # 统一视图数据结构（VN、Present、Debate、Choice）
+│   │   ├── Resources/
+│   │   │   ├── VnScript.h                     # 视觉小说脚本结构
+│   │   │   ├── VnScript.cpp                   # VN 脚本解析器
+│   │   │   ├── PresentDef.h                   # 证据出示定义
+│   │   │   ├── PresentDefLoader.h             # Present 定义加载器接口
+│   │   │   ├── PresentDefLoader.cpp           # Present 节点 JSON 解析
+│   │   │   ├── DebateDef.h                    # 辩论定义结构
+│   │   │   ├── DebateDefLoader.h              # 辩论定义加载器接口
+│   │   │   ├── DebateDefLoader.cpp            # 辩论节点 JSON 解析
+│   │   │   ├── ChoiceDef.h                    # 选择定义结构
+│   │   │   ├── ChoiceDefLoader.h              # 选择定义加载器接口
+│   │   │   └── ChoiceDefLoader.cpp            # 选择节点 JSON 解析
+│   │   └── Runners/
+│   │       ├── VnRunner.h                     # 视觉小说运行器接口
+│   │       ├── VnRunner.cpp                   # VN 文本显示与行管理
+│   │       ├── PresentRunner.h                # 证据出示运行器接口
+│   │       ├── PresentRunner.cpp              # Present 节点逻辑与验证
+│   │       ├── DebateRunner.h                 # 辩论运行器接口
+│   │       ├── DebateRunner.cpp               # 陈述推进与菜单处理
+│   │       ├── ChoiceRunner.h                 # 选择运行器接口
+│   │       └── ChoiceRunner.cpp               # 选择选项选择与验证
+│   └── UI/
+│       ├── UITypes.h                          # UI 类型定义
+│       ├── ChoiceHud.h                        # 选择 HUD 接口
+│       ├── ChoiceHud.cpp                      # 选择 HUD 实现
+│       ├── DebateHud.h                        # 辩论 HUD 接口
+│       ├── DebateHud.cpp                      # 辩论 HUD 实现
+│       ├── PresentHud.h                       # Present HUD 接口
+│       ├── PresentHud.cpp                     # Present HUD 实现
+│       ├── Framework/
+│       │   ├── UIFrame.h                      # UI 框架结构
+│       │   ├── UIBaker.h                      # UI 烘焙接口
+│       │   ├── UIBaker.cpp                    # UI 元素烘焙
+│       │   ├── UIEmitter.h                    # UI 发射接口
+│       │   └── UIEmitter.cpp                  # UI 元素发射
+│       ├── Theme/
+│       │   └── TextTheme.h                    # 文本样式主题
+│       └── Widgets/
+│           ├── VnDialogWidget.h               # VN 对话框控件接口
+│           └── VnDialogWidget.cpp             # VN 对话框控件实现
 │
 ├── RHI/
 │   ├── CMakeLists.txt
@@ -99,8 +148,6 @@ manosaba-plus/
 │   ├── DX11CommonState.cpp                    # 混合/光栅化/采样器状态创建
 │   ├── DX11RenderUtils.h                      # 渲染工具函数
 │   ├── RenderPlan.h                           # 渲染计划与通道调度
-│   │
-│   ├── Demo/                                  # (空目录 - 旧的演示已移除)
 │   │
 │   ├── Draw/
 │   │   ├── CardDrawItem.h                     # 卡片绘制项结构
@@ -151,8 +198,11 @@ manosaba-plus/
 │   │
 │   └── Shader/
 │       ├── ShaderManager.h                    # 着色器加载接口
-│       └── ShaderManager.cpp                  # 着色器缓存与磁盘加载
-│
+│       └── ShaderManager.cpp                  # 着色器缓存与磁盘加载│   │
+│   └── Text/
+│       ├── TextBaker.h                        # 文本烘焙接口
+│       ├── TextBaker.cpp                      # 文本到精灵转换
+│       └── TextCache.h                        # 文本渲染缓存│
 ├── Resources/
 │   ├── CMakeLists.txt
 │   ├── Image/
@@ -173,8 +223,12 @@ manosaba-plus/
 ├── Utils/
 │   ├── CMakeLists.txt
 │   ├── ConsoleUtils.h                         # 控制台附加工具
+│   ├── IFileSystem.h                          # 文件系统抽象接口
+│   ├── DiskFileSystem.h                       # 磁盘文件系统接口
+│   ├── DiskFileSystem.cpp                     # 磁盘文件系统实现
 │   ├── FileUtils.h                            # 文件路径解析工具
-│   └── FileUtils.cpp                          # 文件系统辅助函数
+│   ├── FileUtils.cpp                          # 文件系统辅助函数
+│   └── StringUtils.h                          # 字符串操作工具
 │
 ├── Tests/
 │   ├── CMakeLists.txt
@@ -230,6 +284,34 @@ manosaba-plus/
 - `Common/Logger.h` - 日志接口，支持多个日志级别（调试、信息、警告、错误）
 - `Common/Logger.cpp` - 带颜色编码输出的控制台日志实现
 
+**渲染桥接**
+- `RenderBridge/TextService.h` - 文本渲染服务接口
+- `RenderBridge/TextService.cpp` - 桥接文本渲染与游戏逻辑
+- `RenderBridge/TextureService.h` - 纹理管理服务接口
+- `RenderBridge/TextureService.cpp` - 集中式纹理加载与缓存
+
+**屏幕系统**
+- `Screens/IStoryScreen.h` - 所有故事屏幕的基础接口
+- `Screens/VnScreen.h` - 视觉小说屏幕接口
+- `Screens/VnScreen.cpp` - 处理 VN 对话显示和推进
+- `Screens/PresentScreen.h` - 证据出示屏幕接口
+- `Screens/PresentScreen.cpp` - 管理证据选择界面
+- `Screens/DebateScreen.h` - 辩论屏幕接口
+- `Screens/DebateScreen.cpp` - 处理辩论机制显示
+- `Screens/ChoiceScreen.h` - 选择屏幕接口
+- `Screens/ChoiceScreen.cpp` - 管理选择选项显示与选择
+
+**会话管理**
+- `Session/StorySession.h` - 故事会话状态管理接口
+- `Session/StorySession.cpp` - 协调整体故事会话状态
+- `Session/StoryScreenManager.h` - 屏幕生命周期管理器接口
+- `Session/StoryScreenManager.cpp` - 处理屏幕创建与过渡
+- `Session/StoryHistory.h` - 故事历史跟踪接口
+- `Session/StoryHistory.cpp` - 实现状态历史与回滚功能
+- `Session/StoryActionMap.h` - 动作映射接口
+- `Session/StoryActionMap.cpp` - 将输入映射到故事动作
+- `Session/StoryActions.h` - 故事动作类型定义
+
 **故事系统**
 
 故事系统实现了基于节点的叙事引擎，支持视觉小说对话、证据出示和辩论机制。
@@ -243,7 +325,7 @@ manosaba-plus/
 - `Story/StoryRuntime.cpp` - 图遍历、事件处理、效果触发
 - `Story/StoryPlayer.h` - 高层故事播放器接口
 - `Story/StoryPlayer.cpp` - 编排运行器、更新视图、处理用户操作
-- `Story/StoryView.h` - 所有节点类型的统一视图结构（VN、Present、Debate）
+- `Story/StoryView.h` - 所有节点类型的统一视图结构（VN、Present、Debate、Choice）
 
 **资源定义**
 - `Story/Resources/VnScript.h` - 视觉小说脚本结构（命令、说话人、文本）
@@ -254,6 +336,9 @@ manosaba-plus/
 - `Story/Resources/DebateDef.h` - 辩论定义（陈述、菜单、选项）
 - `Story/Resources/DebateDefLoader.h` - 辩论定义加载器接口
 - `Story/Resources/DebateDefLoader.cpp` - 辩论机制的 JSON 解析器
+- `Story/Resources/ChoiceDef.h` - 选择定义结构
+- `Story/Resources/ChoiceDefLoader.h` - 选择定义加载器接口
+- `Story/Resources/ChoiceDefLoader.cpp` - 选择节点的 JSON 解析器
 
 **节点运行器**
 - `Story/Runners/VnRunner.h` - 视觉小说运行器接口
@@ -262,6 +347,25 @@ manosaba-plus/
 - `Story/Runners/PresentRunner.cpp` - 证据选择验证与事件生成
 - `Story/Runners/DebateRunner.h` - 辩论运行器接口
 - `Story/Runners/DebateRunner.cpp` - 陈述推进、可疑点菜单处理、选项验证
+- `Story/Runners/ChoiceRunner.h` - 选择运行器接口
+- `Story/Runners/ChoiceRunner.cpp` - 选择选项显示与选择处理
+
+**UI 系统**
+- `UI/UITypes.h` - UI 类型定义与通用结构
+- `UI/ChoiceHud.h` - 选择 HUD 接口
+- `UI/ChoiceHud.cpp` - 选择选项的视觉渲染
+- `UI/DebateHud.h` - 辩论 HUD 接口
+- `UI/DebateHud.cpp` - 辩论界面的视觉渲染
+- `UI/PresentHud.h` - Present HUD 接口
+- `UI/PresentHud.cpp` - 证据出示的视觉渲染
+- `UI/Framework/UIFrame.h` - UI 框架结构定义
+- `UI/Framework/UIBaker.h` - UI 烘焙接口
+- `UI/Framework/UIBaker.cpp` - 将 UI 元素转换为可绘制格式
+- `UI/Framework/UIEmitter.h` - UI 发射接口
+- `UI/Framework/UIEmitter.cpp` - 发射 UI 绘制命令
+- `UI/Theme/TextTheme.h` - 文本样式与主题定义
+- `UI/Widgets/VnDialogWidget.h` - VN 对话框控件接口
+- `UI/Widgets/VnDialogWidget.cpp` - 可复用的 VN 对话框控件
 
 ---
 
@@ -364,6 +468,11 @@ manosaba-plus/
 - `Shader/ShaderManager.h` - 着色器加载与缓存接口
 - `Shader/ShaderManager.cpp` - 从磁盘加载编译后的着色器、着色器缓存管理
 
+**文本渲染**
+- `Text/TextBaker.h` - 文本烘焙接口
+- `Text/TextBaker.cpp` - 将文本转换为可渲染精灵
+- `Text/TextCache.h` - 用于性能优化的文本渲染缓存
+
 ---
 
 ### Shaders/ - HLSL 着色器源码
@@ -393,8 +502,14 @@ manosaba-plus/
 - `ConsoleUtils.h` - 用于 Windows GUI 应用调试的控制台附加功能
 
 **文件系统工具**
+- `IFileSystem.h` - 抽象文件系统接口
+- `DiskFileSystem.h` - 基于磁盘的文件系统接口
+- `DiskFileSystem.cpp` - 磁盘文件操作的实现
 - `FileUtils.h` - 文件路径解析接口
 - `FileUtils.cpp` - 用于定位资源和着色器的路径解析辅助函数
+
+**字符串工具**
+- `StringUtils.h` - 字符串操作与转换工具
 
 ---
 
