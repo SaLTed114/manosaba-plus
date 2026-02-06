@@ -10,22 +10,6 @@
 
 namespace Salt2D::Game::UI {
 
-struct VnHudConfig {
-    float margin     = 24.0f;
-    float pad        = 16.0f;
-    float maxBoxH    = 260.0f;
-    float boxHRatio  = 0.30f;
-    float speakerH   = 44.0f;
-    float speakerGap = 8.0f;
-    Render::Color4F panelTint{0.0f, 0.0f, 0.0f, 0.55f};
-};
-
-struct VnHudModel {
-    bool visible = false;
-    std::string speakerUtf8;
-    std::string bodyUtf8;
-};
-
 struct VnHudDrawData {
     bool visible = false;
     Render::RectF panel{};

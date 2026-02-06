@@ -44,6 +44,9 @@ private:
     Game::RenderBridge::TextService text_;
 
     RHI::DX11::DX11Texture2D white1x1_;
+
+    // tmp
+    RHI::DX11::DX11Texture2D background_;
 };
 
 } // namespace Salt2D::App

@@ -4,7 +4,10 @@
 
 #include "IStoryScreen.h"
 
-#include "Game/UI/VnHud.h"
+#include "Game/UI/Widgets/VnDialogWidget.h"
+#include "Game/UI/Framework/UIFrame.h"
+#include "Game/UI/Framework/UIBaker.h"
+#include "Game/UI/Framework/UIEmitter.h"
 #include "Render/Text/TextBaker.h"
 
 namespace Salt2D::Game::Screens {
@@ -19,7 +22,7 @@ public:
     void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) override;
     void EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* whiteSRV) override;
 
-    bool Visible() const { return draw_.visible; }
+    bool Visible() const { return dialog_.Visible(); }
 
     void OnEnter() override;
     void OnExit()  override;
@@ -37,14 +40,14 @@ private:
     std::string lastLineKey_;
     bool logOpened_ = false;
 
-    UI::VnHud hud_;
-    UI::VnHudDrawData draw_;
+    UI::UIFrame   frame_;
+    UI::UIBaker   baker_;
+    UI::UIEmitter emitter_;
+
+    UI::VnDialogWidget dialog_;
 
     Render::Text::TextStyle speakerStyle_;
     Render::Text::TextStyle bodyStyle_;
-
-    Render::Text::BakedText speakerText_;
-    Render::Text::BakedText bodyText_;
 
     bool stylesInited_ = false;
 };

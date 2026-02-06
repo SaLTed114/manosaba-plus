@@ -15,6 +15,9 @@ set(GAME_SOURCES
     UI/PresentHud.cpp
     UI/DebateHud.cpp
     UI/ChoiceHud.cpp
+    UI/Framework/UIBaker.cpp
+    UI/Framework/UIEmitter.cpp
+    UI/Widgets/VnDialogWidget.cpp
     RenderBridge/TextService.cpp
     Screens/VnScreen.cpp
     Screens/DebateScreen.cpp

@@ -4,7 +4,6 @@
 #include "Game/Session/StoryActions.h"
 #include "Game/Session/StoryHistory.h"
 #include "Game/Story/StoryPlayer.h"
-#include "Game/RenderBridge/TextService.h"
 #include "Render/Draw/DrawList.h"
 
 #include <Windows.h>
@@ -27,7 +26,7 @@ void VnScreen::EnsureStyles() {
 
 void VnScreen::HandleInput(Session::ActionFrame& af) {
     const auto& view = player_->View().vn;
-    if (!view.has_value()) { draw_.visible = false; return; }
+    if (!view.has_value()) { dialog_.SetVisible(false); return; }
 
     const auto accel = af.actions.accelHolded;
     const auto history = af.actions.vnHistoryUp;
@@ -60,17 +59,18 @@ void VnScreen::HandleInput(Session::ActionFrame& af) {
 
 void VnScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     const auto& view = player_->View().vn;
-    if (!view.has_value()) { draw_.visible = false; return; }
+    if (!view.has_value()) { dialog_.SetVisible(false); return; }
 
     UI::VnHudModel model;
     model.visible = true;
     model.speakerUtf8 = view->speaker;
     model.bodyUtf8 = view->fullText;
 
-    draw_ = hud_.Build(model, canvasW, canvasH);
+    dialog_.Build(model, canvasW, canvasH, frame_);
 }
 
 void VnScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
+    frame_.Clear();
     if (!player_) return;
     EnsureStyles();
 
@@ -80,49 +80,16 @@ void VnScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH
 
 void VnScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
     if (!player_) return;
-    if (!draw_.visible) return;
+    if (!dialog_.Visible()) return;
 
-    speakerText_ = service.GetOrBake(device,
-        static_cast<uint8_t>(draw_.speaker.style),
-        speakerStyle_,
-        draw_.speaker.textUtf8,
-        draw_.speaker.layoutW,
-        draw_.speaker.layoutH);
-
-    bodyText_ = service.GetOrBake(device,
-        static_cast<uint8_t>(draw_.body.style),
-        bodyStyle_,
-        draw_.body.textUtf8,
-        draw_.body.layoutW,
-        draw_.body.layoutH);
+    baker_.Bake(device, service, speakerStyle_, frame_);
 }
 
 void VnScreen::EmitDraw(Render::DrawList& drawList, ID3D11ShaderResourceView* whiteSRV) {
-    if (!draw_.visible) return;
+    if (!player_) return;
+    if (!dialog_.Visible()) return;
 
-    // VN panel background
-    {
-        drawList.PushSprite(Render::Layer::HUD, whiteSRV,
-            draw_.panel, 0.0f, {}, draw_.panelTint);
-    }
-
-    // Speaker
-    if (speakerText_.tex.SRV()) {
-        Render::RectF dst{
-            draw_.speaker.x, draw_.speaker.y,
-            static_cast<float>(speakerText_.w),
-            static_cast<float>(speakerText_.h)};
-        drawList.PushSprite(Render::Layer::HUD, speakerText_.tex.SRV(), dst);
-    }
-
-    // Body
-    if (bodyText_.tex.SRV()) {
-        Render::RectF dst{
-            draw_.body.x, draw_.body.y,
-            static_cast<float>(bodyText_.w),
-            static_cast<float>(bodyText_.h)};
-        drawList.PushSprite(Render::Layer::HUD, bodyText_.tex.SRV(), dst);
-    }
+    emitter_.Emit(drawList, whiteSRV, frame_);
 }
 
 void VnScreen::LogHistory() {
@@ -138,16 +105,12 @@ void VnScreen::LogHistory() {
 }
 
 void VnScreen::OnEnter() {
-    draw_.visible = false;
-    speakerText_ = {};
-    bodyText_ = {};
+    dialog_.SetVisible(false);
     LogHistory();
 }
 
 void VnScreen::OnExit() {
-    draw_.visible = false;
-    speakerText_ = {};
-    bodyText_ = {};
+    dialog_.SetVisible(false);
 }
 
 } // namespace Salt2D::Game::Screens

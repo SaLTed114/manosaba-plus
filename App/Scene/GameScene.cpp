@@ -3,6 +3,7 @@
 
 #include "Render/Passes/SceneSpritePass.h"
 #include "Render/Passes/ComposePass.h"
+#include "Resources/Image/WICImageLoader.h"
 
 #include <iostream>
 #include <Windows.h>
@@ -31,6 +32,14 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
     auto graphPath = std::filesystem::path("Assets/Story/Demo/demo_story.graph.json");
     session_.Initialize(graphPath, "n0_intro");
     screens_.Initialize(&session_.Player(), &session_.History());
+
+    // tmp
+    Resources::ImageRGBA8 bgImg;
+    std::filesystem::path bgPath = "Assets/Image/background.png";
+    if (!Resources::LoadImageRGBA8_WIC(bgPath.string(), bgImg)) {
+        throw std::runtime_error("Failed to load image in GameScene: " + bgPath.string());
+    }
+    background_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, bgImg.width, bgImg.height, bgImg.pixels.data(), bgImg.rowPitch);
 }
 
 // ========================= End of Initialization ==========================
@@ -64,6 +73,14 @@ void GameScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint
     (void)canvasW; (void)canvasH;
 
     screens_.EmitDraw(drawList, white1x1_.SRV());
+
+    // tmp
+    const float magicScale = 1080.0f / 2048.0f; // scale down the 4096x2048 background to fit 1080p height
+    const float magicW = static_cast<float>(background_.GetWidth())  * magicScale;
+    const float magicH = static_cast<float>(background_.GetHeight()) * magicScale;
+    const float magicOffset = -90.0f; // center the background better (this is a very rough adjustment for the demo story graph)
+    drawList.PushSprite(Render::Layer::Background, background_.SRV(),
+        Render::RectF{magicOffset,0,magicW,magicH}, 0.0f);
 }
 
 void GameScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& drawList) {
