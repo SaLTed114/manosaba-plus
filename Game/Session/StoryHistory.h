@@ -13,6 +13,7 @@ enum class HistoryKind : uint8_t {
     Line,
     MenuOpen,
     MenuBack,
+    OptionList,
     OptionPick,
     PresentPrompt,
     PresentPick,

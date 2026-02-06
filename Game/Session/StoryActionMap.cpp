@@ -54,6 +54,8 @@ ActionFrame StoryActionMap::Map(Story::NodeType type, const Core::InputState& in
     case Story::NodeType::Present:
         frame.actions.confirmPressed = keyConfirm;
         break;
+    case Story::NodeType::Choice:
+        frame.actions.confirmPressed = keyConfirm;
     default:
         break;
     }

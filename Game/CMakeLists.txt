@@ -6,16 +6,20 @@ set(GAME_SOURCES
     Story/Resources/VnScript.cpp
     Story/Resources/PresentDefLoader.cpp
     Story/Resources/DebateDefLoader.cpp
+    Story/Resources/ChoiceDefLoader.cpp
     Story/Runners/VnRunner.cpp
     Story/Runners/PresentRunner.cpp
     Story/Runners/DebateRunner.cpp
+    Story/Runners/ChoiceRunner.cpp
     UI/VnHud.cpp
     UI/PresentHud.cpp
     UI/DebateHud.cpp
+    UI/ChoiceHud.cpp
     RenderBridge/TextService.cpp
     Screens/VnScreen.cpp
     Screens/DebateScreen.cpp
     Screens/PresentScreen.cpp
+    Screens/ChoiceScreen.cpp
     Session/StoryScreenManager.cpp
     Session/StorySession.cpp
     Session/StoryActionMap.cpp

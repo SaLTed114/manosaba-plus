@@ -8,6 +8,7 @@
 #include "Game/Screens/VnScreen.h"
 #include "Game/Screens/DebateScreen.h"
 #include "Game/Screens/PresentScreen.h"
+#include "Game/Screens/ChoiceScreen.h"
 #include "Game/Story/StoryTypes.h"
 
 namespace Salt2D::Game::Session {
@@ -31,9 +32,10 @@ private:
 
     StoryActionMap actionMap_;
 
-    Screens::VnScreen vn_;
-    Screens::DebateScreen debate_;
-    Screens::PresentScreen present_;
+    Screens::VnScreen       vn_;
+    Screens::DebateScreen   debate_;
+    Screens::PresentScreen  present_;
+    Screens::ChoiceScreen   choice_;
 
     Screens::IStoryScreen* active_ = nullptr;
 };

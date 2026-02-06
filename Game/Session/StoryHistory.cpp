@@ -30,6 +30,7 @@ std::string StoryHistory::Format(const HistoryEntry& entry) {
     case HistoryKind::Line: break;
     case HistoryKind::MenuOpen:      formatStr += ": [Suspicious]"; break;
     case HistoryKind::MenuBack:      formatStr += ": [Back]";       break;
+    case HistoryKind::OptionList:    formatStr += ": [Options]";    break;
     case HistoryKind::OptionPick:    formatStr += ": [Option]";     break;
     case HistoryKind::PresentPrompt: formatStr += ": [Prompt]";     break;
     case HistoryKind::PresentPick:   formatStr += ": [Present]";    break;
