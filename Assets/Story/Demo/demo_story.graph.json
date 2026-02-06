@@ -14,11 +14,12 @@
     { "id": "n7_evid_correct", "type": "vn", "resource": "VN/n7_evid_correct.txt" },
     { "id": "n8_evid_wrong", "type": "error", "resource": "VN/n8_evid_wrong.txt" },
     { "id": "n10_next", "type": "vn", "resource": "VN/n10_next.txt" },
-    { "id": "be_badend", "type": "be", "resource": "VN/be_badend.txt" }
+    { "id": "be_badend", "type": "be", "resource": "VN/be_badend.txt" },
+    { "id": "n11_choice", "type": "choice", "resource": "Choice/n11_choice.json" },
+    { "id": "be_choice_badend", "type": "be", "resource": "VN/be_choice_badend.txt" },
+    { "id": "be_choice_back", "type": "choice", "resource": "Choice/be_choice_back.json" }
   ],
   "edges": [
-    { "from": "n0_intro", "to": "n1_interrogation", "trigger": "auto" },
-
     { "from": "n1_interrogation", "to": "n2_no_commit", "trigger": "no_commit" },
     { "from": "n2_no_commit", "to": "n1_interrogation", "trigger": "auto" },
 
@@ -51,6 +52,27 @@
 
     { "from": "n7_evid_correct", "to": "n10_next", "trigger": "auto" },
 
-    { "from": "n1_interrogation", "to": "be_badend", "trigger": "time_depleted" }
+    { "from": "n1_interrogation", "to": "be_badend", "trigger": "time_depleted" },
+
+    { "from": "n0_intro", "to": "n11_choice", "trigger": "auto" },
+    {
+      "from": "n11_choice",
+      "to": "be_choice_badend",
+      "trigger": "option",
+      "key": "opt_badend"
+    },
+    {
+      "from": "n11_choice",
+      "to": "n1_interrogation",
+      "trigger": "option",
+      "key": "opt_continue"
+    },
+    { "from": "be_choice_badend", "to": "be_choice_back", "trigger": "auto" },
+    {
+      "from": "be_choice_back",
+      "to": "n11_choice",
+      "trigger": "option",
+      "key": "opt_back"
+    }
   ]
 }

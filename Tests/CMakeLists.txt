@@ -51,9 +51,11 @@ add_executable(StoryPlayerTest
     ${CMAKE_SOURCE_DIR}/Game/Story/Runners/VnRunner.cpp
     ${CMAKE_SOURCE_DIR}/Game/Story/Runners/PresentRunner.cpp
     ${CMAKE_SOURCE_DIR}/Game/Story/Runners/DebateRunner.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Runners/ChoiceRunner.cpp
     ${CMAKE_SOURCE_DIR}/Game/Story/Resources/VnScript.cpp
     ${CMAKE_SOURCE_DIR}/Game/Story/Resources/PresentDefLoader.cpp
     ${CMAKE_SOURCE_DIR}/Game/Story/Resources/DebateDefLoader.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Resources/ChoiceDefLoader.cpp
     ${CMAKE_SOURCE_DIR}/Game/Common/Logger.cpp
 )
 

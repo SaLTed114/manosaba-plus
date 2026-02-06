@@ -1,0 +1,6 @@
+{
+  "options": [
+    { "option_id": "opt_badend", "label": "停止魔女审判" },
+    { "option_id": "opt_continue", "label": "继续魔女审判" }
+  ]
+}

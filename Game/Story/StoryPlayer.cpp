@@ -4,7 +4,7 @@
 namespace Salt2D::Game::Story {
 
 StoryPlayer::StoryPlayer(const StoryGraph& graph, Utils::IFileSystem& fs)
-    : rt_(graph), fs_(fs), vn_(fs), present_(fs), debate_(fs) {}
+    : rt_(graph), fs_(fs), vn_(fs), present_(fs), debate_(fs), choice_(fs) {}
 
 void StoryPlayer::Start(const NodeId& startNode) {
     rt_.Start(startNode);
@@ -34,6 +34,7 @@ void StoryPlayer::Advance() {
         UpdateView();
         return;
     case NodeType::Present:
+    case NodeType::Choice:
     default:
         if (logger_) {
             logger_->Debug("StoryPlayer",
@@ -60,6 +61,7 @@ void StoryPlayer::FastForward() {
         return;
     case NodeType::Debate:
     case NodeType::Present:
+    case NodeType::Choice:
     default:
         if (logger_) {
             logger_->Debug("StoryPlayer",
@@ -133,6 +135,10 @@ void StoryPlayer::OnEnteredNode() {
         debate_.Enter(node);
         UpdateView();
         return;
+    case NodeType::Choice:
+        choice_.Enter(node);
+        UpdateView();
+        return;
     default:
         if (logger_) {
             logger_->Warn("StoryPlayer",
@@ -190,6 +196,15 @@ void StoryPlayer::UpdateView() {
         view.options      = debate_.CurrentOptions();
 
         view_.debate = std::move(view);
+        break;
+    }
+    case NodeType::Choice: {
+        const ChoiceDef& def = choice_.Def();
+        StoryView::ChoiceView view;
+        for (const auto& option : def.options) {
+            view.options.emplace_back(option.optionId, option.label);
+        }
+        view_.choice = std::move(view);
         break;
     }
     default:

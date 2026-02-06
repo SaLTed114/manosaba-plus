@@ -45,6 +45,13 @@ struct StoryView {
     };
 
     std::optional<DebateView> debate;
+
+    struct ChoiceView {
+        // {optionId, label}
+        std::vector<std::pair<std::string, std::string>> options;
+    };
+
+    std::optional<ChoiceView> choice;
 };
 
 } // namespace Salt2D::Game::Story

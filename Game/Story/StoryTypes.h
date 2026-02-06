@@ -23,6 +23,7 @@ enum class NodeType : uint8_t {
     Present,
     Error,
     BE,
+    Choice,
     Unknown,
 };
 
@@ -33,6 +34,7 @@ inline std::string_view ToString(NodeType type) {
         case NodeType::Present: return "present";
         case NodeType::Error:   return "error";
         case NodeType::BE:      return "be";
+        case NodeType::Choice:  return "choice";
         default:                return "unknown";
     }
 }
@@ -43,6 +45,7 @@ inline NodeType ParseNodeType(std::string_view str) {
     if (str == "present") return NodeType::Present;
     if (str == "error")   return NodeType::Error;
     if (str == "be")      return NodeType::BE;
+    if (str == "choice")  return NodeType::Choice;
     return NodeType::Unknown;
 }
 

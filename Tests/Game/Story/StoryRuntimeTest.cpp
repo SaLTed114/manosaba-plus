@@ -39,7 +39,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         runtime.Start("n0_intro");
 
         // 推送一些事件
-        runtime.PushEvent({Trigger::Auto, ""});                 // n0 -> n1
+        runtime.PushEvent({Trigger::Auto, ""});                 // n0 -> n11 choice
+
+        runtime.PushEvent({Trigger::Option, "opt_badend"});     // n11 -> be_choice_badend
+        runtime.PushEvent({Trigger::Auto, ""});                 // be_choice_badend -> be_choice_back
+        runtime.PushEvent({Trigger::Option, "opt_back"});       // be_choice_back -> n11 choice
+
+        runtime.PushEvent({Trigger::Option, "opt_continue"});   // n11 -> n1
 
         runtime.PushEvent({Trigger::Option, "opt_agree"});      // n1 -> n4
         runtime.PushEvent({Trigger::Auto, ""});                 // n4 -> n1

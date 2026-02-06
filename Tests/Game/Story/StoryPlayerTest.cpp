@@ -75,6 +75,16 @@ void DisplayView(const StoryView& view) {
             }
         }
     }
+
+    if (view.choice.has_value()) {
+        const auto& choice = *view.choice;
+        std::cout << "--- Choice View ---\n";
+        std::cout << "Available Options:\n";
+        for (size_t i = 0; i < choice.options.size(); ++i) {
+            std::cout << "  [" << i << "] " << choice.options[i].first << " - " << choice.options[i].second << "\n";
+        }
+    }
+
     std::cout << "================================\n";
 }
 
@@ -99,8 +109,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         /* ======
          * n        : Advance / Advance statement (Debate)
          * f        : FastForward
-         * 1        : Commit option "opt_agree"
-         * 2        : Commit option "opt_rebut"
          * p<id>    : Pick evidence by itemId (e.g., "pevid_pen")
          * #<N>     : Pick evidence by index from Present view
          * s<N>     : Open suspicion by span index (Debate)
@@ -112,7 +120,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         while (true) {
             std::cout << "\nCurrent Node: " << player.CurrentNodeId() << " (type=" << ToString(player.CurrentNode().type) << ")\n";
             DisplayView(player.View());
-            std::cout << "\nEnter command (n/f/1/2/p<id>/#<N>/s<N>/o<N>/c/q): ";
+            std::cout << "\nEnter command (n/f/p<id>/#<N>/s<N>/o<N>/c/q): ";
             std::cin >> cmd;
             if (cmd == "q") break;
 
@@ -120,10 +128,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
                 player.Advance();
             } else if (cmd == "f") {
                 player.FastForward();
-            } else if (cmd == "1") {
-                player.CommitOption("opt_agree");
-            } else if (cmd == "2") {
-                player.CommitOption("opt_rebut");
             } else if (cmd[0] == 'p' && cmd.size() > 1) {
                 // p<itemId> - pick by itemId
                 std::string itemId = cmd.substr(1);
@@ -159,13 +163,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
                     std::cout << "Invalid span index format\n";
                 }
             } else if (cmd[0] == 'o' && cmd.size() > 1) {
-                // o<index> - select option from debate menu
+                // o<index> - select option from debate menu or choice view
                 try {
                     size_t index = std::stoul(cmd.substr(1));
                     const auto& view = player.View();
                     if (view.debate.has_value() && view.debate->menuOpen && index < view.debate->options.size()) {
                         const std::string& optionId = view.debate->options[index].first;
                         std::cout << "Selecting option: " << optionId << "\n";
+                        player.CommitOption(optionId);
+                    } else if (view.choice.has_value() && index < view.choice->options.size()) {
+                        const std::string& optionId = view.choice->options[index].first;
+                        std::cout << "Selecting choice option: " << optionId << "\n";
                         player.CommitOption(optionId);
                     } else {
                         std::cout << "Invalid option index or menu not open\n";

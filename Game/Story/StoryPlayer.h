@@ -8,6 +8,7 @@
 #include "Game/Story/Runners/VnRunner.h"
 #include "Game/Story/Runners/PresentRunner.h"
 #include "Game/Story/Runners/DebateRunner.h"
+#include "Game/Story/Runners/ChoiceRunner.h"
 #include "Game/Common/Logger.h"
 
 namespace Salt2D::Game::Story {
@@ -54,6 +55,7 @@ private:
     VnRunner      vn_;
     PresentRunner present_;
     DebateRunner  debate_; 
+    ChoiceRunner  choice_;
 
     StoryView view_;
 
