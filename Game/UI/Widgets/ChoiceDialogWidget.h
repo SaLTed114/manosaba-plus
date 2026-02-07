@@ -3,6 +3,7 @@
 #define GAME_UI_WIDGETS_CHOICE_DIALOG_WIDGET_H
 
 #include "Game/UI/Framework/UIFrame.h"
+#include "Game/UI/Framework/UIBuilder.h"
 #include <vector>
 #include <string>
 
@@ -42,9 +43,7 @@ private:
 
     bool kbFallbackEnabled_ = false;
 
-    std::vector<Render::RectF> itemRects_;
-    std::vector<int> idxItemSprite_;
-    std::vector<int> idxItemText_;
+    std::vector<UIButtonRef> itemButtons_;
 };
 
 } // namespace Salt2D::Game::UI

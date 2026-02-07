@@ -3,6 +3,7 @@
 #define GAME_UI_WIDGETS_PRESENT_DIALOG_WIDGET_H
 
 #include "Game/UI/Framework/UIFrame.h"
+#include "Game/UI/Framework/UIBuilder.h"
 #include "Game/UI/UITypes.h"
 #include <vector>
 #include <string>
@@ -22,29 +23,14 @@ struct PresentHudConfig {
 
     Render::Color4F textTint     {1,1,1,1};
 
-    float imgXScale = 2.25f / 16.0f;
-    float imgYScale = 1.875f / 9.0f;
-    float imgWScale = 3.2f / 16.0f;
-    float imgHScale = 3.2f / 9.0f;
-
-    float showBtnXScale = 2.25f / 16.0f;
-    float showBtnYScale = 5.5f / 9.0f;
-    float showBtnHScale = 1.0f / 9.0f;
-    float showBtnWScale = 3.2f / 16.0f;
-
-    float titleXScale = 9.8f / 16.0f;
-    float titleYScale = 0.8f / 9.0f;
-
-    float detailXScale = 9.5f / 16.0f;
-    float detailYScale = 2.4f / 9.0f;
-
-    float slotListXScale = 0.5f / 16.0f;
-    float slotListYScale = 7.2f / 9.0f;
-    float slotWScale = 1.4f / 16.0f;
-    float slotHScale = 1.0f / 9.0f;
-    float slotWGapScale = 0.1f / 16.0f;
-    float slotInsetWScale = 0.25f / 16.0f;
-    float slotInsetHScale = 0.05f / 9.0f;
+    RectScale imgScale      {2.25f/16.0f, 1.875f/9.0f, 3.2f/16.0f, 3.2f/9.0f};
+    RectScale showBtnScale  {2.25f/16.0f, 5.5f/9.0f, 3.2f/16.0f, 1.0f/9.0f};
+    RectScale titleScale    {9.8f/16.0f, 0.8f/9.0f, 0, 0};
+    RectScale detailScale   {9.5f/16.0f, 2.4f/9.0f, 0, 0};
+    RectScale slotListScale {0.5f/16.0f, 7.2f/9.0f, 0, 0};
+    RectScale slotScale     {0, 0, 1.4f/16.0f, 1.0f/9.0f};
+    RectScale slotGapScale  {0.1f/16.0f, 0, 0, 0};
+    RectScale slotInsetScale{0.25f/16.0f, 0.05f/9.0f, 0, 0};
 };
 
 class PresentDialogWidget {
@@ -66,13 +52,8 @@ private:
     int selectedItem_ = 0;
 
     std::vector<int> idxSlotSprite_;
-    std::vector<int> idxSlotThumb_;
-    std::vector<int> idxSlotLabel_;
 
-    int idxShowSprite_ = -1;
-    int idxShowText_   = -1;
-
-    Render::RectF showRect_{};
+    UIButtonRef showButton_;
 };
 
 } // namespace Salt2D::Game::UI

@@ -13,9 +13,8 @@ void ChoiceDialogWidget::Build(const ChoiceHudModel& model, uint32_t canvasW, ui
 
     selectedOption_ = Utils::ClampWarp(model.selectedOption, optionCount_);
     
-    itemRects_.    clear(); itemRects_.    reserve(optionCount_);
-    idxItemSprite_.clear(); idxItemSprite_.reserve(optionCount_);  
-    idxItemText_.  clear(); idxItemText_.  reserve(optionCount_);
+    itemButtons_.clear();
+    itemButtons_.reserve(optionCount_);
 
     const float barW = canvasW * cfg_.barWRatio;
     const float totalH = optionCount_ * cfg_.barH + (optionCount_ - 1) * cfg_.barGap;
@@ -24,50 +23,14 @@ void ChoiceDialogWidget::Build(const ChoiceHudModel& model, uint32_t canvasW, ui
     float y = (canvasH - totalH) * 0.5f;
 
     for (int i = 0; i < optionCount_; i++) {
-        Render::RectF itemRect{
-            baseX, y,
-            barW, cfg_.barH};
+        Render::RectF itemRect = RectXYWH(baseX, y, barW, cfg_.barH);
 
-        itemRects_.push_back(itemRect);
-
-        {
-            SpriteOp op;
-            op.layer = Render::Layer::HUD;
-            op.texId = TextureId::White;
-            op.dst = itemRect;
-            op.tint = cfg_.barTint;
-            op.z = 0.1f;
-
-            idxItemSprite_.push_back(static_cast<int>(frame.sprites.size()));
-            frame.sprites.push_back(std::move(op));
-        }
-
-        {
-            TextOp op;
-            op.layer = Render::Layer::HUD;
-            op.styleId = TextStyleId::ChoiceSmall;
-            op.textUtf8 = model.options[i].second;
-
-            op.layoutW = Utils::EnsureFinite(itemRect.w);
-            op.layoutH = Utils::EnsureFinite(itemRect.h);
-
-            op.x = itemRect.x;
-            op.y = itemRect.y;
-            op.tint = cfg_.textTint;
-            op.z = 0.2f;
-
-            idxItemText_.push_back(static_cast<int>(frame.texts.size()));
-            frame.texts.push_back(std::move(op));
-        }
-
-        {
-            HitOp op;
-            op.key = MakeHitKey(HitKind::ChoiceOption, i);
-            op.rect = itemRect;
-            op.enabled = true;
-            op.visible = true;
-            frame.hits.push_back(std::move(op));
-        }
+        UIButtonRef button = PushButton(frame, MakeHitKey(HitKind::ChoiceOption, i),
+            itemRect, TextureId::White, cfg_.barTint,
+            TextStyleId::ChoiceSmall, model.options[i].second, cfg_.textTint,
+            0.1f, 0.2f);
+        
+        itemButtons_.push_back(button);
 
         y += cfg_.barH + cfg_.barGap;
     }
@@ -78,19 +41,7 @@ void ChoiceDialogWidget::AfterBake(UIFrame& frame) {
 
     // center text horizontally and vertically in the bar
     for (int i = 0; i < optionCount_; i++) {
-        const int textIdx = idxItemText_[i];
-        if (textIdx < 0 || textIdx >= static_cast<int>(frame.texts.size())) continue;
-
-        auto& textOp = frame.texts[textIdx];
-        const auto& itemRect = itemRects_[i];
-
-        const float textW = static_cast<float>(textOp.baked.w);
-        const float offsetX = (itemRect.w - textW) * 0.5f;
-        textOp.x = itemRect.x + offsetX;
-
-        const float textH = static_cast<float>(textOp.baked.h);
-        const float offsetY = (itemRect.h - textH) * 0.5f;
-        textOp.y = itemRect.y + offsetY;
+        CenterTextInRect(frame, itemButtons_[i].text, itemButtons_[i].rect);
     }
 }
 
@@ -103,29 +54,21 @@ void ChoiceDialogWidget::ApplyHover(UIFrame& frame, HitKey hoveredKey) {
     }
 
     for (int i = 0; i < optionCount_; i++) {
-        const int spriteIdx = idxItemSprite_[i];
-        const int textIdx = idxItemText_[i];
-        
-        if (spriteIdx >= 0 && spriteIdx < static_cast<int>(frame.sprites.size())) {
-            frame.sprites[spriteIdx].tint = cfg_.barTint;
+        if (SpriteOp* sprite = GetSprite(frame, itemButtons_[i].sprite)) {
+            sprite->tint = cfg_.barTint;
         }
-        if (textIdx >= 0 && textIdx < static_cast<int>(frame.texts.size())) {
-            frame.texts[textIdx].tint = cfg_.textTint;
+        if (TextOp* text = GetText(frame, itemButtons_[i].text)) {
+            text->tint = cfg_.textTint;
         }
     }
 
     if (hitIndex < 0 || hitIndex >= optionCount_) return;
 
-    {
-        const int spriteIdx = idxItemSprite_[hitIndex];
-        const int textIdx = idxItemText_[hitIndex];
-
-        if (spriteIdx >= 0 && spriteIdx < static_cast<int>(frame.sprites.size())) {
-            frame.sprites[spriteIdx].tint = cfg_.barHoverTint;
-        }
-        if (textIdx >= 0 && textIdx < static_cast<int>(frame.texts.size())) {
-            frame.texts[textIdx].tint = cfg_.textHoverTint;
-        }
+    if (SpriteOp* sprite = GetSprite(frame, itemButtons_[hitIndex].sprite)) {
+        sprite->tint = cfg_.barHoverTint;
+    }
+    if (TextOp* text = GetText(frame, itemButtons_[hitIndex].text)) {
+        text->tint = cfg_.textHoverTint;
     }
 }
 
