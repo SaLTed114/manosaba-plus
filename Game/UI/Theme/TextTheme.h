@@ -19,7 +19,7 @@ struct TextTheme {
 
         auto& vnBody = styles[static_cast<size_t>(TextStyleId::VnBody)];
         vnBody.fontFamily = L"SimSun";
-        vnBody.fontSize   = 40.0f;
+        vnBody.fontSize   = 35.0f;
         vnBody.weight     = DWRITE_FONT_WEIGHT_SEMI_BOLD;
 
         auto& debateSpeaker = styles[static_cast<size_t>(TextStyleId::DebateSpeaker)];
@@ -67,15 +67,30 @@ struct TextTheme {
         vnNameRest.fontSize   = 50.0f;
         vnNameRest.weight     = DWRITE_FONT_WEIGHT_BOLD;
 
+        auto& presentTitleBig = styles[static_cast<size_t>(TextStyleId::PresentTitleBig)];
+        presentTitleBig.fontFamily = L"SimSun";
+        presentTitleBig.fontSize   = 60.0f;
+        presentTitleBig.weight     = DWRITE_FONT_WEIGHT_EXTRA_BOLD;
+
         auto& presentTitleRest = styles[static_cast<size_t>(TextStyleId::PresentTitleRest)];
         presentTitleRest.fontFamily = L"SimSun";
-        presentTitleRest.fontSize   = 50.0f;
+        presentTitleRest.fontSize   = 45.0f;
         presentTitleRest.weight     = DWRITE_FONT_WEIGHT_EXTRA_BOLD;
 
         auto& presentDetail = styles[static_cast<size_t>(TextStyleId::PresentDetail)];
         presentDetail.fontFamily = L"SimSun";
         presentDetail.fontSize   = 40.0f;
         presentDetail.weight     = DWRITE_FONT_WEIGHT_BOLD;
+
+        auto& presentShowBig = styles[static_cast<size_t>(TextStyleId::PresentShowBig)];
+        presentShowBig.fontFamily = L"SimSun";
+        presentShowBig.fontSize   = 50.0f;
+        presentShowBig.weight     = DWRITE_FONT_WEIGHT_EXTRA_BOLD;
+
+        auto& presentShowRest = styles[static_cast<size_t>(TextStyleId::PresentShowRest)];
+        presentShowRest.fontFamily = L"SimSun";
+        presentShowRest.fontSize   = 40.0f;
+        presentShowRest.weight     = DWRITE_FONT_WEIGHT_EXTRA_BOLD;
     }
 
     const Render::Text::TextStyle& GetStyle(TextStyleId id) const {

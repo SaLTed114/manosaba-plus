@@ -54,6 +54,10 @@ private:
     std::vector<int> idxSlotSprite_;
 
     UIButtonRef showButton_;
+    FirstGlyphTextRef showButtonText_;
+
+    FirstGlyphTextRef titleText_;
+    float titleX_ = 0.0f, titleY_ = 0.0f;
 };
 
 } // namespace Salt2D::Game::UI

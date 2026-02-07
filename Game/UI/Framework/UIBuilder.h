@@ -4,6 +4,7 @@
 
 #include "UIFrame.h"
 #include "Game/UI/UITypes.h"
+#include "Utils/StringUtils.h"
 
 #include <cstdint>
 #include <string>
@@ -145,6 +146,89 @@ inline void CenterTextInRect(UIFrame& frame, int textIdx, const Render::RectF& r
     textOp->y = rect.y + (rect.h - static_cast<float>(textOp->baked.h)) * 0.5f;
 }
 
+// =============================
+// First Glyph helper
+// =============================
+
+struct FirstGlyphTextRef {
+    int first = -1;
+    int rest  = -1;
+    float gapPx = 0.0f;
+};
+
+inline FirstGlyphTextRef AddFirstGlyphText(
+    UIFrame& frame, TextStyleId firstStyle, TextStyleId restStyle,
+    std::string textUtf8, float x, float y, float layoutW, float layoutH,
+    Render::Color4F firstTint, Render::Color4F restTint, float z = 0.0f,
+    float gapPx = 0.0f, Render::Layer layer = Render::Layer::HUD
+) {
+    FirstGlyphTextRef ref;
+    ref.gapPx = gapPx;
+
+    std::string firstCp, restCp;
+    Utils::SplitFirstCp(textUtf8, firstCp, restCp);
+
+    if (!firstCp.empty()) {
+        ref.first = PushText(frame, firstStyle, std::move(firstCp),
+            x, y, layoutW, layoutH, firstTint, z, layer);
+    }
+    if (!restCp.empty()) {
+        ref.rest = PushText(frame, restStyle, std::move(restCp),
+            x, y, layoutW, layoutH, restTint, z, layer);
+    }
+    return ref;
+}
+
+inline void PlaceFirstGlyphText(UIFrame& frame, const FirstGlyphTextRef& ref, float x, float y) {
+    TextOp* firstOp = GetText(frame, ref.first);
+    TextOp* restOp  = GetText(frame, ref.rest);
+    if (!firstOp || !restOp) return;
+
+    float maxH = 0.0f;
+    if (firstOp) maxH = (std::max)(maxH, static_cast<float>(firstOp->baked.h));
+    if (restOp)  maxH = (std::max)(maxH, static_cast<float>(restOp->baked.h));
+
+    float curX = x;
+    auto Place = [&](TextOp* op) {
+        if (!op) return;
+        op->x = curX;
+        op->y = y + maxH - static_cast<float>(op->baked.h);
+        curX += static_cast<float>(op->baked.w) + ref.gapPx;
+    };
+
+    Place(firstOp);
+    if (firstOp && restOp) curX += ref.gapPx;
+    Place(restOp);
+}
+
+inline void CenterFirstGlyphTextInRect(UIFrame& frame, const FirstGlyphTextRef& ref, const Render::RectF& rect) {
+    TextOp* firstOp = GetText(frame, ref.first);
+    TextOp* restOp  = GetText(frame, ref.rest);
+    if (!firstOp || !restOp) return;
+
+    float wFirst = firstOp ? static_cast<float>(firstOp->baked.w) : 0.0f;
+    float wRest  = restOp  ? static_cast<float>(restOp->baked.w)  : 0.0f;
+    float gap = (firstOp && restOp) ? ref.gapPx : 0.0f;
+    float totalW = wFirst + gap + wRest;
+
+    float maxH = 0.0f;
+    if (firstOp) maxH = (std::max)(maxH, static_cast<float>(firstOp->baked.h));
+    if (restOp)  maxH = (std::max)(maxH, static_cast<float>(restOp->baked.h));
+
+    float startX = rect.x + (rect.w - totalW) * 0.5f;
+    float y = rect.y + (rect.h - maxH) * 0.5f;
+
+    if (firstOp) {
+        firstOp->x = startX;
+        firstOp->y = y + maxH - static_cast<float>(firstOp->baked.h);
+        startX += wFirst + gap;
+    }
+    if (restOp) {
+        restOp->x = startX;
+        restOp->y = y + maxH - static_cast<float>(restOp->baked.h);
+    }
+}
+    
 } // namespace Salt2D::Game::UI
 
 #endif // GAME_UI_FRAMEWORK_UIBUILDER_H

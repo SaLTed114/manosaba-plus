@@ -28,9 +28,11 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
     const std::string& selId    = model.items[selectedItem_].first;
     const std::string& selLabel = model.items[selectedItem_].second;
 
-    PushText(frame, TextStyleId::PresentTitleRest, selLabel,
-        cfg_.titleScale.x * w, cfg_.titleScale.y * h, 800.0f, 60.0f,
-        cfg_.textTint, 0.25f);
+    titleText_ = AddFirstGlyphText(frame,
+        TextStyleId::PresentTitleBig, TextStyleId::PresentTitleRest,
+        selLabel, cfg_.titleScale.x * w, cfg_.titleScale.y * h, 800.0f, 60.0f,
+        cfg_.textTint, cfg_.textTint, 0.25f, 0.0f);
+    titleX_ = cfg_.titleScale.x * w; titleY_ = cfg_.titleScale.y * h;
 
     PushText(frame, TextStyleId::PresentDetail, std::string("TODO: details for\n") + selId,
         cfg_.detailScale.x * w, cfg_.detailScale.y * h, 800.0f, 400.0f,
@@ -40,8 +42,13 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
     showButton_ = PushButton(frame, MakeHitKey(HitKind::PresentShow, 0),
         RectFromScale(cfg_.showBtnScale, canvasW, canvasH),
         TextureId::Checker, cfg_.showTint,
-        TextStyleId::VnBody, "出示", cfg_.textTint,
+        TextStyleId::VnBody, "", cfg_.textTint,
         0.15f, 0.25f);
+
+    showButtonText_ = AddFirstGlyphText(frame,
+        TextStyleId::PresentShowBig, TextStyleId::PresentShowRest,
+        "出示", showButton_.rect.x, showButton_.rect.y, showButton_.rect.w, showButton_.rect.h,
+        cfg_.showHoverTint, cfg_.textTint, 0.25f, 4.0f);
 
     // Bottom filmstrip item list
     float x = cfg_.slotListScale.x * w;
@@ -72,7 +79,8 @@ void PresentDialogWidget::AfterBake(UIFrame& frame) {
     if (!visible_) return;
 
     // center show button text
-    CenterTextInRect(frame, showButton_.text, showButton_.rect);
+    CenterFirstGlyphTextInRect(frame, showButtonText_, showButton_.rect);
+    PlaceFirstGlyphText(frame, titleText_, titleX_, titleY_);
 }
 
 void PresentDialogWidget::ApplyHover(UIFrame& frame, HitKey hoveredKey) {
