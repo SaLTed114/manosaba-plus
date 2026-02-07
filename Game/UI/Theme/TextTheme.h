@@ -19,8 +19,8 @@ struct TextTheme {
 
         auto& vnBody = styles[static_cast<size_t>(TextStyleId::VnBody)];
         vnBody.fontFamily = L"SimSun";
-        vnBody.fontSize   = 20.0f;
-        vnBody.weight     = DWRITE_FONT_WEIGHT_REGULAR;
+        vnBody.fontSize   = 40.0f;
+        vnBody.weight     = DWRITE_FONT_WEIGHT_SEMI_BOLD;
 
         auto& debateSpeaker = styles[static_cast<size_t>(TextStyleId::DebateSpeaker)];
         debateSpeaker.fontFamily = L"SimSun";
@@ -49,22 +49,22 @@ struct TextTheme {
 
         auto& choiceSmall = styles[static_cast<size_t>(TextStyleId::ChoiceSmall)];
         choiceSmall.fontFamily = L"SimSun";
-        choiceSmall.fontSize   = 18.0f;
-        choiceSmall.weight     = DWRITE_FONT_WEIGHT_REGULAR;
+        choiceSmall.fontSize   = 40.0f;
+        choiceSmall.weight     = DWRITE_FONT_WEIGHT_SEMI_BOLD;
 
         auto& vnNameFamilyBig = styles[static_cast<size_t>(TextStyleId::VnNameFamilyBig)];
         vnNameFamilyBig.fontFamily = L"SimSun";
-        vnNameFamilyBig.fontSize   = 36.0f;
+        vnNameFamilyBig.fontSize   = 100.0f;
         vnNameFamilyBig.weight     = DWRITE_FONT_WEIGHT_BOLD;
 
         auto& vnNameGivenBig = styles[static_cast<size_t>(TextStyleId::VnNameGivenBig)];
         vnNameGivenBig.fontFamily = L"SimSun";
-        vnNameGivenBig.fontSize   = 32.0f;
+        vnNameGivenBig.fontSize   = 75.0f;
         vnNameGivenBig.weight     = DWRITE_FONT_WEIGHT_BOLD;
 
         auto& vnNameRest = styles[static_cast<size_t>(TextStyleId::VnNameRest)];
         vnNameRest.fontFamily = L"SimSun";
-        vnNameRest.fontSize   = 28.0f;
+        vnNameRest.fontSize   = 50.0f;
         vnNameRest.weight     = DWRITE_FONT_WEIGHT_BOLD;
     }
 

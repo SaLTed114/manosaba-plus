@@ -14,10 +14,12 @@ set(GAME_SOURCES
     # UI/VnHud.cpp
     UI/PresentHud.cpp
     UI/DebateHud.cpp
-    UI/ChoiceHud.cpp
+    # UI/ChoiceHud.cpp
     UI/Framework/UIBaker.cpp
     UI/Framework/UIEmitter.cpp
+    UI/Framework/UIInteraction.cpp
     UI/Widgets/VnDialogWidget.cpp
+    UI/Widgets/ChoiceDialogWidget.cpp
     RenderBridge/TextService.cpp
     RenderBridge/TextureService.cpp
     Screens/VnScreen.cpp

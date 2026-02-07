@@ -24,7 +24,7 @@ void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* hi
     vn_.SetTheme(&theme_);
     // debate_.SetTheme(&theme_);
     // present_.SetTheme(&theme_);
-    // choice_.SetTheme(&theme_);
+    choice_.SetTheme(&theme_);
 }
 
 Screens::IStoryScreen* StoryScreenManager::Pick(Story::NodeType type) {

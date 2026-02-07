@@ -51,6 +51,7 @@ struct TextOp {
 };
 
 struct HitOp {
+    HitKey key = 0;
     Render::RectF rect{};
     HitAction action = HitAction::None;
     bool enabled = true;

@@ -19,22 +19,12 @@ int ChoiceScreen::ClampWarp(int v, int n) {
     return v;
 }
 
-void ChoiceScreen::EnsureStyles() {
-    if (stylesInited_) return;
-
-    optionStyle_.fontFamily = L"SimSun";
-    optionStyle_.fontSize = 18.0f;
-    optionStyle_.weight = DWRITE_FONT_WEIGHT_REGULAR;
-
-    stylesInited_ = true;
-}
-
-void ChoiceScreen::HandleInput(Session::ActionFrame& af) {
+void ChoiceScreen::HandleKeyboard(Session::ActionFrame& af) {
     const auto& view = player_->View().choice;
-    if (!view.has_value()) { draw_.visible = false; return; }
+    if (!view.has_value()) { dialog_.SetVisible(false); return; }
 
     const int optionCount = static_cast<int>(view->options.size());
-    if (optionCount == 0) { draw_.visible = false; return; }
+    if (optionCount == 0) { dialog_.SetVisible(false); return; }
 
     const auto navY = af.actions.ConsumeNavY();
     const bool confirm = af.actions.ConsumeConfirm();
@@ -53,9 +43,32 @@ void ChoiceScreen::HandleInput(Session::ActionFrame& af) {
         Session::HistoryKind::OptionPick, "", optionLabel, optionId);
 }
 
+void ChoiceScreen::HandlePointer(Session::ActionFrame& af) {
+    if (!dialog_.Visible()) return;
+    const auto iteraction = UI::UIInteraction::Update(frame_, af, pointer_);
+    dialog_.ApplyHover(frame_, iteraction.hovered);
+
+    int idx = -1;
+    if (dialog_.TryCommit(iteraction.clicked, idx)) {
+        const auto& view = player_->View().choice;
+        if (!view.has_value()) return;
+        if (idx < 0 || idx >= static_cast<int>(view->options.size())) return;
+
+        const std::string optionId = view->options[idx].first;
+        const std::string optionLabel = view->options[idx].second;
+        player_->CommitOption(optionId);
+        if (history_) history_->Push(Story::NodeType::Choice,
+            Session::HistoryKind::OptionPick, "", optionLabel, optionId);
+    }
+}
+
 void ChoiceScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
+    frame_.Clear();
+    dialog_.SetVisible(false);
+
+    if (!player_) return;
     const auto& view = player_->View().choice;
-    if (!view.has_value()) { draw_.visible = false; return; }
+    if (!view.has_value()) { dialog_.SetVisible(false); return; }
     
     Game::UI::ChoiceHudModel model;
     model.visible = true;
@@ -63,68 +76,38 @@ void ChoiceScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
 
     model.selectedOption = ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
 
-    draw_ = hud_.Build(model, canvasW, canvasH);
+    dialog_.Build(model, canvasW, canvasH, frame_);
 }
 
 void ChoiceScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
-    if (!player_) return;
-    EnsureStyles();
+    if (!player_) { frame_.Clear(); dialog_.SetVisible(false); return; }
 
-    HandleInput(af);
+    if (kbEnabled_) HandleKeyboard(af);
     BuildUI(canvasW, canvasH);
+    HandlePointer(af);
 }
 
 void ChoiceScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
     if (!player_) return;
-    if (!draw_.visible) return;
+    if (!dialog_.Visible()) return;
+    if (!theme_) return;
 
-    optionTexts_.clear();
-    optionTexts_.reserve(draw_.options.size());
-    for (const auto& optionReq : draw_.options) {
-        auto baked = service.GetOrBake(device,
-            static_cast<uint8_t>(optionReq.style),
-            optionStyle_,
-            optionReq.textUtf8,
-            optionReq.layoutW,
-            optionReq.layoutH);
-        optionTexts_.push_back(std::move(baked));
-    }
+    baker_.Bake(device, service, frame_);
+    dialog_.AfterBake(frame_);
 }
 
 void ChoiceScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {
-    if (!draw_.visible) return;
+    if (!player_) return;
+    if (!dialog_.Visible()) return;
 
-    // Panel background
-    {
-        drawList.PushSprite(Render::Layer::HUD, service.Get(UI::TextureId::White),
-            draw_.panel, 0.0f, {}, draw_.panelTint);
-    }
-
-    // Options
-    for (size_t i = 0; i < optionTexts_.size(); ++i) {
-        const auto& optionText = optionTexts_[i];
-        if (!optionText.tex.SRV()) continue;
-
-        const auto& optionReq = draw_.options[i];
-        Render::RectF dst{
-            optionReq.x, optionReq.y,
-            static_cast<float>(optionText.w),
-            static_cast<float>(optionText.h)};
-        drawList.PushSprite(Render::Layer::HUD, optionText.tex.SRV(), dst);
-    }
-
-    // Highlights
-    for (const auto& hlReq : draw_.highlightRects) {
-        drawList.PushSprite(Render::Layer::HUD, service.Get(UI::TextureId::White),
-            hlReq, 0.0f, {}, draw_.highlightTint);
-    }
+    emitter_.Emit(drawList, service, frame_);
 }
 
 void ChoiceScreen::OnEnter() {
     selectedOption_ = 0;
-
-    draw_.visible = false;
-    optionTexts_.clear();
+    pointer_ = {};
+    dialog_.SetVisible(false);
+    baker_.SetTheme(theme_);
 
     const auto& view = player_->View().choice;
     if (!view.has_value()) return;
@@ -135,8 +118,7 @@ void ChoiceScreen::OnEnter() {
 }
 
 void ChoiceScreen::OnExit() {
-    draw_.visible = false;
-    optionTexts_.clear();
+    dialog_.SetVisible(false);
 }
 
 } // namespace Salt2D::Game::Screens
