@@ -62,6 +62,12 @@ BakedText TextBaker::BakeToTexture(
     textFormat->SetParagraphAlignment(style.paraAlign);
     textFormat->SetWordWrapping(style.wrapping);
 
+    if (!std::isfinite(layoutW) || layoutW <= 0.0f || 
+        !std::isfinite(layoutH) || layoutH <= 0.0f) {
+        throw std::runtime_error("TextBaker::BakeText: Invalid layout dimensions - layoutW=" + 
+            std::to_string(layoutW) + ", layoutH=" + std::to_string(layoutH));
+    }
+
     ComPtr<IDWriteTextLayout> textLayout;
     ThrowIfFailed(dwriteFactory_->CreateTextLayout(
         text.c_str(), static_cast<UINT32>(text.length()),

@@ -19,26 +19,12 @@ int PresentScreen::ClampWarp(int v, int n) {
     return v;
 }
 
-void PresentScreen::EnsureStyles() {
-    if (stylesInited_) return;
-
-    promptStyle_.fontFamily = L"SimSun";
-    promptStyle_.fontSize = 20.0f;
-    promptStyle_.weight = DWRITE_FONT_WEIGHT_REGULAR;
-
-    itemStyle_.fontFamily = L"SimSun";
-    itemStyle_.fontSize = 18.0f;
-    itemStyle_.weight = DWRITE_FONT_WEIGHT_REGULAR;
-
-    stylesInited_ = true;
-}
-
 void PresentScreen::HandleInput(Session::ActionFrame& af) {
     const auto& view = player_->View().present;
-    if (!view.has_value()) { draw_.visible = false; return; }
+    if (!view.has_value()) { dialog_.SetVisible(false); return; }
 
     const int itemCount = static_cast<int>(view->items.size());
-    if (itemCount == 0) { draw_.visible = false; return; }
+    if (itemCount == 0) { dialog_.SetVisible(false); return; }
 
     const auto navY = af.actions.ConsumeNavY();
     const bool confirm = af.actions.ConsumeConfirm();
@@ -58,8 +44,12 @@ void PresentScreen::HandleInput(Session::ActionFrame& af) {
 }
 
 void PresentScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
+    frame_.Clear();
+    dialog_.SetVisible(false);
+
+    if (!player_) return;
     const auto& view = player_->View().present;
-    if (!view.has_value()) { draw_.visible = false; return; }
+    if (!view.has_value()) { dialog_.SetVisible(false); return; }
 
     Game::UI::PresentHudModel model;
     model.visible    = true;
@@ -68,85 +58,56 @@ void PresentScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
 
     model.selectedItem = ClampWarp(selectedItem_, static_cast<int>(view->items.size()));
 
-    draw_ = hud_.Build(model, canvasW, canvasH);
+    dialog_.Build(model, canvasW, canvasH, frame_);
 }
 
 void PresentScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
-    if (!player_) return;
-    EnsureStyles();
+    if (!player_) { frame_.Clear(); dialog_.SetVisible(false); return; }
 
-    HandleInput(af);
+    // HandleInput(af);
     BuildUI(canvasW, canvasH);
+
+    auto interaction = UI::UIInteraction::Update(frame_, af, pointer_);
+    dialog_.ApplyHover(frame_, interaction.hovered);
+
+    if (UI::HitKeyKind(interaction.clicked) == UI::HitKind::PresentItem) {
+        selectedItem_ = static_cast<int>(UI::HitKeyIndex(interaction.clicked));
+        return;
+    }
+    if (UI::HitKeyKind(interaction.clicked) == UI::HitKind::PresentShow) {
+        const auto& view = player_->View().present;
+        if (!view.has_value()) return;
+        if (selectedItem_ < 0 || selectedItem_ >= static_cast<int>(view->items.size())) return;
+
+        const std::string itemId = view->items[selectedItem_].first;
+        const std::string itemLabel = view->items[selectedItem_].second;
+        player_->PickEvidence(itemId);
+        if (history_) history_->Push(Story::NodeType::Present,
+            Session::HistoryKind::PresentPick, "", itemLabel, itemId);
+    }
 }
 
 void PresentScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
     if (!player_) return;
-    if (!draw_.visible) return;
+    if (!dialog_.Visible()) return;
+    if (!theme_) return;
 
-    promptText_ = service.GetOrBake(device,
-        static_cast<uint8_t>(draw_.prompt.style),
-        promptStyle_,
-        draw_.prompt.textUtf8,
-        draw_.prompt.layoutW,
-        draw_.prompt.layoutH);
-
-    itemTexts_.clear();
-    itemTexts_.reserve(draw_.items.size());
-    for (const auto& itemReq : draw_.items) {
-        auto baked = service.GetOrBake(device,
-            static_cast<uint8_t>(itemReq.style),
-            itemStyle_,
-            itemReq.textUtf8,
-            itemReq.layoutW,
-            itemReq.layoutH);
-        itemTexts_.push_back(std::move(baked));
-    }
+    baker_.Bake(device, service, frame_);
+    dialog_.AfterBake(frame_);
 }
 
 void PresentScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {
-    if (!draw_.visible) return;
+    if (!player_) return;
+    if (!dialog_.Visible()) return;
 
-    // Present panel background
-    {
-        drawList.PushSprite(Render::Layer::HUD, service.Get(UI::TextureId::White),
-            draw_.panel, 0.0f, {}, draw_.panelTint);
-    }
-
-    // Prompt
-    if (promptText_.tex.SRV()) {
-        Render::RectF dst{
-            draw_.prompt.x, draw_.prompt.y,
-            static_cast<float>(promptText_.w),
-            static_cast<float>(promptText_.h)};
-        drawList.PushSprite(Render::Layer::HUD, promptText_.tex.SRV(), dst);
-    }
-
-    // Items
-    for (size_t i = 0; i < itemTexts_.size(); ++i) {
-        const auto& itemText = itemTexts_[i];
-        if (!itemText.tex.SRV()) continue;
-
-        const auto& itemReq = draw_.items[i];
-        Render::RectF dst{
-            itemReq.x, itemReq.y,
-            static_cast<float>(itemText.w),
-            static_cast<float>(itemText.h)};
-        drawList.PushSprite(Render::Layer::HUD, itemText.tex.SRV(), dst);
-    }
-
-    // Highlights
-    for (const auto& hlReq : draw_.highlightRects) {
-        drawList.PushSprite(Render::Layer::HUD, service.Get(UI::TextureId::White),
-            hlReq, 0.0f, {}, draw_.highlightTint);
-    }
+    emitter_.Emit(drawList, service, frame_);
 }
 
 void PresentScreen::OnEnter() {
     selectedItem_ = 0;
-
-    draw_.visible = false;
-    promptText_ = {};
-    itemTexts_.clear();
+    pointer_ = {};
+    dialog_.SetVisible(false);
+    baker_.SetTheme(theme_);
 
     const auto& view = player_->View().present;
     if (!view.has_value()) return;
@@ -155,9 +116,7 @@ void PresentScreen::OnEnter() {
 }
 
 void PresentScreen::OnExit() {
-    draw_.visible = false;
-    promptText_ = {};
-    itemTexts_.clear();
+    dialog_.SetVisible(false);
 }
 
 } // namespace Salt2D::Game::Screens

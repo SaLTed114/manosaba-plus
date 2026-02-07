@@ -6,6 +6,22 @@
 
 namespace Salt2D::Game::UI {
 
+struct VnHudConfig {
+    float margin     = 24.0f;
+    float pad        = 0.0f;
+    float maxBoxH    = 540.0f;
+    float boxHRatio  = 0.30f;
+
+    float speakerH   = 120.0f;
+    float speakerGap = 8.0f;
+
+    float nameSegGap  = 2.0f;
+    float namePartGap = 2.0f;
+    Render::Color4F nameAccentTint{0.85f, 0.55f, 1.0f, 1.0f};
+
+    Render::Color4F panelTint{0.0f, 0.0f, 0.0f, 0.55f};
+};
+
 class VnDialogWidget {
 public:
     void SetHudConfig(VnHudConfig cfg) { cfg_ = cfg; }

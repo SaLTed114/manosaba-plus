@@ -1,31 +1,21 @@
 // Game/UI/Widgets/ChoiceDialogWidget.cpp
 #include "ChoiceDialogWidget.h"
+#include "Utils/MathUtils.h"
 
 namespace Salt2D::Game::UI {
-
-static int ClampWarp(int v, int n) {
-    if (n <= 0) return 0;
-    v %= n;
-    if (v < 0) v += n;
-    return v;
-}
 
 void ChoiceDialogWidget::Build(const ChoiceHudModel& model, uint32_t canvasW, uint32_t canvasH, UIFrame& frame) {
     visible_ = model.visible;
     if (!model.visible) return;
+
     optionCount_ = static_cast<int>(model.options.size());
     if (optionCount_ <= 0) return;
 
-    selectedOption_ = ClampWarp(model.selectedOption, optionCount_);
+    selectedOption_ = Utils::ClampWarp(model.selectedOption, optionCount_);
     
-    itemRects_.clear();
-    itemRects_.reserve(optionCount_);
-
-    idxItemSprite_.clear();
-    idxItemSprite_.reserve(optionCount_);
-    
-    idxItemText_.clear();
-    idxItemText_.reserve(optionCount_);
+    itemRects_.    clear(); itemRects_.    reserve(optionCount_);
+    idxItemSprite_.clear(); idxItemSprite_.reserve(optionCount_);  
+    idxItemText_.  clear(); idxItemText_.  reserve(optionCount_);
 
     const float barW = canvasW * cfg_.barWRatio;
     const float totalH = optionCount_ * cfg_.barH + (optionCount_ - 1) * cfg_.barGap;
@@ -43,7 +33,7 @@ void ChoiceDialogWidget::Build(const ChoiceHudModel& model, uint32_t canvasW, ui
         {
             SpriteOp op;
             op.layer = Render::Layer::HUD;
-            op.texId = TextureId::Checker;
+            op.texId = TextureId::White;
             op.dst = itemRect;
             op.tint = cfg_.barTint;
             op.z = 0.1f;
@@ -58,8 +48,8 @@ void ChoiceDialogWidget::Build(const ChoiceHudModel& model, uint32_t canvasW, ui
             op.styleId = TextStyleId::ChoiceSmall;
             op.textUtf8 = model.options[i].second;
 
-            op.layoutW = itemRect.w;
-            op.layoutH = itemRect.h;
+            op.layoutW = Utils::EnsureFinite(itemRect.w);
+            op.layoutH = Utils::EnsureFinite(itemRect.h);
 
             op.x = itemRect.x;
             op.y = itemRect.y;

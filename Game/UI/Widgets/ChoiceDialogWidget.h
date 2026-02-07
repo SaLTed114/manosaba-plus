@@ -8,6 +8,17 @@
 
 namespace Salt2D::Game::UI {
 
+struct ChoiceHudConfig {
+    float barWRatio = 0.60f;
+    float barH      = 90.0f;
+    float barGap    = 16.0f;
+
+    Render::Color4F barTint{1.0f, 1.0f, 1.0f, 0.50f};
+    Render::Color4F barHoverTint{1.0f, 0.4f, 0.4f, 0.85f};
+    Render::Color4F textTint{1.0f, 1.0f, 1.0f, 1.0f};
+    Render::Color4F textHoverTint{1.0f, 1.0f, 1.0f, 1.0f};
+};
+
 class ChoiceDialogWidget {
 public:
     void SetHudConfig(ChoiceHudConfig cfg) { cfg_ = cfg; }

@@ -37,12 +37,16 @@ Application::~Application() {
 }
 
 void Application::OnResized(uint32_t w, uint32_t h) {
+    if (w == 0 || h == 0 || w > 32768 || h > 32768) return;
+    
     canvasW_ = w;
     canvasH_ = h;
     renderer_->Resize(w, h);
 }
 
 void Application::Tick(const Core::FrameTime& ft, const Core::InputState& in) {
+    if (canvasW_ == 0 || canvasH_ == 0) { return; }
+    
     scene_->Update(renderer_->Device(), ft, in, canvasW_, canvasH_);
 
     drawList_.Clear();

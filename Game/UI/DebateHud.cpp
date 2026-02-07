@@ -1,5 +1,6 @@
 // Game/UI/DebateHud.cpp
 #include "DebateHud.h"
+#include "Utils/MathUtils.h"
 #include <algorithm>
 
 namespace Salt2D::Game::UI {
@@ -33,8 +34,8 @@ const DebateHudDrawData& DebateHud::Build(const DebateHudModel& model, uint32_t 
     const float x0 = drawData_.panel.x + cfg_.pad;
     float y = drawData_.panel.y + cfg_.pad;
 
-    const float innerW = (std::max)(1.0f, drawData_.panel.w - cfg_.pad * 2.0f);
-    const float innerH = (std::max)(1.0f, drawData_.panel.h - cfg_.pad * 2.0f);
+    const float innerW = Utils::EnsureFinite(drawData_.panel.w - cfg_.pad * 2.0f);
+    const float innerH = Utils::EnsureFinite(drawData_.panel.h - cfg_.pad * 2.0f);
 
     // Speaker
     drawData_.speaker.style = TextStyleId::DebateSpeaker;

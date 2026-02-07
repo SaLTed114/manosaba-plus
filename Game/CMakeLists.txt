@@ -12,7 +12,7 @@ set(GAME_SOURCES
     Story/Runners/DebateRunner.cpp
     Story/Runners/ChoiceRunner.cpp
     # UI/VnHud.cpp
-    UI/PresentHud.cpp
+    # UI/PresentHud.cpp
     UI/DebateHud.cpp
     # UI/ChoiceHud.cpp
     UI/Framework/UIBaker.cpp
@@ -20,6 +20,7 @@ set(GAME_SOURCES
     UI/Framework/UIInteraction.cpp
     UI/Widgets/VnDialogWidget.cpp
     UI/Widgets/ChoiceDialogWidget.cpp
+    UI/Widgets/PresentDialogWidget.cpp
     RenderBridge/TextService.cpp
     RenderBridge/TextureService.cpp
     Screens/VnScreen.cpp

@@ -1,6 +1,7 @@
 // Game/UI/Widgets/VnDialogWidget.cpp
 #include "VnDialogWidget.h"
 #include "Utils/StringUtils.h"
+#include "Utils/MathUtils.h"
 
 namespace Salt2D::Game::UI {
 
@@ -30,8 +31,8 @@ void VnDialogWidget::Build(const VnHudModel& model, uint32_t canvasW, uint32_t c
     const float x = panel.x + cfg_.pad;
     float y = panel.y + cfg_.pad;
 
-    const float innerW = (std::max)(1.0f, panel.w - cfg_.pad * 2.0f);
-    const float innerH = (std::max)(1.0f, panel.h - cfg_.pad * 2.0f);
+    const float innerW = Utils::EnsureFinite(panel.w - cfg_.pad * 2.0f);
+    const float innerH = Utils::EnsureFinite(panel.h - cfg_.pad * 2.0f);
 
     // Speaker
     idxFam1_   = -1; idxFamRest_   = -1;
@@ -79,7 +80,8 @@ void VnDialogWidget::Build(const VnHudModel& model, uint32_t canvasW, uint32_t c
     bodyOp.styleId = TextStyleId::VnBody;
     bodyOp.textUtf8 = model.bodyUtf8;
     bodyOp.layoutW = innerW;
-    bodyOp.layoutH = (std::max)(1.0f, innerH - cfg_.speakerH - cfg_.speakerGap);
+    bodyOp.layoutH = Utils::EnsureFinite(innerH - cfg_.speakerH - cfg_.speakerGap);
+    
     bodyOp.x = x; bodyOp.y = y;
     bodyOp.z = 0.2f;
     frame.texts.push_back(std::move(bodyOp));

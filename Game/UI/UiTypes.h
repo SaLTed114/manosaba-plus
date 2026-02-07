@@ -34,6 +34,8 @@ enum class TextStyleId : uint8_t {
 enum class HitKind : uint8_t {
     None = 0,
     ChoiceOption = 1,
+    PresentItem  = 2,
+    PresentShow  = 3,
     Count
 };
 
@@ -46,37 +48,10 @@ struct TextRequest {
     float y = 0.0f;
 };
 
-struct VnHudConfig {
-    float margin     = 24.0f;
-    float pad        = 0.0f;
-    float maxBoxH    = 540.0f;
-    float boxHRatio  = 0.30f;
-
-    float speakerH   = 120.0f;
-    float speakerGap = 8.0f;
-
-    float nameSegGap  = 2.0f;
-    float namePartGap = 2.0f;
-    Render::Color4F nameAccentTint{0.85f, 0.55f, 1.0f, 1.0f};
-
-    Render::Color4F panelTint{0.0f, 0.0f, 0.0f, 0.55f};
-};
-
 struct VnHudModel {
     bool visible = false;
     std::string speakerUtf8;
     std::string bodyUtf8;
-};
-
-struct ChoiceHudConfig {
-    float barWRatio = 0.60f;
-    float barH      = 90.0f;
-    float barGap    = 16.0f;
-
-    Render::Color4F barTint{1.0f, 1.0f, 1.0f, 0.75f};
-    Render::Color4F barHoverTint{1.0f, 0.4f, 0.4f, 0.85f};
-    Render::Color4F textTint{1.0f, 1.0f, 1.0f, 1.0f};
-    Render::Color4F textHoverTint{1.0f, 1.0f, 1.0f, 1.0f};
 };
 
 struct ChoiceHudModel {
@@ -88,6 +63,15 @@ struct ChoiceHudModel {
     int selectedOption = 0;
 };
 
+struct PresentHudModel {
+    bool visible = false;
+    std::string promptUtf8;
+
+    // {itemId, label}
+    std::vector<std::pair<std::string, std::string>> items;
+    
+    int selectedItem = 0;
+};
 
 using HitKey = uint32_t;
 
