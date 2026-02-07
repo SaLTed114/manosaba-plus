@@ -35,8 +35,11 @@ public:
 private:
     static int ClampWarp(int v, int n);
 
-    void HandleInput(Session::ActionFrame& af);
+    void HandleKeyboard(Session::ActionFrame& af);
+    void HandlePointer(Session::ActionFrame& af);
     void BuildUI(uint32_t canvasW, uint32_t canvasH);
+
+    void PickEvidence();
 
 private:
     Story::StoryPlayer* player_ = nullptr;
@@ -44,6 +47,8 @@ private:
     UI::TextTheme* theme_ = nullptr;
 
     int selectedItem_ = 0;
+    // Debug: allow keyboard to select items even if not hovering any
+    bool kbEnabled_ = false;
 
     UI::UIFrame   frame_;
     UI::UIBaker   baker_;

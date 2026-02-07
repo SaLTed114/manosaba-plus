@@ -16,12 +16,15 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
     idxSlotSprite_.clear(); idxSlotSprite_.reserve(itemCount_);
     idxSlotThumb_. clear(); idxSlotThumb_. reserve(itemCount_);
     idxSlotLabel_. clear(); idxSlotLabel_. reserve(itemCount_);
+
+    const float w = static_cast<float>(canvasW);
+    const float h = static_cast<float>(canvasH);
     
     // Panel background
     Render::RectF panelRect{
-        cfg_.bookMargin, cfg_.bookMargin,
-        static_cast<float>(canvasW) - cfg_.bookMargin * 2.0f,
-        static_cast<float>(canvasH) - cfg_.bookMargin * 2.0f
+        0.0f, 0.0f,
+        static_cast<float>(canvasW),
+        static_cast<float>(canvasH)
     };
 
     {
@@ -34,44 +37,10 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
         frame.sprites.push_back(std::move(op));
     }
 
-    // Bottom item list
-    Render::RectF listRect{
-        panelRect.x + cfg_.listPad,
-        panelRect.y + panelRect.h - cfg_.listH,
-        panelRect.w - cfg_.listPad * 2.0f,
-        cfg_.listH
-    };
-
-    // Prompt
-    {
-        TextOp op;
-        op.layer = Render::Layer::HUD;
-        op.styleId = TextStyleId::VnBody;
-        op.textUtf8 = model.promptUtf8;
-        op.layoutW = Utils::EnsureFinite(panelRect.w - cfg_.detailPad * 2.0f);
-        
-        op.layoutH = 80.0f;
-        op.x = panelRect.x + cfg_.detailPad;
-        op.y = panelRect.y + cfg_.detailPad;
-        op.tint = cfg_.textTint;
-        op.z = 0.25f;
-        frame.texts.push_back(std::move(op));
-    }
-
-    // Detail region
-    Render::RectF detailRect{
-        panelRect.x + cfg_.detailPad,
-        panelRect.y + cfg_.detailPad + 80.0f,
-        panelRect.w - cfg_.detailPad * 2.0f,
-        panelRect.h - cfg_.detailPad - cfg_.listH - 80.0f
-    };
-
     // Detail image
     Render::RectF imageRect{
-        detailRect.x,
-        detailRect.y,
-        cfg_.imageW,
-        cfg_.imageH
+        cfg_.imgXScale * w, cfg_.imgYScale * h,
+        cfg_.imgWScale * w, cfg_.imgHScale * h
     };
 
     {
@@ -88,18 +57,15 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
     const std::string& selId    = model.items[selectedItem_].first;
     const std::string& selLabel = model.items[selectedItem_].second;
 
-    const float textX = imageRect.x + imageRect.w + cfg_.detailPad;
-    const float textW = Utils::EnsureFinite(detailRect.x + detailRect.w - textX);
-
     {
         TextOp op;
         op.layer = Render::Layer::HUD;
-        op.styleId = TextStyleId::VnBody;
+        op.styleId = TextStyleId::PresentTitleRest;
         op.textUtf8 = selLabel; // placeholder title
-        op.layoutW = textW;
+        op.layoutW = 800.0f;
         op.layoutH = 60.0f;
-        op.x = textX;
-        op.y = imageRect.y;
+        op.x = cfg_.titleXScale * w;
+        op.y = cfg_.titleYScale * h;
         op.tint = cfg_.textTint;
         op.z = 0.25f;
         frame.texts.push_back(std::move(op));
@@ -108,13 +74,12 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
     {
         TextOp op;
         op.layer = Render::Layer::HUD;
-        op.styleId = TextStyleId::VnBody;
-        op.textUtf8 = std::string("TODO: details for") + selId; // placeholder desc
-        op.layoutW = textW;
-        op.layoutH = Utils::EnsureFinite(
-            detailRect.y + detailRect.h - (imageRect.y + imageRect.h) - cfg_.showBtnH - cfg_.showBtnGap);
-        op.x = textX;
-        op.y = imageRect.y + imageRect.h;
+        op.styleId = TextStyleId::PresentDetail;
+        op.textUtf8 = std::string("TODO: details for\n") + selId; // placeholder desc
+        op.layoutW = 800.0f;
+        op.layoutH = 400.0f;
+        op.x = cfg_.detailXScale * w;
+        op.y = cfg_.detailYScale * h;
         op.tint = cfg_.textTint;
         op.z = 0.25f;
         frame.texts.push_back(std::move(op));
@@ -122,9 +87,8 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
 
     // Show button
     showRect_ = Render::RectF{
-        cfg_.showBtnW, cfg_.showBtnH,
-        detailRect.x + detailRect.w - cfg_.showBtnW,
-        detailRect.y + detailRect.h - cfg_.showBtnH
+        cfg_.showBtnXScale * w, cfg_.showBtnYScale * h,
+        cfg_.showBtnWScale * w, cfg_.showBtnHScale * h
     };
 
     {
@@ -142,7 +106,7 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
     {
         TextOp op;
         op.layer = Render::Layer::HUD;
-        op.styleId = TextStyleId::PresentSmall;
+        op.styleId = TextStyleId::VnBody;
         op.textUtf8 = "出示"; // placeholder
         op.layoutW = showRect_.w;
         op.layoutH = showRect_.h;
@@ -165,17 +129,17 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
     }
 
     // Bottom filmstrip item list
-    float x = listRect.x;
-    const float y = listRect.y + (listRect.h - cfg_.slotH) * 0.5f;
+    float x = cfg_.slotListXScale * w;
+    const float y = cfg_.slotListYScale * h;
 
     for (int i = 0; i < itemCount_; i++) {
-        Render::RectF slotRect{x, y, cfg_.slotW, cfg_.slotH};
+        Render::RectF slotRect{x, y, cfg_.slotWScale * w, cfg_.slotHScale * h};
 
         // Slot background
         {
             SpriteOp op;
             op.layer = Render::Layer::HUD;
-            op.texId = TextureId::Checker;
+            op.texId = TextureId::White;
             op.dst = slotRect;
             op.tint = cfg_.slotTint;
             op.z = 0.05f;
@@ -186,12 +150,11 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
 
         // Slot thumbnail
         {
-            const float inset = 10.0f;
             Render::RectF thumbRect{
-                slotRect.x + inset,
-                slotRect.y + inset,
-                slotRect.w - inset * 2.0f,
-                slotRect.h - inset * 2.0f
+                slotRect.x + cfg_.slotInsetWScale * w,
+                slotRect.y + cfg_.slotInsetHScale * h,
+                slotRect.w - cfg_.slotInsetWScale * 2.0f * w,
+                slotRect.h - cfg_.slotInsetHScale * 2.0f * h
             };
 
             SpriteOp op;
@@ -215,11 +178,7 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
             frame.hits.push_back(std::move(op));
         }
 
-        x += cfg_.slotW + cfg_.slotGap;
-        if (x + cfg_.slotW > listRect.x + listRect.w) {
-            // Exceed list rect, stop creating more slots
-            break;
-        }
+        x += cfg_.slotWScale * w + cfg_.slotWGapScale * w;
     }
 }
 
@@ -242,7 +201,6 @@ void PresentDialogWidget::ApplyHover(UIFrame& frame, HitKey hoveredKey) {
 
     int hoveredIndex = -1;
     if (hoverItem) hoveredIndex = static_cast<int>(HitKeyIndex(hoveredKey));
-    // else hoveredIndex = selectedItem_; // if not hovering any item, fallback to selected item for hover effect
 
     // reset slots
     for (int i = 0; i < itemCount_; i++) {

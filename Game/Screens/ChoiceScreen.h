@@ -39,6 +39,8 @@ private:
     void HandlePointer(Session::ActionFrame& af);
     void BuildUI(uint32_t canvasW, uint32_t canvasH);
 
+    void CommitOption();
+
 private:
     Story::StoryPlayer* player_ = nullptr;
     Session::StoryHistory* history_ = nullptr;

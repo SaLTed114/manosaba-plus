@@ -17,17 +17,22 @@ enum class TextureId : uint8_t {
 };
 
 enum class TextStyleId : uint8_t {
-    VnSpeaker       = 0,
-    VnBody          = 1,
-    DebateSpeaker   = 2,
-    DebateBody      = 3,
-    DebateSmall     = 4,
-    PresentPrompt   = 5,
-    PresentSmall    = 6,
-    ChoiceSmall     = 7,
-    VnNameFamilyBig = 8,
-    VnNameGivenBig  = 9,
-    VnNameRest      = 10,
+    VnSpeaker,
+    VnBody,
+    DebateSpeaker,
+    DebateBody,
+    DebateSmall,
+    PresentPrompt,
+    PresentSmall,
+    ChoiceSmall,
+    VnNameFamilyBig,
+    VnNameGivenBig,
+    VnNameRest,
+    PresentTitleBig,
+    PresentTitleRest,
+    PresentShowBig,
+    PresentShowRest,
+    PresentDetail,
     Count
 };
 

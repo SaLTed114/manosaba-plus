@@ -19,6 +19,18 @@ int ChoiceScreen::ClampWarp(int v, int n) {
     return v;
 }
 
+void ChoiceScreen::CommitOption() {
+    const auto& view = player_->View().choice;
+    if (!view.has_value()) return;
+    selectedOption_ = ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
+
+    const std::string optionId = view->options[selectedOption_].first;
+    const std::string optionLabel = view->options[selectedOption_].second;
+    player_->CommitOption(optionId);
+    if (history_) history_->Push(Story::NodeType::Choice,
+        Session::HistoryKind::OptionPick, "", optionLabel, optionId);
+}
+
 void ChoiceScreen::HandleKeyboard(Session::ActionFrame& af) {
     const auto& view = player_->View().choice;
     if (!view.has_value()) { dialog_.SetVisible(false); return; }
@@ -36,11 +48,7 @@ void ChoiceScreen::HandleKeyboard(Session::ActionFrame& af) {
 
     if (!confirm) return;
 
-    const std::string optionId = view->options[selectedOption_].first;
-    const std::string optionLabel = view->options[selectedOption_].second;
-    player_->CommitOption(optionId);
-    if (history_) history_->Push(Story::NodeType::Choice,
-        Session::HistoryKind::OptionPick, "", optionLabel, optionId);
+    CommitOption();
 }
 
 void ChoiceScreen::HandlePointer(Session::ActionFrame& af) {
@@ -49,17 +57,10 @@ void ChoiceScreen::HandlePointer(Session::ActionFrame& af) {
     dialog_.ApplyHover(frame_, iteraction.hovered);
 
     int idx = -1;
-    if (dialog_.TryCommit(iteraction.clicked, idx)) {
-        const auto& view = player_->View().choice;
-        if (!view.has_value()) return;
-        if (idx < 0 || idx >= static_cast<int>(view->options.size())) return;
+    if (!dialog_.TryCommit(iteraction.clicked, idx)) return;
 
-        const std::string optionId = view->options[idx].first;
-        const std::string optionLabel = view->options[idx].second;
-        player_->CommitOption(optionId);
-        if (history_) history_->Push(Story::NodeType::Choice,
-            Session::HistoryKind::OptionPick, "", optionLabel, optionId);
-    }
+    selectedOption_ = idx;
+    CommitOption();
 }
 
 void ChoiceScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {

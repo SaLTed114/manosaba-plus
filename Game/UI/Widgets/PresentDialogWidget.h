@@ -9,34 +9,42 @@
 
 namespace Salt2D::Game::UI {
 
-
 struct PresentHudConfig {
-    float bookMargin = 0.0f;
-    float listH      = 140.0f;
-    float listPad    = 18.0f;
-    float slotW      = 120.0f;
-    float slotH      = 120.0f;
-    float slotGap    = 16.0f;
-
-    float detailPad  = 28.0f;
-    float imageW     = 320.0f;
-    float imageH     = 320.0f;
-
-    float showBtnW   = 200.0f;
-    float showBtnH   = 64.0f;
-    float showBtnGap = 24.0f;
-
-    Render::Color4F panelTint    {1,1,1,0.25f};
+    Render::Color4F panelTint    {0.4f,0.4f,0.4f,0.80f};
     Render::Color4F slotTint     {1,1,1,0.40f};
     Render::Color4F slotHoverTint{1,1,1,0.70f};
     Render::Color4F slotSelTint  {1,0.4f,0.4f,0.85f};
 
     Render::Color4F imgTint      {1,1,1,0.60f};
 
-    Render::Color4F showTint     {1,0.4f,0.4f,0.80f};
+    Render::Color4F showTint     {1,1,1,0.60f};
     Render::Color4F showHoverTint{1,0.4f,0.4f,1.00f};
 
     Render::Color4F textTint     {1,1,1,1};
+
+    float imgXScale = 2.25f / 16.0f;
+    float imgYScale = 1.875f / 9.0f;
+    float imgWScale = 3.2f / 16.0f;
+    float imgHScale = 3.2f / 9.0f;
+
+    float showBtnXScale = 2.25f / 16.0f;
+    float showBtnYScale = 5.5f / 9.0f;
+    float showBtnHScale = 1.0f / 9.0f;
+    float showBtnWScale = 3.2f / 16.0f;
+
+    float titleXScale = 9.8f / 16.0f;
+    float titleYScale = 0.8f / 9.0f;
+
+    float detailXScale = 9.5f / 16.0f;
+    float detailYScale = 2.4f / 9.0f;
+
+    float slotListXScale = 0.5f / 16.0f;
+    float slotListYScale = 7.2f / 9.0f;
+    float slotWScale = 1.4f / 16.0f;
+    float slotHScale = 1.0f / 9.0f;
+    float slotWGapScale = 0.1f / 16.0f;
+    float slotInsetWScale = 0.25f / 16.0f;
+    float slotInsetHScale = 0.05f / 9.0f;
 };
 
 class PresentDialogWidget {

@@ -19,7 +19,19 @@ int PresentScreen::ClampWarp(int v, int n) {
     return v;
 }
 
-void PresentScreen::HandleInput(Session::ActionFrame& af) {
+void PresentScreen::PickEvidence() {
+    const auto& view = player_->View().present;
+    if (!view.has_value()) return;
+    selectedItem_ = ClampWarp(selectedItem_, static_cast<int>(view->items.size()));
+
+    const std::string itemId = view->items[selectedItem_].first;
+    const std::string itemLabel = view->items[selectedItem_].second;
+    player_->PickEvidence(itemId);
+    if (history_) history_->Push(Story::NodeType::Present,
+        Session::HistoryKind::PresentPick, "", itemLabel, itemId);
+}
+
+void PresentScreen::HandleKeyboard(Session::ActionFrame& af) {
     const auto& view = player_->View().present;
     if (!view.has_value()) { dialog_.SetVisible(false); return; }
 
@@ -36,11 +48,7 @@ void PresentScreen::HandleInput(Session::ActionFrame& af) {
 
     if (!confirm) return;
 
-    const std::string itemId = view->items[selectedItem_].first;
-    const std::string itemLabel = view->items[selectedItem_].second;
-    player_->PickEvidence(itemId);
-    if (history_) history_->Push(Story::NodeType::Present,
-        Session::HistoryKind::PresentPick, "", itemLabel, itemId);
+    PickEvidence();
 }
 
 void PresentScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
@@ -61,30 +69,26 @@ void PresentScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     dialog_.Build(model, canvasW, canvasH, frame_);
 }
 
+void PresentScreen::HandlePointer(Session::ActionFrame& af) {
+    if (!dialog_.Visible()) return;
+    const auto iteraction = UI::UIInteraction::Update(frame_, af, pointer_);
+    dialog_.ApplyHover(frame_, iteraction.hovered);
+
+    if (UI::HitKeyKind(iteraction.clicked) == UI::HitKind::PresentItem) {
+        selectedItem_ = static_cast<int>(UI::HitKeyIndex(iteraction.clicked));
+        return;
+    }
+    if (UI::HitKeyKind(iteraction.clicked) == UI::HitKind::PresentShow) {
+        PickEvidence();
+    }
+}
+
 void PresentScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
     if (!player_) { frame_.Clear(); dialog_.SetVisible(false); return; }
 
-    // HandleInput(af);
+    if (kbEnabled_) HandleKeyboard(af);
     BuildUI(canvasW, canvasH);
-
-    auto interaction = UI::UIInteraction::Update(frame_, af, pointer_);
-    dialog_.ApplyHover(frame_, interaction.hovered);
-
-    if (UI::HitKeyKind(interaction.clicked) == UI::HitKind::PresentItem) {
-        selectedItem_ = static_cast<int>(UI::HitKeyIndex(interaction.clicked));
-        return;
-    }
-    if (UI::HitKeyKind(interaction.clicked) == UI::HitKind::PresentShow) {
-        const auto& view = player_->View().present;
-        if (!view.has_value()) return;
-        if (selectedItem_ < 0 || selectedItem_ >= static_cast<int>(view->items.size())) return;
-
-        const std::string itemId = view->items[selectedItem_].first;
-        const std::string itemLabel = view->items[selectedItem_].second;
-        player_->PickEvidence(itemId);
-        if (history_) history_->Push(Story::NodeType::Present,
-            Session::HistoryKind::PresentPick, "", itemLabel, itemId);
-    }
+    HandlePointer(af);
 }
 
 void PresentScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
