@@ -33,8 +33,6 @@ public:
     void OnExit()  override;
 
 private:
-    static int ClampWarp(int v, int n);
-
     void HandleKeyboard(Session::ActionFrame& af);
     void HandlePointer(Session::ActionFrame& af);
     void BuildUI(uint32_t canvasW, uint32_t canvasH);

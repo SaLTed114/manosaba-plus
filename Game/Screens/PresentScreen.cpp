@@ -7,22 +7,16 @@
 #include "Game/RenderBridge/TextService.h"
 #include "Game/RenderBridge/TextureService.h"
 #include "Render/Draw/DrawList.h"
+#include "Utils/MathUtils.h"
 
 #include <Windows.h>
 
 namespace Salt2D::Game::Screens {
 
-int PresentScreen::ClampWarp(int v, int n) {
-    if (n <= 0) return 0;
-    v %= n;
-    if (v < 0) v += n;
-    return v;
-}
-
 void PresentScreen::PickEvidence() {
     const auto& view = player_->View().present;
     if (!view.has_value()) return;
-    selectedItem_ = ClampWarp(selectedItem_, static_cast<int>(view->items.size()));
+    selectedItem_ = Utils::ClampWarp(selectedItem_, static_cast<int>(view->items.size()));
 
     const std::string itemId = view->items[selectedItem_].first;
     const std::string itemLabel = view->items[selectedItem_].second;
@@ -44,7 +38,7 @@ void PresentScreen::HandleKeyboard(Session::ActionFrame& af) {
     if (navY < 0) --selectedItem_;
     if (navY > 0) ++selectedItem_;
 
-    selectedItem_ = ClampWarp(selectedItem_, itemCount);
+    selectedItem_ = Utils::ClampWarp(selectedItem_, itemCount);
 
     if (!confirm) return;
 
@@ -64,21 +58,21 @@ void PresentScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     model.promptUtf8 = view->prompt;
     model.items      = view->items;
 
-    model.selectedItem = ClampWarp(selectedItem_, static_cast<int>(view->items.size()));
+    model.selectedItem = Utils::ClampWarp(selectedItem_, static_cast<int>(view->items.size()));
 
     dialog_.Build(model, canvasW, canvasH, frame_);
 }
 
 void PresentScreen::HandlePointer(Session::ActionFrame& af) {
     if (!dialog_.Visible()) return;
-    const auto iteraction = UI::UIInteraction::Update(frame_, af, pointer_);
-    dialog_.ApplyHover(frame_, iteraction.hovered);
+    const auto interaction = UI::UIInteraction::Update(frame_, af, pointer_);
+    dialog_.ApplyHover(frame_, interaction.hovered);
 
-    if (UI::HitKeyKind(iteraction.clicked) == UI::HitKind::PresentItem) {
-        selectedItem_ = static_cast<int>(UI::HitKeyIndex(iteraction.clicked));
+    if (UI::HitKeyKind(interaction.clicked) == UI::HitKind::PresentItem) {
+        selectedItem_ = static_cast<int>(UI::HitKeyIndex(interaction.clicked));
         return;
     }
-    if (UI::HitKeyKind(iteraction.clicked) == UI::HitKind::PresentShow) {
+    if (UI::HitKeyKind(interaction.clicked) == UI::HitKind::PresentShow) {
         PickEvidence();
     }
 }

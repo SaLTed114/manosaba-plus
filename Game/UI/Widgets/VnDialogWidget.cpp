@@ -42,7 +42,7 @@ void VnDialogWidget::Build(const VnHudModel& model, uint32_t canvasW, uint32_t c
     giv_ = AddFirstGlyphText(frame,
         TextStyleId::VnNameGivenBig, TextStyleId::VnNameRest,
         given, nameBaseX_, nameBaseY_, w, cfg_.speakerH,
-        cfg_.nameAccentTint, cfg_.nameRestTint, 0.25f, cfg_.nameSegGap);
+        cfg_.nameRestTint, cfg_.nameRestTint, 0.25f, cfg_.nameSegGap);
 
     // Body
     PushText(frame, TextStyleId::VnBody, model.bodyUtf8,

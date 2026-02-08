@@ -75,6 +75,14 @@ BakedText TextBaker::BakeToTexture(
         textLayout.GetAddressOf()),
         "TextBaker::BakeText: CreateTextLayout failed.");
 
+    if (style.lineHeightScale > 0.0f) {
+        const float lineSpacing = style.lineHeightScale * style.fontSize;
+        const float baseline    = lineSpacing * style.baselineScale;
+        ThrowIfFailed(textLayout->SetLineSpacing(
+            DWRITE_LINE_SPACING_METHOD_UNIFORM, lineSpacing, baseline),
+            "TextBaker::BakeText: SetLineSpacing failed.");
+    }
+
     DWRITE_TEXT_METRICS textMetrics;
     ThrowIfFailed(textLayout->GetMetrics(&textMetrics),
         "TextBaker::BakeText: GetMetrics failed.");

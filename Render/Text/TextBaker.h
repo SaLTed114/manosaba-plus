@@ -25,6 +25,9 @@ struct TextStyle {
     DWRITE_TEXT_ALIGNMENT      textAlign = DWRITE_TEXT_ALIGNMENT_LEADING;
     DWRITE_PARAGRAPH_ALIGNMENT paraAlign = DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
     DWRITE_WORD_WRAPPING       wrapping  = DWRITE_WORD_WRAPPING_WRAP;
+
+    float lineHeightScale = 0.0f;
+    float baselineScale = 1.0f;
 };
 
 struct BakedText {

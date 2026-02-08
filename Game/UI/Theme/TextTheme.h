@@ -20,7 +20,7 @@ struct TextTheme {
         auto& vnBody = styles[static_cast<size_t>(TextStyleId::VnBody)];
         vnBody.fontFamily = L"SimSun";
         vnBody.fontSize   = 35.0f;
-        vnBody.weight     = DWRITE_FONT_WEIGHT_SEMI_BOLD;
+        vnBody.weight     = DWRITE_FONT_WEIGHT_MEDIUM;
 
         auto& debateSpeaker = styles[static_cast<size_t>(TextStyleId::DebateSpeaker)];
         debateSpeaker.fontFamily = L"SimSun";
@@ -29,13 +29,13 @@ struct TextTheme {
 
         auto& debateBody = styles[static_cast<size_t>(TextStyleId::DebateBody)];
         debateBody.fontFamily = L"SimSun";
-        debateBody.fontSize   = 20.0f;
-        debateBody.weight     = DWRITE_FONT_WEIGHT_REGULAR;
+        debateBody.fontSize   = 70.0f;
+        debateBody.weight     = DWRITE_FONT_WEIGHT_MEDIUM;
 
-        auto& debateSmall = styles[static_cast<size_t>(TextStyleId::DebateSmall)];
-        debateSmall.fontFamily = L"SimSun";
-        debateSmall.fontSize   = 16.0f;
-        debateSmall.weight     = DWRITE_FONT_WEIGHT_REGULAR;
+        auto& debateSus = styles[static_cast<size_t>(TextStyleId::DebateSus)];
+        debateSus.fontFamily = L"SimSun";
+        debateSus.fontSize   = 80.0f;
+        debateSus.weight     = DWRITE_FONT_WEIGHT_MEDIUM;
 
         auto& presentPrompt = styles[static_cast<size_t>(TextStyleId::PresentPrompt)];
         presentPrompt.fontFamily = L"SimSun";

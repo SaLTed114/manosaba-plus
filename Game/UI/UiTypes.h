@@ -21,7 +21,7 @@ enum class TextStyleId : uint8_t {
     VnBody,
     DebateSpeaker,
     DebateBody,
-    DebateSmall,
+    DebateSus,
     PresentPrompt,
     PresentSmall,
     ChoiceSmall,
@@ -41,6 +41,9 @@ enum class HitKind : uint8_t {
     ChoiceOption = 1,
     PresentItem  = 2,
     PresentShow  = 3,
+    DebateSpan   = 4,
+    DebateOption = 5,
+    DebateBack   = 6,
     Count
 };
 
@@ -77,6 +80,38 @@ struct PresentHudModel {
     
     int selectedItem = 0;
 };
+
+struct DebateHudModel {
+    bool visible = false;
+    std::string speakerUtf8;
+    std::string bodyUtf8;
+    
+    std::vector<std::string> spanIds;
+
+    bool menuOpen = false;
+    std::string openedSpanId;
+    // {optionId, label}
+    std::vector<std::pair<std::string, std::string>> menuOptions;
+    
+    int selectedSpan = 0;
+    int selectedOpt  = 0;
+};
+
+// ==============================
+// Basic rect helper
+// ==============================
+
+struct RectScale { float x=0, y=0, w=0, h=0; };
+
+inline Render::RectF RectXYWH(float x, float y, float w, float h) {return Render::RectF{x, y, w, h}; }
+
+inline Render::RectF RectFromScale(const RectScale& s, uint32_t W, uint32_t H) {
+    return Render::RectF{ s.x * W, s.y * H, s.w * W, s.h * H };
+}
+
+// ==============================
+// Hit testing key encoding
+// ==============================
 
 using HitKey = uint32_t;
 

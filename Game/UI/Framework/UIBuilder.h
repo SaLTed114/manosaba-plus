@@ -13,18 +13,6 @@
 namespace Salt2D::Game::UI {
 
 // ==============================
-// Basic rect helper
-// ==============================
-
-struct RectScale { float x=0, y=0, w=0, h=0; };
-
-inline Render::RectF RectXYWH(float x, float y, float w, float h) {return Render::RectF{x, y, w, h}; }
-
-inline Render::RectF RectFromScale(const RectScale& s, uint32_t W, uint32_t H) {
-    return Render::RectF{ s.x * W, s.y * H, s.w * W, s.h * H };
-}
-
-// ==============================
 // Safe access helpers
 // ==============================
 
@@ -36,6 +24,11 @@ inline SpriteOp* GetSprite(UIFrame& frame, int idx) {
 inline TextOp* GetText(UIFrame& frame, int idx) {
     if (idx < 0 || static_cast<size_t>(idx) >= frame.texts.size()) return nullptr;
     return &frame.texts[idx];
+}
+
+inline HitOp* GetHit(UIFrame& frame, int idx) {
+    if (idx < 0 || static_cast<size_t>(idx) >= frame.hits.size()) return nullptr;
+    return &frame.hits[idx];
 }
 
 // =============================
@@ -227,6 +220,21 @@ inline void CenterFirstGlyphTextInRect(UIFrame& frame, const FirstGlyphTextRef& 
         restOp->x = startX;
         restOp->y = y + maxH - static_cast<float>(restOp->baked.h);
     }
+}
+
+// =============================
+// Hit AABB helper
+// =============================
+
+inline void SetHitRectFromTextAABB(UIFrame& frame, int hitIdx, int textIdx) {
+    HitOp* hitOp = GetHit(frame, hitIdx);
+    TextOp* textOp = GetText(frame, textIdx);
+    if (!hitOp || !textOp) return;
+
+    hitOp->rect.x = textOp->x;
+    hitOp->rect.y = textOp->y;
+    hitOp->rect.w = static_cast<float>(textOp->baked.w);
+    hitOp->rect.h = static_cast<float>(textOp->baked.h);
 }
     
 } // namespace Salt2D::Game::UI

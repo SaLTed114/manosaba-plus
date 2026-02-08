@@ -11,16 +11,14 @@ set(GAME_SOURCES
     Story/Runners/PresentRunner.cpp
     Story/Runners/DebateRunner.cpp
     Story/Runners/ChoiceRunner.cpp
-    # UI/VnHud.cpp
-    # UI/PresentHud.cpp
-    UI/DebateHud.cpp
-    # UI/ChoiceHud.cpp
+    Story/TextMarkup/SusMarkup.cpp
     UI/Framework/UIBaker.cpp
     UI/Framework/UIEmitter.cpp
     UI/Framework/UIInteraction.cpp
     UI/Widgets/VnDialogWidget.cpp
     UI/Widgets/ChoiceDialogWidget.cpp
     UI/Widgets/PresentDialogWidget.cpp
+    UI/Widgets/DebateDialogWidget.cpp
     RenderBridge/TextService.cpp
     RenderBridge/TextureService.cpp
     Screens/VnScreen.cpp

@@ -7,22 +7,16 @@
 #include "Game/RenderBridge/TextService.h"
 #include "Game/RenderBridge/TextureService.h"
 #include "Render/Draw/DrawList.h"
+#include "Utils/MathUtils.h"
 
 #include <Windows.h>
 
 namespace Salt2D::Game::Screens {
 
-int ChoiceScreen::ClampWarp(int v, int n) {
-    if (n <= 0) return 0;
-    v %= n;
-    if (v < 0) v += n;
-    return v;
-}
-
 void ChoiceScreen::CommitOption() {
     const auto& view = player_->View().choice;
     if (!view.has_value()) return;
-    selectedOption_ = ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
+    selectedOption_ = Utils::ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
 
     const std::string optionId = view->options[selectedOption_].first;
     const std::string optionLabel = view->options[selectedOption_].second;
@@ -44,7 +38,7 @@ void ChoiceScreen::HandleKeyboard(Session::ActionFrame& af) {
     if (navY < 0) --selectedOption_;
     if (navY > 0) ++selectedOption_;
 
-    selectedOption_ = ClampWarp(selectedOption_, optionCount);
+    selectedOption_ = Utils::ClampWarp(selectedOption_, optionCount);
 
     if (!confirm) return;
 
@@ -53,11 +47,11 @@ void ChoiceScreen::HandleKeyboard(Session::ActionFrame& af) {
 
 void ChoiceScreen::HandlePointer(Session::ActionFrame& af) {
     if (!dialog_.Visible()) return;
-    const auto iteraction = UI::UIInteraction::Update(frame_, af, pointer_);
-    dialog_.ApplyHover(frame_, iteraction.hovered);
+    const auto interaction = UI::UIInteraction::Update(frame_, af, pointer_);
+    dialog_.ApplyHover(frame_, interaction.hovered);
 
     int idx = -1;
-    if (!dialog_.TryCommit(iteraction.clicked, idx)) return;
+    if (!dialog_.TryCommit(interaction.clicked, idx)) return;
 
     selectedOption_ = idx;
     CommitOption();
@@ -75,7 +69,7 @@ void ChoiceScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     model.visible = true;
     model.options = view->options;
 
-    model.selectedOption = ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
+    model.selectedOption = Utils::ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
 
     dialog_.Build(model, canvasW, canvasH, frame_);
 }

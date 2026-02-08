@@ -7,39 +7,15 @@
 #include "Game/RenderBridge/TextService.h"
 #include "Game/RenderBridge/TextureService.h"
 #include "Render/Draw/DrawList.h"
+#include "Utils/MathUtils.h"
 
 #include <Windows.h>
 
 namespace Salt2D::Game::Screens {
 
-int DebateScreen::ClampWarp(int v, int n) {
-    if (n <= 0) return 0;
-    v %= n;
-    if (v < 0) v += n;
-    return v;
-}
-
-void DebateScreen::EnsureStyles() {
-    if (stylesInited_) return;
-
-    speakerStyle_.fontFamily = L"SimSun";
-    speakerStyle_.fontSize = 24.0f;
-    speakerStyle_.weight = DWRITE_FONT_WEIGHT_BOLD;
-
-    bodyStyle_.fontFamily = L"SimSun";
-    bodyStyle_.fontSize = 20.0f;
-    bodyStyle_.weight = DWRITE_FONT_WEIGHT_REGULAR;
-
-    smallStyle_.fontFamily = L"SimSun";
-    smallStyle_.fontSize = 16.0f;
-    smallStyle_.weight = DWRITE_FONT_WEIGHT_REGULAR;
-
-    stylesInited_ = true;
-}
-
-void DebateScreen::HandleInput(Session::ActionFrame& af) {
+void DebateScreen::HandleKeyboard(Session::ActionFrame& af) {
     const auto& view = player_->View().debate;
-    if (!view.has_value()) { draw_.visible = false; return; }
+    if (!view.has_value()) { dialog_.SetVisible(false); return; }
 
     const auto navY = af.actions.ConsumeNavY();
     const auto confirm = af.actions.ConsumeConfirm();
@@ -66,7 +42,7 @@ void DebateScreen::HandleInput(Session::ActionFrame& af) {
 
     if (!view->menuOpen) {
         if (!view->spanIds.empty() && openMenu) {
-            const int index = ClampWarp(selectedSpan_, static_cast<int>(view->spanIds.size()));
+            const int index = Utils::ClampWarp(selectedSpan_, static_cast<int>(view->spanIds.size()));
             const std::string spanId = view->spanIds[index];
             player_->OpenSuspicion(spanId);
 
@@ -86,7 +62,7 @@ void DebateScreen::HandleInput(Session::ActionFrame& af) {
         }
     } else {
         if (!view->options.empty() && confirm) {
-            const int index = ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
+            const int index = Utils::ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
             const auto& option = view->options[index];
             
             const std::string optionId = option.first;
@@ -100,9 +76,18 @@ void DebateScreen::HandleInput(Session::ActionFrame& af) {
     }
 }
 
+void DebateScreen::HandlePointer(Session::ActionFrame& af) {
+    if (!dialog_.Visible()) return;
+    const auto interaction = UI::UIInteraction::Update(frame_, af, pointer_);
+    dialog_.ApplyHover(frame_, interaction.hovered);
+}
+
 void DebateScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
+    frame_.Clear();
+    dialog_.SetVisible(false);
+
     const auto& view = player_->View().debate;
-    if (!view.has_value()) { draw_.visible = false; return; }
+    if (!view.has_value()) { dialog_.SetVisible(false); return; }
 
     Game::UI::DebateHudModel model;
     model.visible = true;
@@ -113,121 +98,34 @@ void DebateScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     model.openedSpanId = view->openedSpanId;
     model.menuOptions  = view->options;
 
-    model.selectedSpan = ClampWarp(selectedSpan_,   static_cast<int>(view->spanIds.size()));
-    model.selectedOpt  = ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
+    model.selectedSpan = Utils::ClampWarp(selectedSpan_,   static_cast<int>(view->spanIds.size()));
+    model.selectedOpt  = Utils::ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
 
-    draw_ = hud_.Build(model, canvasW, canvasH);
+    dialog_.Build(model, canvasW, canvasH, frame_);
 }
 
 void DebateScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
-    if (!player_) return;
-    EnsureStyles();
+    if (!player_) { frame_.Clear(); dialog_.SetVisible(false); return; }
 
-    HandleInput(af);
+    HandleKeyboard(af);
     BuildUI(canvasW, canvasH);
+    HandlePointer(af);
 }
 
 void DebateScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
     if (!player_) return;
-    if (!draw_.visible) return;
+    if (!dialog_.Visible()) return;
+    if (!theme_) return;
 
-    speakerText_ = service.GetOrBake(device,
-        static_cast<uint8_t>(draw_.speaker.style),
-        speakerStyle_,
-        draw_.speaker.textUtf8,
-        draw_.speaker.layoutW,
-        draw_.speaker.layoutH);
-
-    bodyText_ = service.GetOrBake(device,
-        static_cast<uint8_t>(draw_.body.style),
-        bodyStyle_,
-        draw_.body.textUtf8,
-        draw_.body.layoutW,
-        draw_.body.layoutH);
-
-    spanTexts_.clear();
-    spanTexts_.reserve(draw_.spans.size());
-    for (const auto& spanReq : draw_.spans) {
-        auto baked = service.GetOrBake(device,
-            static_cast<uint8_t>(spanReq.style),
-            bodyStyle_,
-            spanReq.textUtf8,
-            spanReq.layoutW,
-            spanReq.layoutH);
-        spanTexts_.push_back(std::move(baked));
-    }
-
-    optionTexts_.clear();
-    optionTexts_.reserve(draw_.options.size());
-    for (const auto& optReq : draw_.options) {
-        auto baked = service.GetOrBake(device,
-            static_cast<uint8_t>(optReq.style),
-            smallStyle_,
-            optReq.textUtf8,
-            optReq.layoutW,
-            optReq.layoutH);
-        optionTexts_.push_back(std::move(baked));
-    }
+    baker_.Bake(device, service, frame_);
+    dialog_.AfterBake(frame_);
 }
 
 void DebateScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {
-    if (!draw_.visible) return;
+    if (!player_) return;
+    if (!dialog_.Visible()) return;
 
-    // Debate panel background
-    {
-        drawList.PushSprite(Render::Layer::HUD, service.Get(UI::TextureId::White),
-            draw_.panel, 0.0f, {}, draw_.panelTint);
-    }
-
-    // Speaker
-    if (speakerText_.tex.SRV()) {
-        Render::RectF dst{
-            draw_.speaker.x, draw_.speaker.y,
-            static_cast<float>(speakerText_.w),
-            static_cast<float>(speakerText_.h)};
-        drawList.PushSprite(Render::Layer::HUD, speakerText_.tex.SRV(), dst);
-    }
-
-    // Body
-    if (bodyText_.tex.SRV()) {
-        Render::RectF dst{
-            draw_.body.x, draw_.body.y,
-            static_cast<float>(bodyText_.w),
-            static_cast<float>(bodyText_.h)};
-        drawList.PushSprite(Render::Layer::HUD, bodyText_.tex.SRV(), dst);
-    }
-
-    // Spans
-    for (size_t i = 0; i < spanTexts_.size(); ++i) {
-        const auto& spanText = spanTexts_[i];
-        if (!spanText.tex.SRV()) continue;
-
-        const auto& spanReq = draw_.spans[i];
-        Render::RectF dst{
-            spanReq.x, spanReq.y,
-            static_cast<float>(spanText.w),
-            static_cast<float>(spanText.h)};
-        drawList.PushSprite(Render::Layer::HUD, spanText.tex.SRV(), dst);
-    }
-
-    // Options
-    for (size_t i = 0; i < optionTexts_.size(); ++i) {
-        const auto& optText = optionTexts_[i];
-        if (!optText.tex.SRV()) continue;
-
-        const auto& optReq = draw_.options[i];
-        Render::RectF dst{
-            optReq.x, optReq.y,
-            static_cast<float>(optText.w),
-            static_cast<float>(optText.h)};
-        drawList.PushSprite(Render::Layer::HUD, optText.tex.SRV(), dst);
-    }
-
-    // Highlights
-    for (const auto& hlReq : draw_.highlightRects) {
-        drawList.PushSprite(Render::Layer::HUD, service.Get(UI::TextureId::White),
-            hlReq, 0.0f, {}, draw_.highlightTint);
-    }
+    emitter_.Emit(drawList, service, frame_);
 }
 
 void DebateScreen::LogHistory() {
@@ -245,23 +143,16 @@ void DebateScreen::LogHistory() {
 void DebateScreen::OnEnter() {
     selectedSpan_ = 0;
     selectedOption_ = 0;
-
-    draw_.visible = false;
-    speakerText_ = {};
-    bodyText_ = {};
-    spanTexts_.clear();
-    optionTexts_.clear();
-
     lastStmtInx_ = -283;
+
+    pointer_ = {};
+    dialog_.SetVisible(false);
+    baker_.SetTheme(theme_);
     LogHistory();
 }
 
 void DebateScreen::OnExit() {
-    draw_.visible = false;
-    speakerText_ = {};
-    bodyText_ = {};
-    spanTexts_.clear();
-    optionTexts_.clear();
+    dialog_.SetVisible(false);
 }
 
 } // namespace Salt2D::Game::Screens

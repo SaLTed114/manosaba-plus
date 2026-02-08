@@ -22,7 +22,7 @@ void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* hi
     themeInited_ = true;
 
     vn_.SetTheme(&theme_);
-    // debate_.SetTheme(&theme_);
+    debate_.SetTheme(&theme_);
     present_.SetTheme(&theme_);
     choice_.SetTheme(&theme_);
 }
