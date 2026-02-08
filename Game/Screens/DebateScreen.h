@@ -5,6 +5,7 @@
 #include "IStoryScreen.h"
 
 #include "Game/UI/Widgets/DebateDialogWidget.h"
+#include "Game/UI/Widgets/DebateMenuWidget.h"
 #include "Game/UI/Framework/UIFrame.h"
 #include "Game/UI/Framework/UIBaker.h"
 #include "Game/UI/Framework/UIEmitter.h"
@@ -39,6 +40,10 @@ private:
     void BuildUI(uint32_t canvasW, uint32_t canvasH);
     void LogHistory();
 
+    void PickSpan();
+    void CommitOption();
+    void BackOption();
+
 private:
     Story::StoryPlayer* player_ = nullptr;
     Session::StoryHistory* history_ = nullptr;
@@ -50,7 +55,7 @@ private:
     int selectedOption_ = 0;
 
     // Debug: allow keyboard to select items even if not hovering any
-    bool kbEnabled_ = true;
+    bool kbEnabled_ = false;
 
     UI::UIFrame   frame_;
     UI::UIBaker   baker_;
@@ -58,6 +63,7 @@ private:
 
     UI::UIPointerState pointer_;
     UI::DebateDialogWidget dialog_;
+    UI::DebateMenuWidget menu_;
 };
 
 } // namespace Salt2D::Game::Screens

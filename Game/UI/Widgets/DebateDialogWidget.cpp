@@ -13,6 +13,8 @@ void DebateDialogWidget::Build(const DebateHudModel& model, uint32_t canvasW, ui
     visible_ = model.visible;
     if (!visible_) return;
 
+    spanCount_ = static_cast<int>(model.spanIds.size());
+
     pieces_.clear();
     lineBegin_.clear();
     lineCount_.clear();
@@ -67,7 +69,7 @@ void DebateDialogWidget::Build(const DebateHudModel& model, uint32_t canvasW, ui
             int textIdx = PushText(frame, styleId, std::move(seg), x0, y0, layoutW, layoutH, tint);
 
             Piece piece{ .textIdx = textIdx, .isSus = isSus };
-            if (isSus) {
+            if (isSus && !model.menuOpen) {
                 auto it = spanMap.find(std::string(spanId));
                 if (it != spanMap.end()) {
                     piece.spanIdx = it->second;
@@ -137,7 +139,7 @@ void DebateDialogWidget::AfterBake(UIFrame& frame) {
             }
         }
 
-        y += maxLineH + lineGap_;
+        y += maxLineH + cfg_.lineGap;
     }
 }
 
@@ -160,6 +162,15 @@ void DebateDialogWidget::ApplyHover(UIFrame& frame, HitKey hoveredKey) {
             op->tint = cfg_.susTint;
         }
     }
+}
+
+bool DebateDialogWidget::TryPickSpan(HitKey clickedKey, int& outSpanIndex) const {
+    if (HitKeyKind(clickedKey) != HitKind::DebateSpan) return false;
+    const int spanIdx = static_cast<int>(HitKeyIndex(clickedKey));
+    if (spanIdx < 0 || spanIdx >= spanCount_) return false;
+
+    outSpanIndex = spanIdx;
+    return true;
 }
 
 } // namespace Salt2D::Game::UI

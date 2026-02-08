@@ -3,7 +3,7 @@
     { "speaker": "樱羽 艾玛", "text": "所以，我们只需要在这里\n随便聊聊就行了？" },
     { "speaker": "二阶堂 希罗", "text": "既然是模拟审判，\n当然要按流程走。" },
     { "speaker": "月代 雪", "text": "当然，趁这个机会\n你也可以问问\n感兴趣的事情哦，艾玛。" },
-    { "speaker": "樱羽 艾玛", "text": "可以我感觉{sus:Q1}想不到{/sus}\n什么想问的事情" },
+    { "speaker": "樱羽 艾玛", "text": "可以我感觉{sus:Q1}想不到{/sus}\n什么{sus:Q2}想问的事情{/sus}" },
     { "speaker": "月代 雪", "text": "哦，是吗？" }
   ],
   "menus": [
@@ -14,6 +14,15 @@
       "options": [
         { "option_id": "opt_rebut", "label": "（反驳）你有想问的事情" },
         { "option_id": "opt_agree", "label": "（赞成）不必硬找话题" }
+      ]
+    },
+    {
+      "menu_id": "m_q2",
+      "statement_index": 3,
+      "span_id": "Q2",
+      "options": [
+        { "option_id": "opt_q1", "label": "咕咕嘎嘎" },
+        { "option_id": "opt_q2", "label": "嘎嘎咕咕" }
       ]
     }
   ]
