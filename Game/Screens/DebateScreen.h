@@ -25,6 +25,7 @@ public:
     void Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) override;
     void Sync(uint32_t canvasW, uint32_t canvasH) override { BuildUI(canvasW, canvasH); }
     void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) override;
+    void PostBake(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) override;
     void EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) override;
 
     bool Visible() const { return dialog_.Visible(); }
@@ -47,6 +48,9 @@ private:
 
     int selectedSpan_ = 0;
     int selectedOption_ = 0;
+
+    // Debug: allow keyboard to select items even if not hovering any
+    bool kbEnabled_ = true;
 
     UI::UIFrame   frame_;
     UI::UIBaker   baker_;

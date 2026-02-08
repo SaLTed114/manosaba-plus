@@ -79,7 +79,7 @@ void ChoiceScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t can
 
     if (kbEnabled_) HandleKeyboard(af);
     BuildUI(canvasW, canvasH);
-    HandlePointer(af);
+    // HandlePointer(af);
 }
 
 void ChoiceScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
@@ -89,6 +89,13 @@ void ChoiceScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextS
 
     baker_.Bake(device, service, frame_);
     dialog_.AfterBake(frame_);
+}
+
+void ChoiceScreen::PostBake(Session::ActionFrame& af, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {
+    if (!player_) return;
+    if (!dialog_.Visible()) return;
+
+    HandlePointer(af);
 }
 
 void ChoiceScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {

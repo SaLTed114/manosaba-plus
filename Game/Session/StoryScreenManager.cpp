@@ -71,6 +71,13 @@ void StoryScreenManager::Bake(const RHI::DX11::DX11Device& device, RenderBridge:
     if (active_) active_->Bake(device, service);
 }
 
+void StoryScreenManager::PostBake(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH) {
+    if (!player_) return;
+
+    auto af = actionMap_.Map(player_->View().nodeType, in);
+    if (active_) active_->PostBake(af, canvasW, canvasH);
+}
+
 void StoryScreenManager::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {
     if (active_) active_->EmitDraw(drawList, service);
 }

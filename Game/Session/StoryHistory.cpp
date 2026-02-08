@@ -24,6 +24,17 @@ void StoryHistory::DumpToLogger() const {
 }
 
 std::string StoryHistory::Format(const HistoryEntry& entry) {
+    auto EscapeNewlines = [](const std::string& str) -> std::string {
+        std::string result;
+        result.reserve(str.size());
+        for (char c : str) {
+            if (c == '\n') result += "\\n";
+            else if (c == '\r') result += "\\r";
+            else result += c;
+        }
+        return result;
+    };
+
     std::string formatStr = std::string(Story::ToString(entry.type));
 
     switch (entry.kind) {
@@ -40,7 +51,7 @@ std::string StoryHistory::Format(const HistoryEntry& entry) {
     if (!entry.speakerUtf8.empty()) formatStr += " - " + entry.speakerUtf8;
     if (!entry.idUtf8.empty()) formatStr += " (" + entry.idUtf8 + ")";
     
-    if (!entry.textUtf8.empty()) formatStr += ": " + entry.textUtf8;
+    if (!entry.textUtf8.empty()) formatStr += ": " + EscapeNewlines(entry.textUtf8);
     return formatStr;
 }
 

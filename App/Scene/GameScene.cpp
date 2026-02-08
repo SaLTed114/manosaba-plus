@@ -89,6 +89,7 @@ void GameScene::Update(
 ) {
     screens_.Tick(in, canvasW, canvasH);
     screens_.Bake(device, text_);
+    screens_.PostBake(in, canvasW, canvasH);
 }
 
 // ========================= End of Update Functions ==========================

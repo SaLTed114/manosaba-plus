@@ -82,7 +82,7 @@ void PresentScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t ca
 
     if (kbEnabled_) HandleKeyboard(af);
     BuildUI(canvasW, canvasH);
-    HandlePointer(af);
+    // HandlePointer(af);
 }
 
 void PresentScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
@@ -92,6 +92,13 @@ void PresentScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::Text
 
     baker_.Bake(device, service, frame_);
     dialog_.AfterBake(frame_);
+}
+
+void PresentScreen::PostBake(Session::ActionFrame& af, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {
+    if (!player_) return;
+    if (!dialog_.Visible()) return;
+
+    HandlePointer(af);
 }
 
 void PresentScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {

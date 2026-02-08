@@ -107,9 +107,8 @@ void DebateScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
 void DebateScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
     if (!player_) { frame_.Clear(); dialog_.SetVisible(false); return; }
 
-    HandleKeyboard(af);
+    if (kbEnabled_) HandleKeyboard(af);
     BuildUI(canvasW, canvasH);
-    HandlePointer(af);
 }
 
 void DebateScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
@@ -119,6 +118,13 @@ void DebateScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextS
 
     baker_.Bake(device, service, frame_);
     dialog_.AfterBake(frame_);
+}
+
+void DebateScreen::PostBake(Session::ActionFrame& af, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {
+    if (!player_) return;
+    if (!dialog_.Visible()) return;
+
+    HandlePointer(af);
 }
 
 void DebateScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {

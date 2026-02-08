@@ -20,6 +20,7 @@ public:
 
     void Tick(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH);
     void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service);
+    void PostBake(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH);
     void EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service);
 
 private:

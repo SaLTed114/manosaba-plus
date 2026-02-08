@@ -40,6 +40,7 @@ public:
     virtual void Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) = 0;
     virtual void Sync(uint32_t /*canvasW*/, uint32_t /*canvasH*/) {}
     virtual void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) = 0;
+    virtual void PostBake(Session::ActionFrame& /*af*/, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {}
     virtual void EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) = 0;
 
     virtual void OnEnter() = 0;
