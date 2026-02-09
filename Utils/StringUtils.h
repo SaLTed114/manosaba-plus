@@ -4,6 +4,8 @@
 
 #include <cmath>
 #include <string>
+#include <string_view>
+#include <algorithm>
 #include <Windows.h>
 
 namespace Salt2D::Utils {
@@ -56,6 +58,30 @@ inline std::string FormatMMSS(float sec) {
     char buffer[16];
     std::snprintf(buffer, sizeof(buffer), "%02d:%02d", minutes, seconds);
     return std::string(buffer);
+}
+
+inline int CountUtf8CodePoints(const std::string_view& str) {
+    int count = 0;
+    size_t i = 0;
+    while (i < str.size()) {
+        unsigned char c = static_cast<unsigned char>(str[i]);
+        if ((c & 0x80) == 0x00) i += 1; // 1-byte sequence (ASCII)
+        else if ((c & 0xE0) == 0xC0) i += 2; // 2-byte sequence
+        else if ((c & 0xF0) == 0xE0) i += 3; // 3-byte sequence
+        else if ((c & 0xF8) == 0xF0) i += 4; // 4-byte sequence
+        else i += 1; // Invalid UTF-8, skip as single byte
+        ++count;
+    }
+    return count;
+}
+
+inline float EstimateReadingTimeSec(const std::string_view& text,
+    float cps = 12.0f, float baseSec = 0.6f,
+    float minSec = 0.5f, float maxSec = 10.0f
+) {
+    int cpCount = CountUtf8CodePoints(text);
+    float timeSec = baseSec + static_cast<float>(cpCount) / cps;
+    return std::clamp(timeSec, minSec, maxSec);
 }
 
 } // namespace Salt2D::Utils

@@ -42,6 +42,9 @@ struct StoryView {
         std::string openedSpanId;
         // {optionId, label}
         std::vector<std::pair<std::string, std::string>> options;
+
+        float stmtTotalSec  = 0.0f;
+        float stmtRemainSec = 0.0f;
     };
 
     std::optional<DebateView> debate;

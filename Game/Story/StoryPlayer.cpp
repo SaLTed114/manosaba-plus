@@ -1,5 +1,8 @@
 // Game/Story/StoryPlayer.cpp
 #include "StoryPlayer.h"
+#include "Game/Story/TextMarkup/SusMarkup.h"
+#include "Utils/StringUtils.h"
+#include <iostream>
 
 namespace Salt2D::Game::Story {
 
@@ -14,26 +17,48 @@ void StoryPlayer::Start(const NodeId& startNode) {
 void StoryPlayer::Tick(double dtSec) {
     float dtGame = static_cast<float>(dtSec) * timeScale_;
 
-    if (!timer_.active) return;
-    if (view_.nodeType != NodeType::Debate) return;
+    const auto& type = rt_.CurrentNode().type;
+    if (type != NodeType::Debate) return;
 
-    bool pause = false;
-    if (view_.debate.has_value()) pause = view_.debate->menuOpen;
+    bool pause = debate_.IsMenuOpen();
     if (pause) return;
 
-    timer_.remainSec -= dtGame;
+    if (timer_.active) {
+        timer_.remainSec -= dtGame;
 
-    if (timer_.remainSec <= 0.0f) {
-        timer_.remainSec = 0.0f;
-        timer_.active = false;
-        if (logger_) {
-            logger_->Info("StoryPlayer", "Timer expired");
+        if (timer_.remainSec <= 0.0f) {
+            timer_.remainSec = 0.0f;
+            timer_.active = false;
+            if (logger_) {
+                logger_->Info("StoryPlayer", "Node timer expired: nodeId=" +
+                    rt_.CurrentNodeId() +
+                    ", totalSec=" + std::to_string(timer_.totalSec));
+            }
+
+            if (timer_.beNode.has_value()) {
+                GraphEvent ev{Trigger::TimeDepleted, ""};
+                rt_.PushEvent(ev);
+                OnEnteredNode();
+                PumpAuto();
+                UpdateView();
+                return;
+            }
         }
-        if (timer_.beNode.has_value()) {
-            GraphEvent ev{Trigger::TimeDepleted, ""};
-            rt_.PushEvent(ev);
-            OnEnteredNode();
-            PumpAuto();
+    }
+
+    if (stmtTimer_.active) {
+        stmtTimer_.remainSec -= dtGame;
+
+        if (stmtTimer_.remainSec <= 0.0f) {
+            stmtTimer_.remainSec = 0.0f;
+            stmtTimer_.active = false;
+            if (logger_) {
+                logger_->Info("StoryPlayer", "Auto-advancing statement: stmtIndex=" +
+                    std::to_string(stmtTimer_.statementIndex));
+            }
+
+            Advance();
+            return;
         }
     }
 
@@ -205,6 +230,29 @@ void StoryPlayer::ResetTimer() {
     }
 }
 
+void StoryPlayer::ResetStatementTimer(std::string plainText, int stmtIndex) {
+    if (view_.nodeType != NodeType::Debate) { stmtTimer_.Reset(); return; }
+
+    auto parsed = Story::ParseSusMarkup(plainText);
+    std::string_view plain = parsed.ok ? 
+        std::string_view(parsed.plainTextUtf8) :
+        std::string_view(plainText);
+
+    float sec = Utils::EstimateReadingTimeSec(plain,
+        stmtTimer_.cfg.stmtCps_, stmtTimer_.cfg.stmtBaseSec_,
+        stmtTimer_.cfg.stmtMinSec_, stmtTimer_.cfg.stmtMaxSec_);
+    stmtTimer_.active = true;
+    stmtTimer_.statementIndex = stmtIndex;
+    stmtTimer_.totalSec  = sec;
+    stmtTimer_.remainSec = sec;
+
+    if (logger_) {
+        logger_->Info("StoryPlayer",
+            "Statement timer started: stmtIndex=" + std::to_string(stmtIndex) +
+            ", estimatedSec=" + std::to_string(sec));
+    }
+}
+
 void StoryPlayer::PumpAuto() {
     // placeholder for auto-pumping logic if needed in the future
 }
@@ -255,6 +303,13 @@ void StoryPlayer::UpdateView() {
         view.menuOpen     = debate_.IsMenuOpen();
         view.openedSpanId = debate_.OpenedSpanId();
         view.options      = debate_.CurrentOptions();
+
+        if (!stmtTimer_.active || stmtTimer_.statementIndex != view.statementIndex) {
+            ResetStatementTimer(view.fullText, view.statementIndex);
+        }
+
+        view.stmtTotalSec  = stmtTimer_.totalSec;
+        view.stmtRemainSec = stmtTimer_.remainSec;
 
         view_.debate = std::move(view);
         break;

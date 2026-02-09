@@ -56,6 +56,7 @@ add_executable(StoryPlayerTest
     ${CMAKE_SOURCE_DIR}/Game/Story/Resources/PresentDefLoader.cpp
     ${CMAKE_SOURCE_DIR}/Game/Story/Resources/DebateDefLoader.cpp
     ${CMAKE_SOURCE_DIR}/Game/Story/Resources/ChoiceDefLoader.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/TextMarkup/SusMarkup.cpp
     ${CMAKE_SOURCE_DIR}/Game/Common/Logger.cpp
 )
 

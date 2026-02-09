@@ -112,13 +112,6 @@ void DebateScreen::HandlePointer(Session::ActionFrame& af) {
         return;
     }
 
-    // tmp: use keyboard confirm to advance
-    if (af.actions.ConsumeConfirm()) {
-        player_->Advance();
-        LogHistory();
-        return;
-    }
-
     dialog_.ApplyHover(frame_, interaction.hovered);
     int spanIdx = -1;
     if (!dialog_.TryPickSpan(interaction.clicked, spanIdx)) return;

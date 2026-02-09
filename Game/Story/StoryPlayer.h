@@ -53,6 +53,7 @@ public:
 private:
     void OnEnteredNode();
     void ResetTimer();
+    void ResetStatementTimer(std::string plainText, int stmtIndex);
     void PumpAuto();
     void UpdateView();
 
@@ -69,6 +70,8 @@ private:
 
     NodeTimer timer_;
     float timeScale_ = 1.0f;
+
+    StatementTimer stmtTimer_;
 
     const Game::Logger* logger_ = nullptr;
 };
