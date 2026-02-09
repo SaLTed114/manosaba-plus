@@ -10,6 +10,7 @@
 #include "Utils/MathUtils.h"
 
 #include <Windows.h>
+#include <iostream>
 
 namespace Salt2D::Game::Screens {
 
@@ -51,6 +52,13 @@ void DebateScreen::BackOption() {
     player_->CloseDebateMenu();
     if (history_) history_->Push(Story::NodeType::Debate,
         Session::HistoryKind::MenuBack, "", "");
+}
+
+void DebateScreen::ChangeSpeed(Story::TimeScaleMode mode) {
+    if (lastScaleMode_ == mode) return;
+    lastScaleMode_ = mode;
+
+    player_->SetTimeScale(mode);
 }
 
 void DebateScreen::HandleKeyboard(Session::ActionFrame& af) {
@@ -112,6 +120,13 @@ void DebateScreen::HandlePointer(Session::ActionFrame& af) {
         return;
     }
 
+    // tmp handle here: ctrl can also accel
+    // const bool accel = af.actions.ConsumeAccel();
+
+    speed_.ApplyHover(frame_, interaction.hovered);
+    if (speed_.TryHold(interaction.down)) ChangeSpeed(Story::TimeScaleMode::Fast);
+    else ChangeSpeed(Story::TimeScaleMode::Normal);
+
     dialog_.ApplyHover(frame_, interaction.hovered);
     int spanIdx = -1;
     if (!dialog_.TryPickSpan(interaction.clicked, spanIdx)) return;
@@ -124,9 +139,10 @@ void DebateScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     frame_.Clear();
     dialog_.SetVisible(false);
     menu_.SetVisible(false);
+    speed_.SetVisible(false);
 
     const auto& view = player_->View().debate;
-    if (!view.has_value()) { dialog_.SetVisible(false); menu_.SetVisible(false); return; }
+    if (!view.has_value()) { dialog_.SetVisible(false); menu_.SetVisible(false); speed_.SetVisible(false); return; }
 
     Game::UI::DebateHudModel model;
     model.visible = true;
@@ -136,16 +152,18 @@ void DebateScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     model.menuOpen     = view->menuOpen;
     model.openedSpanId = view->openedSpanId;
     model.menuOptions  = view->options;
+    model.timeScale    = view->timeScale;
 
     model.selectedSpan = Utils::ClampWarp(selectedSpan_,   static_cast<int>(view->spanIds.size()));
     model.selectedOpt  = Utils::ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
 
     dialog_.Build(model, canvasW, canvasH, frame_);
     menu_.Build(model, canvasW, canvasH, frame_);
+    speed_.Build(model, canvasW, canvasH, frame_);
 }
 
 void DebateScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
-    if (!player_) { frame_.Clear(); dialog_.SetVisible(false); menu_.SetVisible(false); return; }
+    if (!player_) { frame_.Clear(); dialog_.SetVisible(false); menu_.SetVisible(false); speed_.SetVisible(false); return; }
 
     if (kbEnabled_) HandleKeyboard(af);
     BuildUI(canvasW, canvasH);
@@ -153,24 +171,25 @@ void DebateScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t can
 
 void DebateScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
     if (!player_) return;
-    if (!dialog_.Visible() && !menu_.Visible()) return;
+    if (!dialog_.Visible() && !menu_.Visible() && !speed_.Visible()) return;
     if (!theme_) return;
 
     baker_.Bake(device, service, frame_);
     dialog_.AfterBake(frame_);
     menu_.AfterBake(frame_);
+    speed_.AfterBake(frame_);
 }
 
 void DebateScreen::PostBake(Session::ActionFrame& af, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {
     if (!player_) return;
-    if (!dialog_.Visible() && !menu_.Visible()) return;
+    if (!dialog_.Visible() && !menu_.Visible() && !speed_.Visible()) return;
 
     HandlePointer(af);
 }
 
 void DebateScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {
     if (!player_) return;
-    if (!dialog_.Visible() && !menu_.Visible()) return;
+    if (!dialog_.Visible() && !menu_.Visible() && !speed_.Visible()) return;
 
     emitter_.Emit(drawList, service, frame_);
 }
@@ -195,6 +214,7 @@ void DebateScreen::OnEnter() {
     pointer_ = {};
     dialog_.SetVisible(false);
     menu_.SetVisible(false);
+    speed_.SetVisible(false);
     baker_.SetTheme(theme_);
     LogHistory();
 }
@@ -202,6 +222,7 @@ void DebateScreen::OnEnter() {
 void DebateScreen::OnExit() {
     dialog_.SetVisible(false);
     menu_.SetVisible(false);
+    speed_.SetVisible(false);
 }
 
 } // namespace Salt2D::Game::Screens

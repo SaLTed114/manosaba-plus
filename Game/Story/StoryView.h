@@ -45,6 +45,8 @@ struct StoryView {
 
         float stmtTotalSec  = 0.0f;
         float stmtRemainSec = 0.0f;
+
+        float timeScale = 1.0f;
     };
 
     std::optional<DebateView> debate;

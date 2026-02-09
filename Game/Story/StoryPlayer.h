@@ -14,6 +14,8 @@
 
 namespace Salt2D::Game::Story {
 
+enum class TimeScaleMode { Normal, Fast, };
+
 class StoryPlayer {
 public:
     StoryPlayer(const StoryGraph& graph, Utils::IFileSystem& fs);
@@ -38,6 +40,7 @@ public:
 
     const float TimeScale() const { return timeScale_; }
     void SetTimeScale(float scale) { timeScale_ = scale; }
+    void SetTimeScale(TimeScaleMode mode);
 
     void SetEffectCallback(StoryRuntime::EffectCallback callback) { rt_.SetEffectCallback(std::move(callback)); }
     

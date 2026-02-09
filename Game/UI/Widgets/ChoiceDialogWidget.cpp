@@ -41,6 +41,8 @@ void ChoiceDialogWidget::AfterBake(UIFrame& frame) {
 }
 
 void ChoiceDialogWidget::ApplyHover(UIFrame& frame, HitKey hoveredKey) {
+    if (!visible_) return;
+
     for (auto& btn : itemBtns_) btn.ApplyHover(frame, hoveredKey);
 }
 

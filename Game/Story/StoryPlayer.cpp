@@ -166,6 +166,18 @@ void StoryPlayer::CloseDebateMenu() {
     UpdateView();
 }
 
+void StoryPlayer::SetTimeScale(TimeScaleMode mode) {
+    switch (mode) {
+    case TimeScaleMode::Normal: SetTimeScale(1.0f); break;
+    case TimeScaleMode::Fast:   SetTimeScale(3.0f); break;
+    default:
+        if (logger_) {
+            logger_->Warn("StoryPlayer", "SetTimeScale: unknown mode");
+        }
+        break;
+    }
+}
+
 void StoryPlayer::OnEnteredNode() {
     const Node& node = rt_.CurrentNode();
     if (logger_) {
@@ -310,6 +322,7 @@ void StoryPlayer::UpdateView() {
 
         view.stmtTotalSec  = stmtTimer_.totalSec;
         view.stmtRemainSec = stmtTimer_.remainSec;
+        view.timeScale = timeScale_;
 
         view_.debate = std::move(view);
         break;

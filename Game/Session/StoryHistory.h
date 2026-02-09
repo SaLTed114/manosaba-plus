@@ -17,6 +17,7 @@ enum class HistoryKind : uint8_t {
     OptionPick,
     PresentPrompt,
     PresentPick,
+    AccelDebate,
 };
 
 struct HistoryEntry {

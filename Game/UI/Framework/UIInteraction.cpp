@@ -38,6 +38,10 @@ UIInteractionResult UIInteraction::Update(
         state.pressed = 0;
     }
 
+    if (af.pointer.lDown) {
+        result.down = state.pressed;
+    }
+
     state.hovered = result.hovered;
     return result;
 }

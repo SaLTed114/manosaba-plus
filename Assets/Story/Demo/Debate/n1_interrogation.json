@@ -21,8 +21,8 @@
       "statement_index": 3,
       "span_id": "Q2",
       "options": [
-        { "option_id": "opt_q1", "label": "咕咕嘎嘎" },
-        { "option_id": "opt_q2", "label": "嘎嘎咕咕" }
+        { "option_id": "opt_gugugaga", "label": "咕咕嘎嘎" },
+        { "option_id": "opt_gugugaga", "label": "嘎嘎咕咕" }
       ]
     }
   ]

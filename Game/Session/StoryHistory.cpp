@@ -45,6 +45,7 @@ std::string StoryHistory::Format(const HistoryEntry& entry) {
     case HistoryKind::OptionPick:    formatStr += ": [Option]";     break;
     case HistoryKind::PresentPrompt: formatStr += ": [Prompt]";     break;
     case HistoryKind::PresentPick:   formatStr += ": [Present]";    break;
+    case HistoryKind::AccelDebate:   formatStr += ": [Accel]";      break;
     default: formatStr += ": [Unknown]"; break;
     }
 

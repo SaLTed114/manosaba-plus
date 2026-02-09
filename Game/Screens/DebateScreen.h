@@ -4,8 +4,10 @@
 
 #include "IStoryScreen.h"
 
+#include "Game/Story/StoryPlayer.h"
 #include "Game/UI/Widgets/DebateDialogWidget.h"
 #include "Game/UI/Widgets/DebateMenuWidget.h"
+#include "Game/UI/Widgets/DebateSpeedWidget.h"
 #include "Game/UI/Framework/UIFrame.h"
 #include "Game/UI/Framework/UIBaker.h"
 #include "Game/UI/Framework/UIEmitter.h"
@@ -43,6 +45,7 @@ private:
     void PickSpan();
     void CommitOption();
     void BackOption();
+    void ChangeSpeed(Story::TimeScaleMode mode);
 
 private:
     Story::StoryPlayer* player_ = nullptr;
@@ -54,6 +57,8 @@ private:
     int selectedSpan_ = 0;
     int selectedOption_ = 0;
 
+    Story::TimeScaleMode lastScaleMode_ = Story::TimeScaleMode::Normal;
+
     // Debug: allow keyboard to select items even if not hovering any
     bool kbEnabled_ = false;
 
@@ -64,6 +69,7 @@ private:
     UI::UIPointerState pointer_;
     UI::DebateDialogWidget dialog_;
     UI::DebateMenuWidget menu_;
+    UI::DebateSpeedWidget speed_;
 };
 
 } // namespace Salt2D::Game::Screens

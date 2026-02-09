@@ -45,6 +45,7 @@ enum class HitKind : uint8_t {
     DebateSpan   = 4,
     DebateOption = 5,
     DebateBack   = 6,
+    DebateSpeed  = 7,
     Count
 };
 
@@ -96,6 +97,8 @@ struct DebateHudModel {
     
     int selectedSpan = 0;
     int selectedOpt  = 0;
+
+    float timeScale = 1.0f;
 };
 
 // ==============================

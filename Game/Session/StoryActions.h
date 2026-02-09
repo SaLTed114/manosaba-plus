@@ -18,6 +18,7 @@ struct StoryActions {
 
     bool ConsumeConfirm() { bool v = confirmPressed; confirmPressed = false; return v; }
     bool ConsumeCancel()  { bool v = cancelPressed;  cancelPressed  = false; return v; }
+    bool ConsumeAccel()   { bool v = accelHolded;    accelHolded    = false; return v; }
     int  ConsumeNavY()    { int  v = navY;           navY = 0;               return v; }
 };
 

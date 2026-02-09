@@ -55,6 +55,8 @@ void DebateMenuWidget::AfterBake(UIFrame& frame) {
 }
 
 void DebateMenuWidget::ApplyHover(UIFrame& frame, HitKey hoveredKey) {
+    if (!visible_) return;
+    
     for (auto& btn : optionBtns_) btn.ApplyHover(frame, hoveredKey);
     backBtn_.ApplyHover(frame, hoveredKey);
 }

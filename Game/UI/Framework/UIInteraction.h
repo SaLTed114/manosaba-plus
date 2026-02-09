@@ -10,11 +10,13 @@ namespace Salt2D::Game::UI {
 struct UIPointerState {
     HitKey hovered = 0;
     HitKey pressed = 0;
+    HitKey down = 0;
 };
 
 struct UIInteractionResult {
     HitKey hovered = 0;
     HitKey clicked = 0;
+    HitKey down = 0;
 };
 
 class UIInteraction {
