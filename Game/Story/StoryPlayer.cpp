@@ -11,6 +11,35 @@ void StoryPlayer::Start(const NodeId& startNode) {
     OnEnteredNode();
 }
 
+void StoryPlayer::Tick(double dtSec) {
+    float dtGame = static_cast<float>(dtSec) * timeScale_;
+
+    if (!timer_.active) return;
+    if (view_.nodeType != NodeType::Debate) return;
+
+    bool pause = false;
+    if (view_.debate.has_value()) pause = view_.debate->menuOpen;
+    if (pause) return;
+
+    timer_.remainSec -= dtGame;
+
+    if (timer_.remainSec <= 0.0f) {
+        timer_.remainSec = 0.0f;
+        timer_.active = false;
+        if (logger_) {
+            logger_->Info("StoryPlayer", "Timer expired");
+        }
+        if (timer_.beNode.has_value()) {
+            GraphEvent ev{Trigger::TimeDepleted, ""};
+            rt_.PushEvent(ev);
+            OnEnteredNode();
+            PumpAuto();
+        }
+    }
+
+    UpdateView();
+}
+
 void StoryPlayer::Advance() {
     const Node& node = rt_.CurrentNode();
 
@@ -120,6 +149,8 @@ void StoryPlayer::OnEnteredNode() {
             " type=" + std::string(ToString(node.type)));
     }
 
+    ResetTimer();
+
     switch (node.type) {
     case NodeType::VN:
     case NodeType::BE:
@@ -148,6 +179,32 @@ void StoryPlayer::OnEnteredNode() {
     }
 }
 
+void StoryPlayer::ResetTimer() {
+    const Node& node = rt_.CurrentNode();
+    if (node.type == NodeType::Present) { timer_.active = false; return; }
+    if (node.type == NodeType::VN) { timer_.Reset(); return; }
+
+    if (node.type != NodeType::Debate) return;
+    if (node.id == timer_.lastActiveNodeId) return;
+
+    timer_.Reset();
+
+    const auto& params = node.params;
+    if (!params.timeLimitSec.has_value() || !params.beNode.has_value()) return;
+
+    timer_.active = true;
+    timer_.lastActiveNodeId = node.id;
+
+    timer_.totalSec = static_cast<float>(*params.timeLimitSec);
+    timer_.remainSec = timer_.totalSec;
+    timer_.beNode = *params.beNode;
+
+    if (logger_) {
+        logger_->Info("StoryPlayer",
+            "Timer started: " + std::to_string(timer_.totalSec) + " seconds, BE node=" + *params.beNode);
+    }
+}
+
 void StoryPlayer::PumpAuto() {
     // placeholder for auto-pumping logic if needed in the future
 }
@@ -156,6 +213,10 @@ void StoryPlayer::UpdateView() {
     view_ = {};
     const Node& node = rt_.CurrentNode();
     view_.nodeType = node.type;
+
+    view_.timer.active    = timer_.active;
+    view_.timer.totalSec  = timer_.totalSec;
+    view_.timer.remainSec = timer_.remainSec;
 
     switch (node.type) {
     case NodeType::VN:

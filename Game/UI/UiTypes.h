@@ -33,6 +33,7 @@ enum class TextStyleId : uint8_t {
     PresentShowBig,
     PresentShowRest,
     PresentDetail,
+    Timer,
     Count
 };
 

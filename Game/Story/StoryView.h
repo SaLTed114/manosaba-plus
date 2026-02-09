@@ -52,6 +52,14 @@ struct StoryView {
     };
 
     std::optional<ChoiceView> choice;
+
+    struct TimerView {
+        bool active = false;
+        float totalSec = 0.0f;
+        float remainSec = 0.0f;
+    };
+
+    TimerView timer;
 };
 
 } // namespace Salt2D::Game::Story

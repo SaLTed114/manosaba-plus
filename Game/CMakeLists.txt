@@ -21,12 +21,14 @@ set(GAME_SOURCES
     UI/Widgets/DebateDialogWidget.cpp
     UI/Widgets/DebateMenuWidget.cpp
     UI/Widgets/UIButtonWidget.cpp
+    UI/Widgets/TimerWidget.cpp
     RenderBridge/TextService.cpp
     RenderBridge/TextureService.cpp
     Screens/VnScreen.cpp
     Screens/DebateScreen.cpp
     Screens/PresentScreen.cpp
     Screens/ChoiceScreen.cpp
+    Screens/StoryOverlayLayer.cpp
     Session/StoryScreenManager.cpp
     Session/StorySession.cpp
     Session/StoryActionMap.cpp

@@ -2,6 +2,7 @@
 #ifndef UTILS_STRINGUTILS_H
 #define UTILS_STRINGUTILS_H
 
+#include <cmath>
 #include <string>
 #include <Windows.h>
 
@@ -42,6 +43,19 @@ inline void SplitNameFamilyGiven(const std::string& fullName, std::string& famil
     size_t i = spacePos + 1;
     while (i < fullName.size() && fullName[i] == ' ') ++i; // skip extra spaces
     givenName  = fullName.substr(i);
+}
+
+inline std::string FormatMMSS(float sec) {
+    if (!std::isfinite(sec)) sec = 0.0f;
+    sec = (std::max)(0.0f, sec);
+    
+    int totalSec = static_cast<int>(std::floor(sec + 1e-6f)); // round to nearest second
+    int minutes = totalSec / 60;
+    int seconds = totalSec % 60;
+
+    char buffer[16];
+    std::snprintf(buffer, sizeof(buffer), "%02d:%02d", minutes, seconds);
+    return std::string(buffer);
 }
 
 } // namespace Salt2D::Utils

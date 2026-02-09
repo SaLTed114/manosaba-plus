@@ -5,6 +5,7 @@
 #include <optional>
 #include "StoryRuntime.h"
 #include "StoryView.h"
+#include "StoryTimer.h"
 #include "Game/Story/Runners/VnRunner.h"
 #include "Game/Story/Runners/PresentRunner.h"
 #include "Game/Story/Runners/DebateRunner.h"
@@ -18,6 +19,8 @@ public:
     StoryPlayer(const StoryGraph& graph, Utils::IFileSystem& fs);
 
     void Start(const NodeId& startNode);
+
+    void Tick(double dtSec);
 
     void Advance();
     void FastForward();
@@ -33,6 +36,9 @@ public:
 
     const StoryView& View() const { return view_; }
 
+    const float TimeScale() const { return timeScale_; }
+    void SetTimeScale(float scale) { timeScale_ = scale; }
+
     void SetEffectCallback(StoryRuntime::EffectCallback callback) { rt_.SetEffectCallback(std::move(callback)); }
     
     void SetLogger(const Game::Logger* logger) { 
@@ -41,10 +47,12 @@ public:
         vn_.SetLogger(logger); 
         present_.SetLogger(logger);
         debate_.SetLogger(logger);
+        choice_.SetLogger(logger);
     }
 
 private:
     void OnEnteredNode();
+    void ResetTimer();
     void PumpAuto();
     void UpdateView();
 
@@ -58,6 +66,9 @@ private:
     ChoiceRunner  choice_;
 
     StoryView view_;
+
+    NodeTimer timer_;
+    float timeScale_ = 1.0f;
 
     const Game::Logger* logger_ = nullptr;
 };

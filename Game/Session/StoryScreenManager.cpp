@@ -21,10 +21,13 @@ void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* hi
     theme_.InitDefault();
     themeInited_ = true;
 
-    vn_.SetTheme(&theme_);
-    debate_.SetTheme(&theme_);
+    vn_.     SetTheme(&theme_);
+    debate_. SetTheme(&theme_);
     present_.SetTheme(&theme_);
-    choice_.SetTheme(&theme_);
+    choice_. SetTheme(&theme_);
+
+    overlay_.SetPlayer(player);
+    overlay_.SetTheme(&theme_);
 }
 
 Screens::IStoryScreen* StoryScreenManager::Pick(Story::NodeType type) {
@@ -54,8 +57,10 @@ void StoryScreenManager::SwitchTo(Story::NodeType type, uint32_t canvasW, uint32
     }
 }
 
-void StoryScreenManager::Tick(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH) {
+void StoryScreenManager::Tick(const Core::FrameTime& ft, const Core::InputState& in, uint32_t canvasW, uint32_t canvasH) {
     if (!player_) return;
+
+    player_->Tick(ft.dtSec);
 
     const auto& type0 = player_->View().nodeType;
     SwitchTo(type0, canvasW, canvasH);
@@ -65,14 +70,19 @@ void StoryScreenManager::Tick(const Core::InputState& in, uint32_t canvasW, uint
 
     const auto& type1 = player_->View().nodeType;
     if (type1 != type0) SwitchTo(type1, canvasW, canvasH);
+
+    overlay_.Tick(ft, in, canvasW, canvasH);
 }
 
 void StoryScreenManager::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
     if (active_) active_->Bake(device, service);
+    overlay_.Bake(device, service);
 }
 
 void StoryScreenManager::PostBake(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH) {
     if (!player_) return;
+
+    overlay_.PostBake(in, canvasW, canvasH);
 
     auto af = actionMap_.Map(player_->View().nodeType, in);
     if (active_) active_->PostBake(af, canvasW, canvasH);
@@ -80,6 +90,7 @@ void StoryScreenManager::PostBake(const Core::InputState& in, uint32_t canvasW, 
 
 void StoryScreenManager::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {
     if (active_) active_->EmitDraw(drawList, service);
+    overlay_.EmitDraw(drawList, service);
 }
 
 } // namespace Salt2D::Game::Session

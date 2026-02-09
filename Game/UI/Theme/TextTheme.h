@@ -91,6 +91,11 @@ struct TextTheme {
         presentShowRest.fontFamily = L"SimSun";
         presentShowRest.fontSize   = 40.0f;
         presentShowRest.weight     = DWRITE_FONT_WEIGHT_EXTRA_BOLD;
+
+        auto& timer = styles[static_cast<size_t>(TextStyleId::Timer)];
+        timer.fontFamily = L"SimSun";
+        timer.fontSize   = 40.0f;
+        timer.weight     = DWRITE_FONT_WEIGHT_BOLD;
     }
 
     const Render::Text::TextStyle& GetStyle(TextStyleId id) const {

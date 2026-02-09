@@ -83,11 +83,11 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
 
 void GameScene::Update(
     const RHI::DX11::DX11Device& device,
-    const Core::FrameTime& /*ft*/,
+    const Core::FrameTime& ft,
     const Core::InputState& in,
     uint32_t canvasW, uint32_t canvasH
 ) {
-    screens_.Tick(in, canvasW, canvasH);
+    screens_.Tick(ft, in, canvasW, canvasH);
     screens_.Bake(device, text_);
     screens_.PostBake(in, canvasW, canvasH);
 }
