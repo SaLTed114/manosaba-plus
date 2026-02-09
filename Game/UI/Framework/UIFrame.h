@@ -18,6 +18,15 @@ enum class HitAction : uint8_t {
     Next,
 };
 
+struct Transform2D {
+    float rotRad = 0.0f;
+    float scaleX = 1.0f;
+    float scaleY = 1.0f;
+
+    float pivotX = 0.0f;
+    float pivotY = 0.0f;
+};
+
 struct SpriteOp {
     Render::Layer layer = Render::Layer::HUD;
 
@@ -41,11 +50,20 @@ struct TextOp {
     float layoutW = 1.0f;
     float layoutH = 1.0f;
 
+    Render::RectF rect{0,0,0,0};
+    float alignX = 0.0f; // 0: left, 0.5: center, 1: right
+    float alignY = 0.0f; // 0: top, 0.5: center, 1: bottom
+    float offsetX = 0.0f;
+    float offsetY = 0.0f;
+
     float x = 0.0f;
     float y = 0.0f;
 
     Render::Color4F tint{1,1,1,1};
     float z = 0.0f;
+
+    Transform2D transform{};
+    Render::RectF aabb{0,0,0,0}; // updated after bake
 
     Render::Text::BakedText baked{};
 };

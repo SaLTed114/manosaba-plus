@@ -4,7 +4,7 @@
 
 #include "Game/UI/Framework/UIFrame.h"
 #include "Game/UI/Framework/UIBuilder.h"
-#include "Game/UI/UITypes.h"
+#include "UIButtonWidget.h"
 #include <vector>
 #include <string>
 
@@ -53,7 +53,7 @@ private:
 
     std::vector<int> idxSlotSprite_;
 
-    UIButtonRef showButton_;
+    UIButtonWidget showBtn_;
     FirstGlyphTextRef showButtonText_;
 
     FirstGlyphTextRef titleText_;

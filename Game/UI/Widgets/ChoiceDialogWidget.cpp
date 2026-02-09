@@ -11,26 +11,24 @@ void ChoiceDialogWidget::Build(const ChoiceHudModel& model, uint32_t canvasW, ui
     optionCount_ = static_cast<int>(model.options.size());
     if (optionCount_ <= 0) return;
 
-    selectedOption_ = Utils::ClampWarp(model.selectedOption, optionCount_);
-    
-    itemButtons_.clear();
-    itemButtons_.reserve(optionCount_);
-
     const float barW = canvasW * cfg_.barWRatio;
     const float totalH = optionCount_ * cfg_.barH + (optionCount_ - 1) * cfg_.barGap;
 
     const float baseX = (canvasW - barW) * 0.5f;
     float y = (canvasH - totalH) * 0.5f;
 
+    itemBtns_.clear();
+    itemBtns_.reserve(optionCount_);
     for (int i = 0; i < optionCount_; i++) {
         Render::RectF itemRect = RectXYWH(baseX, y, barW, cfg_.barH);
 
-        UIButtonRef button = PushButton(frame, MakeHitKey(HitKind::ChoiceOption, i),
-            itemRect, TextureId::White, cfg_.barTint,
-            TextStyleId::ChoiceSmall, model.options[i].second, cfg_.textTint,
-            0.1f, 0.2f);
-        
-        itemButtons_.push_back(button);
+        UIButtonWidget btn;
+        btn.Build(frame, MakeHitKey(HitKind::ChoiceOption, i), itemRect, true, true);
+        btn.AddSprite(frame, TextureId::White, RectRel{0,0,1,1}, TintSet{cfg_.barTint, cfg_.barHoverTint}, 0.1f);
+        btn.AddText(frame, TextStyleId::ChoiceSmall, model.options[i].second, RectRel{0,0,1,1},
+            0.5f, 0.5f, 0.0f, 0.0f, TintSet{cfg_.textTint, cfg_.textHoverTint}, 0.2f);
+
+        itemBtns_.push_back(std::move(btn));
 
         y += cfg_.barH + cfg_.barGap;
     }
@@ -39,37 +37,11 @@ void ChoiceDialogWidget::Build(const ChoiceHudModel& model, uint32_t canvasW, ui
 void ChoiceDialogWidget::AfterBake(UIFrame& frame) {
     if (!visible_) return;
 
-    // center text horizontally and vertically in the bar
-    for (int i = 0; i < optionCount_; i++) {
-        CenterTextInRect(frame, itemButtons_[i].text, itemButtons_[i].rect);
-    }
+    for (auto& btn : itemBtns_) btn.AfterBake(frame); 
 }
 
 void ChoiceDialogWidget::ApplyHover(UIFrame& frame, HitKey hoveredKey) {
-    int hitIndex = -1;
-    if (HitKeyKind(hoveredKey) == HitKind::ChoiceOption) {
-        hitIndex = static_cast<int>(HitKeyIndex(hoveredKey));
-    } else if (kbFallbackEnabled_) {
-        hitIndex = selectedOption_;
-    }
-
-    for (int i = 0; i < optionCount_; i++) {
-        if (SpriteOp* sprite = GetSprite(frame, itemButtons_[i].sprite)) {
-            sprite->tint = cfg_.barTint;
-        }
-        if (TextOp* text = GetText(frame, itemButtons_[i].text)) {
-            text->tint = cfg_.textTint;
-        }
-    }
-
-    if (hitIndex < 0 || hitIndex >= optionCount_) return;
-
-    if (SpriteOp* sprite = GetSprite(frame, itemButtons_[hitIndex].sprite)) {
-        sprite->tint = cfg_.barHoverTint;
-    }
-    if (TextOp* text = GetText(frame, itemButtons_[hitIndex].text)) {
-        text->tint = cfg_.textHoverTint;
-    }
+    for (auto& btn : itemBtns_) btn.ApplyHover(frame, hoveredKey);
 }
 
 bool ChoiceDialogWidget::TryCommit(HitKey clickedKey, int& outIndex) const {

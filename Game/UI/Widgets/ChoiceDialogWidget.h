@@ -4,6 +4,7 @@
 
 #include "Game/UI/Framework/UIFrame.h"
 #include "Game/UI/Framework/UIBuilder.h"
+#include "UIButtonWidget.h"
 #include <vector>
 #include <string>
 
@@ -32,18 +33,12 @@ public:
     bool Visible() const { return visible_; }
     void SetVisible(bool v) { visible_ = v; }
 
-    void SetKbFallbackEnabled(bool enabled) { kbFallbackEnabled_ = enabled; }
-
 private:
     ChoiceHudConfig cfg_{};
     bool visible_ = false;
 
-    int selectedOption_ = 0;
     int optionCount_ = 0;
-
-    bool kbFallbackEnabled_ = false;
-
-    std::vector<UIButtonRef> itemButtons_;
+    std::vector<UIButtonWidget> itemBtns_;
 };
 
 } // namespace Salt2D::Game::UI

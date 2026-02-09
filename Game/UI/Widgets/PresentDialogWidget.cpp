@@ -39,15 +39,13 @@ void PresentDialogWidget::Build(const PresentHudModel& model, uint32_t canvasW, 
         cfg_.textTint, 0.25f);
 
     // Show button
-    showButton_ = PushButton(frame, MakeHitKey(HitKind::PresentShow, 0),
-        RectFromScale(cfg_.showBtnScale, canvasW, canvasH),
-        TextureId::Checker, cfg_.showTint,
-        TextStyleId::VnBody, "", cfg_.textTint,
-        0.15f, 0.25f);
+    Render::RectF showBtnRect = RectFromScale(cfg_.showBtnScale, canvasW, canvasH);
+    showBtn_.Build(frame, MakeHitKey(HitKind::PresentShow, 0), showBtnRect, true, true);
+    showBtn_.AddSprite(frame, TextureId::Checker, RectRel{0,0,1,1}, TintSet{cfg_.showTint, cfg_.showHoverTint}, 0.15f);
 
     showButtonText_ = AddFirstGlyphText(frame,
         TextStyleId::PresentShowBig, TextStyleId::PresentShowRest,
-        "出示", showButton_.rect.x, showButton_.rect.y, showButton_.rect.w, showButton_.rect.h,
+        "出示", showBtnRect.x, showBtnRect.y, showBtnRect.w, showBtnRect.h,
         cfg_.showHoverTint, cfg_.textTint, 0.25f, 4.0f);
 
     // Bottom filmstrip item list
@@ -79,7 +77,7 @@ void PresentDialogWidget::AfterBake(UIFrame& frame) {
     if (!visible_) return;
 
     // center show button text
-    CenterFirstGlyphTextInRect(frame, showButtonText_, showButton_.rect);
+    CenterFirstGlyphTextInRect(frame, showButtonText_, showBtn_.Rect());
     PlaceFirstGlyphText(frame, titleText_, titleX_, titleY_);
 }
 
@@ -104,10 +102,7 @@ void PresentDialogWidget::ApplyHover(UIFrame& frame, HitKey hoveredKey) {
         }
     }
 
-    const bool hoverShow = (HitKeyKind(hoveredKey) == HitKind::PresentShow);
-    if (SpriteOp* sprite = GetSprite(frame, showButton_.sprite)) {
-        sprite->tint = hoverShow ? cfg_.showHoverTint : cfg_.showTint;
-    }
+    showBtn_.ApplyHover(frame, hoveredKey);
 }
 
 } // namespace Salt2D::Game::UI

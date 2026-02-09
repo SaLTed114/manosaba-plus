@@ -5,10 +5,12 @@
 #include "Game/UI/Framework/UIFrame.h"
 #include "Game/UI/Framework/UIBuilder.h"
 #include "Game/UI/UITypes.h"
+#include "Game/Story/TextMarkup/SusMarkup.h"
 
 #include <string>
 #include <vector>
 #include <utility>
+#include <unordered_map>
 
 namespace Salt2D::Game::UI {
 
@@ -18,6 +20,23 @@ struct DebateHudConfig {
     Render::Color4F susHoverTint {1,0.70f,0.70f,1};
 
     float lineGap = 6.0f;
+};
+
+struct TransparentStringHash {
+    using is_transparent = void;
+    size_t operator()(const std::string& s) const {
+        return std::hash<std::string>{}(s);
+    }
+    size_t operator()(std::string_view sv) const {
+        return std::hash<std::string_view>{}(sv);
+    }
+};
+
+struct TransparentStringEqual {
+    using is_transparent = void;
+    bool operator()(const std::string& a, const std::string& b) const { return a == b; }
+    bool operator()(const std::string& a, std::string_view b) const { return std::string_view(a) == b; }
+    bool operator()(std::string_view a, const std::string& b) const { return a == std::string_view(b); }
 };
 
 class DebateDialogWidget {
@@ -40,6 +59,24 @@ private:
         int hitIdx = -1;
     };
 
+    struct LayoutRegion {
+        float x0 = 0.0f, y0 = 0.0f;
+        float w  = 0.0f, h  = 0.0f;
+    };
+
+private:
+    LayoutRegion ComputeLayout(uint32_t canvasW, uint32_t canvasH);
+
+    void EnsureLine(int lineIdx);
+    void AddPieceToLine(int lineIdx, const Piece& piece);
+
+    void PushParsedRuns(UIFrame& frame, const DebateHudModel& model,
+        const LayoutRegion& region, const Story::SusParseResult& parsed);
+    void PushRun(UIFrame& frame, const DebateHudModel& model,
+        const LayoutRegion& region, const Story::SusRun& run, int& ioLine);
+    void PushSegment(UIFrame& frame, const DebateHudModel& model, const LayoutRegion& region,
+        const std::string& segUtf8, bool isSus, std::string_view spanId, int lineIdx);
+
 private:
     DebateHudConfig cfg_{};
     bool visible_ = false;
@@ -52,6 +89,9 @@ private:
 
     float baseX_ = 0.0f;
     float baseY_ = 0.0f;
+
+    std::unordered_map<std::string, int,
+        TransparentStringHash, TransparentStringEqual> spanMap_;
 };
 
 } // namespace Salt2D::Game::UI

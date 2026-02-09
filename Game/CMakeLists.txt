@@ -20,6 +20,7 @@ set(GAME_SOURCES
     UI/Widgets/PresentDialogWidget.cpp
     UI/Widgets/DebateDialogWidget.cpp
     UI/Widgets/DebateMenuWidget.cpp
+    UI/Widgets/UIButtonWidget.cpp
     RenderBridge/TextService.cpp
     RenderBridge/TextureService.cpp
     Screens/VnScreen.cpp

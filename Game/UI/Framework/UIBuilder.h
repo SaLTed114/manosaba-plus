@@ -71,6 +71,44 @@ inline int PushText(
     op.tint = tint;
     op.z = z;
 
+    op.rect = Render::RectF{0,0,0,0};
+    op.alignX = 0.0f;
+    op.alignY = 0.0f;
+    op.offsetX = 0.0f;
+    op.offsetY = 0.0f;
+
+    int idx = static_cast<int>(frame.texts.size());
+    frame.texts.push_back(std::move(op));
+    return idx;
+}
+
+inline int PushTextBox(
+    UIFrame& frame, TextStyleId styleId, std::string textUtf8,
+    const Render::RectF& rect,
+    float alignX, float alignY, float offsetX, float offsetY,
+    const Render::Color4F& tint, float z = 0.0f,
+    Render::Layer layer = Render::Layer::HUD
+) {
+    TextOp op;
+    op.layer = layer;
+    op.styleId = styleId;
+    op.textUtf8 = std::move(textUtf8);
+
+    op.layoutW = rect.w;
+    op.layoutH = rect.h;
+
+    op.rect = rect;
+    op.alignX = alignX;
+    op.alignY = alignY;
+    op.offsetX = offsetX;
+    op.offsetY = offsetY;
+
+    op.x = rect.x;
+    op.y = rect.y;
+
+    op.tint = tint;
+    op.z = z;
+
     int idx = static_cast<int>(frame.texts.size());
     frame.texts.push_back(std::move(op));
     return idx;
@@ -81,8 +119,19 @@ inline int PushTextInRect(
     const Render::RectF& dst, const Render::Color4F& tint, float z = 0.0f,
     Render::Layer layer = Render::Layer::HUD
 ) {
-    return PushText(frame, styleId, std::move(textUtf8),
-        dst.x, dst.y, dst.w, dst.h, tint, z, layer);
+    // align left-top by default, caller can adjust after bake
+    return PushTextBox(frame, styleId, std::move(textUtf8), dst,
+        0.0f, 0.0f, 0.0f, 0.0f, tint, z, layer);
+}
+
+inline int PushTextCentered(
+    UIFrame& frame, TextStyleId styleId, std::string textUtf8,
+    const Render::RectF& dst, const Render::Color4F& tint, float z = 0.0f,
+    Render::Layer layer = Render::Layer::HUD
+) {
+    // align center by default, caller can adjust after bake
+    return PushTextBox(frame, styleId, std::move(textUtf8), dst,
+        0.5f, 0.5f, 0.0f, 0.0f, tint, z, layer);
 }
 
 inline int PushHit(
@@ -100,43 +149,38 @@ inline int PushHit(
     return idx;
 }
 
-// ==============================
-// Common combo: button (sprite + text + hit)
-// ==============================
-
-struct UIButtonRef {
-    HitKey key = 0;
-    Render::RectF rect{};
-    int sprite = -1;
-    int text   = -1;
-    int hit    = -1;
-};
-
-inline UIButtonRef PushButton(
-    UIFrame& frame, HitKey key,
-    const Render::RectF& dst, TextureId bgTex, const Render::Color4F& bgTint,
-    TextStyleId styleId, std::string textUtf8, const Render::Color4F& textTint,
-    float zBg = 0.1f, float zText = 0.2f, Render::Layer layer = Render::Layer::HUD
-) {
-    UIButtonRef button;
-    button.key = key;
-    button.rect = dst;
-    button.sprite = PushSprite(frame, bgTex, dst, bgTint, zBg, layer);
-    button.text   = PushTextInRect(frame, styleId, std::move(textUtf8), dst, textTint, zText, layer);
-    button.hit    = PushHit(frame, key, dst, true, true);
-    return button;
-}
-
 // =============================
 // AfterBake helpers
 // =============================
+
+inline void ResolveTextPlacement(TextOp& op) {
+    const float bw = static_cast<float>(op.baked.w);
+    const float bh = static_cast<float>(op.baked.h);
+
+    if (op.rect.w > 0.0f && op.rect.h > 0.0f) {
+        op.x = op.rect.x + (op.rect.w - bw) * op.alignX + op.offsetX;
+        op.y = op.rect.y + (op.rect.h - bh) * op.alignY + op.offsetY;
+    }
+    op.aabb = Render::RectF{op.x, op.y, bw, bh};
+}
+
+inline void ResolveTextPlacement(UIFrame& frame, int textIdx) {
+    TextOp* textOp = GetText(frame, textIdx);
+    if (!textOp) return;
+    ResolveTextPlacement(*textOp);
+}
+
 
 inline void CenterTextInRect(UIFrame& frame, int textIdx, const Render::RectF& rect) {
     TextOp* textOp = GetText(frame, textIdx);
     if (!textOp) return;
 
-    textOp->x = rect.x + (rect.w - static_cast<float>(textOp->baked.w)) * 0.5f;
-    textOp->y = rect.y + (rect.h - static_cast<float>(textOp->baked.h)) * 0.5f;
+    textOp->rect = rect;
+    textOp->alignX = 0.5f;
+    textOp->alignY = 0.5f;
+    textOp->offsetX = 0.0f;
+    textOp->offsetY = 0.0f;
+    ResolveTextPlacement(*textOp);
 }
 
 // =============================

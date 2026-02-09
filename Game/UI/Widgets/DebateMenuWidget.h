@@ -4,6 +4,7 @@
 
 #include "Game/UI/Framework/UIFrame.h"
 #include "Game/UI/Framework/UIBuilder.h"
+#include "UIButtonWidget.h"
 #include "Game/UI/UITypes.h"
 
 namespace Salt2D::Game::UI {
@@ -39,8 +40,8 @@ private:
     bool visible_ = false;
 
     int optionCount_ = 0;
-    std::vector<UIButtonRef> optionBtns_;
-    UIButtonRef backBtn_;
+    std::vector<UIButtonWidget> optionBtns_;
+    UIButtonWidget backBtn_;
 };
 
 } // namespace Salt2D::Game::UI
