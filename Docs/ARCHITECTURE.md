@@ -64,7 +64,9 @@ manosaba-plus/
 │   │   ├── DebateScreen.h                     # Debate screen interface
 │   │   ├── DebateScreen.cpp                   # Debate screen implementation
 │   │   ├── ChoiceScreen.h                     # Choice screen interface
-│   │   └── ChoiceScreen.cpp                   # Choice screen implementation
+│   │   ├── ChoiceScreen.cpp                   # Choice screen implementation
+│   │   ├── StoryOverlayLayer.h                # Story overlay layer interface
+│   │   └── StoryOverlayLayer.cpp              # Overlay UI layer for story screens
 │   ├── Session/
 │   │   ├── StorySession.h                     # Story session state management interface
 │   │   ├── StorySession.cpp                   # Session state and control flow
@@ -85,6 +87,7 @@ manosaba-plus/
 │   │   ├── StoryPlayer.h                      # High-level story player interface
 │   │   ├── StoryPlayer.cpp                    # Story orchestration and view management
 │   │   ├── StoryView.h                        # Unified view data structures (VN, Present, Debate, Choice)
+│   │   ├── StoryTimer.h                       # Story timer structure and utilities
 │   │   ├── Resources/
 │   │   │   ├── VnScript.h                     # Visual novel script structure
 │   │   │   ├── VnScript.cpp                   # VN script parser
@@ -97,6 +100,9 @@ manosaba-plus/
 │   │   │   ├── ChoiceDef.h                    # Choice definition structure
 │   │   │   ├── ChoiceDefLoader.h              # Choice definition loader interface
 │   │   │   └── ChoiceDefLoader.cpp            # JSON parsing for choice nodes
+│   │   ├── TextMarkup/
+│   │   │   ├── SusMarkup.h                    # Suspicion markup parser interface
+│   │   │   └── SusMarkup.cpp                  # Parses suspicion markup in debate text
 │   │   └── Runners/
 │   │       ├── VnRunner.h                     # Visual novel runner interface
 │   │       ├── VnRunner.cpp                   # VN text reveal and line management
@@ -108,23 +114,34 @@ manosaba-plus/
 │   │       └── ChoiceRunner.cpp               # Choice option selection and validation
 │   └── UI/
 │       ├── UITypes.h                          # UI type definitions
-│       ├── ChoiceHud.h                        # Choice HUD interface
-│       ├── ChoiceHud.cpp                      # Choice HUD implementation
-│       ├── DebateHud.h                        # Debate HUD interface
-│       ├── DebateHud.cpp                      # Debate HUD implementation
-│       ├── PresentHud.h                       # Present HUD interface
-│       ├── PresentHud.cpp                     # Present HUD implementation
 │       ├── Framework/
 │       │   ├── UIFrame.h                      # UI frame structure
 │       │   ├── UIBaker.h                      # UI baking interface
 │       │   ├── UIBaker.cpp                    # UI element baking
+│       │   ├── UIBuilder.h                    # UI builder utilities
 │       │   ├── UIEmitter.h                    # UI emission interface
-│       │   └── UIEmitter.cpp                  # UI element emission
+│       │   ├── UIEmitter.cpp                  # UI element emission
+│       │   ├── UIInteraction.h                # UI interaction interface
+│       │   └── UIInteraction.cpp              # UI hit testing and interaction
 │       ├── Theme/
 │       │   └── TextTheme.h                    # Text styling theme
 │       └── Widgets/
 │           ├── VnDialogWidget.h               # VN dialog widget interface
-│           └── VnDialogWidget.cpp             # VN dialog widget implementation
+│           ├── VnDialogWidget.cpp             # VN dialog widget implementation
+│           ├── ChoiceDialogWidget.h           # Choice dialog widget interface
+│           ├── ChoiceDialogWidget.cpp         # Choice dialog widget implementation
+│           ├── PresentDialogWidget.h          # Present dialog widget interface
+│           ├── PresentDialogWidget.cpp        # Present dialog widget implementation
+│           ├── DebateDialogWidget.h           # Debate dialog widget interface
+│           ├── DebateDialogWidget.cpp         # Debate dialog widget implementation
+│           ├── DebateMenuWidget.h             # Debate menu widget interface
+│           ├── DebateMenuWidget.cpp           # Debate menu widget implementation
+│           ├── DebateSpeedWidget.h            # Debate speed control widget interface
+│           ├── DebateSpeedWidget.cpp          # Debate speed control widget implementation
+│           ├── TimerWidget.h                  # Timer widget interface
+│           ├── TimerWidget.cpp                # Timer widget implementation
+│           ├── UIButtonWidget.h               # Button widget interface
+│           └── UIButtonWidget.cpp             # Button widget implementation
 │
 ├── RHI/
 │   ├── CMakeLists.txt
@@ -300,6 +317,8 @@ manosaba-plus/
 - `Screens/DebateScreen.cpp` - Handles debate mechanics display
 - `Screens/ChoiceScreen.h` - Choice screen interface
 - `Screens/ChoiceScreen.cpp` - Manages choice option display and selection
+- `Screens/StoryOverlayLayer.h` - Story overlay layer interface
+- `Screens/StoryOverlayLayer.cpp` - Overlay UI layer for story screens (timer, status display)
 
 **Session Management**
 - `Session/StorySession.h` - Story session state management interface
@@ -326,6 +345,7 @@ The story system implements a node-based narrative engine supporting visual nove
 - `Story/StoryPlayer.h` - High-level story player interface
 - `Story/StoryPlayer.cpp` - Orchestrates runners, updates views, handles user actions
 - `Story/StoryView.h` - Unified view structures for all node types (VN, Present, Debate, Choice)
+- `Story/StoryTimer.h` - Story timer structure and utilities for timed events
 
 **Resource Definitions**
 - `Story/Resources/VnScript.h` - Visual novel script structure (commands, speaker, text)
@@ -340,6 +360,10 @@ The story system implements a node-based narrative engine supporting visual nove
 - `Story/Resources/ChoiceDefLoader.h` - Choice definition loader interface
 - `Story/Resources/ChoiceDefLoader.cpp` - JSON parser for choice nodes
 
+**Text Markup**
+- `Story/TextMarkup/SusMarkup.h` - Suspicion markup parser interface
+- `Story/TextMarkup/SusMarkup.cpp` - Parses suspicion markup in debate text (e.g., <sus id="...">text</sus>)
+
 **Node Runners**
 - `Story/Runners/VnRunner.h` - Visual novel runner interface
 - `Story/Runners/VnRunner.cpp` - Text reveal animation, line progression, script completion
@@ -352,20 +376,31 @@ The story system implements a node-based narrative engine supporting visual nove
 
 **UI System**
 - `UI/UITypes.h` - UI type definitions and common structures
-- `UI/ChoiceHud.h` - Choice HUD interface
-- `UI/ChoiceHud.cpp` - Visual rendering of choice options
-- `UI/DebateHud.h` - Debate HUD interface
-- `UI/DebateHud.cpp` - Visual rendering of debate interface
-- `UI/PresentHud.h` - Present HUD interface
-- `UI/PresentHud.cpp` - Visual rendering of evidence presentation
 - `UI/Framework/UIFrame.h` - UI frame structure definitions
 - `UI/Framework/UIBaker.h` - UI baking interface
 - `UI/Framework/UIBaker.cpp` - Converts UI elements to drawable format
+- `UI/Framework/UIBuilder.h` - UI builder utilities for constructing UI hierarchies
 - `UI/Framework/UIEmitter.h` - UI emission interface
 - `UI/Framework/UIEmitter.cpp` - Emits UI draw commands
+- `UI/Framework/UIInteraction.h` - UI interaction interface
+- `UI/Framework/UIInteraction.cpp` - UI hit testing and interaction handling
 - `UI/Theme/TextTheme.h` - Text styling and theme definitions
 - `UI/Widgets/VnDialogWidget.h` - VN dialog widget interface
 - `UI/Widgets/VnDialogWidget.cpp` - Reusable VN dialog box widget
+- `UI/Widgets/ChoiceDialogWidget.h` - Choice dialog widget interface
+- `UI/Widgets/ChoiceDialogWidget.cpp` - Choice option display widget
+- `UI/Widgets/PresentDialogWidget.h` - Present dialog widget interface
+- `UI/Widgets/PresentDialogWidget.cpp` - Evidence presentation display widget
+- `UI/Widgets/DebateDialogWidget.h` - Debate dialog widget interface
+- `UI/Widgets/DebateDialogWidget.cpp` - Debate statement display with suspicion highlighting
+- `UI/Widgets/DebateMenuWidget.h` - Debate menu widget interface
+- `UI/Widgets/DebateMenuWidget.cpp` - Debate option menu widget
+- `UI/Widgets/DebateSpeedWidget.h` - Debate speed control widget interface
+- `UI/Widgets/DebateSpeedWidget.cpp` - Speed control UI for debate sequences
+- `UI/Widgets/TimerWidget.h` - Timer widget interface
+- `UI/Widgets/TimerWidget.cpp` - Timer display widget for timed events
+- `UI/Widgets/UIButtonWidget.h` - Button widget interface
+- `UI/Widgets/UIButtonWidget.cpp` - Generic button widget implementation
 
 ---
 

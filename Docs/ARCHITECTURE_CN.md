@@ -64,7 +64,9 @@ manosaba-plus/
 │   │   ├── DebateScreen.h                     # 辩论屏幕接口
 │   │   ├── DebateScreen.cpp                   # 辩论屏幕实现
 │   │   ├── ChoiceScreen.h                     # 选择屏幕接口
-│   │   └── ChoiceScreen.cpp                   # 选择屏幕实现
+│   │   ├── ChoiceScreen.cpp                   # 选择屏幕实现
+│   │   ├── StoryOverlayLayer.h                # 故事叠加层接口
+│   │   └── StoryOverlayLayer.cpp              # 故事屏幕的叠加 UI 层
 │   ├── Session/
 │   │   ├── StorySession.h                     # 故事会话状态管理接口
 │   │   ├── StorySession.cpp                   # 会话状态与控制流
@@ -85,6 +87,7 @@ manosaba-plus/
 │   │   ├── StoryPlayer.h                      # 高层故事播放器接口
 │   │   ├── StoryPlayer.cpp                    # 故事编排与视图管理
 │   │   ├── StoryView.h                        # 统一视图数据结构（VN、Present、Debate、Choice）
+│   │   ├── StoryTimer.h                       # 故事计时器结构与工具
 │   │   ├── Resources/
 │   │   │   ├── VnScript.h                     # 视觉小说脚本结构
 │   │   │   ├── VnScript.cpp                   # VN 脚本解析器
@@ -97,6 +100,9 @@ manosaba-plus/
 │   │   │   ├── ChoiceDef.h                    # 选择定义结构
 │   │   │   ├── ChoiceDefLoader.h              # 选择定义加载器接口
 │   │   │   └── ChoiceDefLoader.cpp            # 选择节点 JSON 解析
+│   │   ├── TextMarkup/
+│   │   │   ├── SusMarkup.h                    # 可疑点标记解析器接口
+│   │   │   └── SusMarkup.cpp                  # 解析辩论文本中的可疑点标记
 │   │   └── Runners/
 │   │       ├── VnRunner.h                     # 视觉小说运行器接口
 │   │       ├── VnRunner.cpp                   # VN 文本显示与行管理
@@ -108,23 +114,34 @@ manosaba-plus/
 │   │       └── ChoiceRunner.cpp               # 选择选项选择与验证
 │   └── UI/
 │       ├── UITypes.h                          # UI 类型定义
-│       ├── ChoiceHud.h                        # 选择 HUD 接口
-│       ├── ChoiceHud.cpp                      # 选择 HUD 实现
-│       ├── DebateHud.h                        # 辩论 HUD 接口
-│       ├── DebateHud.cpp                      # 辩论 HUD 实现
-│       ├── PresentHud.h                       # Present HUD 接口
-│       ├── PresentHud.cpp                     # Present HUD 实现
 │       ├── Framework/
 │       │   ├── UIFrame.h                      # UI 框架结构
 │       │   ├── UIBaker.h                      # UI 烘焙接口
 │       │   ├── UIBaker.cpp                    # UI 元素烘焙
+│       │   ├── UIBuilder.h                    # UI 构建工具
 │       │   ├── UIEmitter.h                    # UI 发射接口
-│       │   └── UIEmitter.cpp                  # UI 元素发射
+│       │   ├── UIEmitter.cpp                  # UI 元素发射
+│       │   ├── UIInteraction.h                # UI 交互接口
+│       │   └── UIInteraction.cpp              # UI 命中测试与交互
 │       ├── Theme/
 │       │   └── TextTheme.h                    # 文本样式主题
 │       └── Widgets/
 │           ├── VnDialogWidget.h               # VN 对话框控件接口
-│           └── VnDialogWidget.cpp             # VN 对话框控件实现
+│           ├── VnDialogWidget.cpp             # VN 对话框控件实现
+│           ├── ChoiceDialogWidget.h           # 选择对话框控件接口
+│           ├── ChoiceDialogWidget.cpp         # 选择对话框控件实现
+│           ├── PresentDialogWidget.h          # 证据出示对话框控件接口
+│           ├── PresentDialogWidget.cpp        # 证据出示对话框控件实现
+│           ├── DebateDialogWidget.h           # 辩论对话框控件接口
+│           ├── DebateDialogWidget.cpp         # 辩论对话框控件实现
+│           ├── DebateMenuWidget.h             # 辩论菜单控件接口
+│           ├── DebateMenuWidget.cpp           # 辩论菜单控件实现
+│           ├── DebateSpeedWidget.h            # 辩论速度控制控件接口
+│           ├── DebateSpeedWidget.cpp          # 辩论速度控制控件实现
+│           ├── TimerWidget.h                  # 计时器控件接口
+│           ├── TimerWidget.cpp                # 计时器控件实现
+│           ├── UIButtonWidget.h               # 按钮控件接口
+│           └── UIButtonWidget.cpp             # 按钮控件实现
 │
 ├── RHI/
 │   ├── CMakeLists.txt
@@ -300,6 +317,8 @@ manosaba-plus/
 - `Screens/DebateScreen.cpp` - 处理辩论机制显示
 - `Screens/ChoiceScreen.h` - 选择屏幕接口
 - `Screens/ChoiceScreen.cpp` - 管理选择选项显示与选择
+- `Screens/StoryOverlayLayer.h` - 故事叠加层接口
+- `Screens/StoryOverlayLayer.cpp` - 故事屏幕的叠加 UI 层（计时器、状态显示）
 
 **会话管理**
 - `Session/StorySession.h` - 故事会话状态管理接口
@@ -326,6 +345,7 @@ manosaba-plus/
 - `Story/StoryPlayer.h` - 高层故事播放器接口
 - `Story/StoryPlayer.cpp` - 编排运行器、更新视图、处理用户操作
 - `Story/StoryView.h` - 所有节点类型的统一视图结构（VN、Present、Debate、Choice）
+- `Story/StoryTimer.h` - 故事计时器结构与工具，用于定时事件
 
 **资源定义**
 - `Story/Resources/VnScript.h` - 视觉小说脚本结构（命令、说话人、文本）
@@ -340,6 +360,10 @@ manosaba-plus/
 - `Story/Resources/ChoiceDefLoader.h` - 选择定义加载器接口
 - `Story/Resources/ChoiceDefLoader.cpp` - 选择节点的 JSON 解析器
 
+**文本标记**
+- `Story/TextMarkup/SusMarkup.h` - 可疑点标记解析器接口
+- `Story/TextMarkup/SusMarkup.cpp` - 解析辩论文本中的可疑点标记（如 <sus id="...">文本</sus>）
+
 **节点运行器**
 - `Story/Runners/VnRunner.h` - 视觉小说运行器接口
 - `Story/Runners/VnRunner.cpp` - 文本显示动画、行推进、脚本完成
@@ -352,20 +376,31 @@ manosaba-plus/
 
 **UI 系统**
 - `UI/UITypes.h` - UI 类型定义与通用结构
-- `UI/ChoiceHud.h` - 选择 HUD 接口
-- `UI/ChoiceHud.cpp` - 选择选项的视觉渲染
-- `UI/DebateHud.h` - 辩论 HUD 接口
-- `UI/DebateHud.cpp` - 辩论界面的视觉渲染
-- `UI/PresentHud.h` - Present HUD 接口
-- `UI/PresentHud.cpp` - 证据出示的视觉渲染
 - `UI/Framework/UIFrame.h` - UI 框架结构定义
 - `UI/Framework/UIBaker.h` - UI 烘焙接口
 - `UI/Framework/UIBaker.cpp` - 将 UI 元素转换为可绘制格式
+- `UI/Framework/UIBuilder.h` - UI 构建工具，用于构建 UI 层次结构
 - `UI/Framework/UIEmitter.h` - UI 发射接口
 - `UI/Framework/UIEmitter.cpp` - 发射 UI 绘制命令
+- `UI/Framework/UIInteraction.h` - UI 交互接口
+- `UI/Framework/UIInteraction.cpp` - UI 命中测试与交互处理
 - `UI/Theme/TextTheme.h` - 文本样式与主题定义
 - `UI/Widgets/VnDialogWidget.h` - VN 对话框控件接口
 - `UI/Widgets/VnDialogWidget.cpp` - 可复用的 VN 对话框控件
+- `UI/Widgets/ChoiceDialogWidget.h` - 选择对话框控件接口
+- `UI/Widgets/ChoiceDialogWidget.cpp` - 选择选项显示控件
+- `UI/Widgets/PresentDialogWidget.h` - 证据出示对话框控件接口
+- `UI/Widgets/PresentDialogWidget.cpp` - 证据出示显示控件
+- `UI/Widgets/DebateDialogWidget.h` - 辩论对话框控件接口
+- `UI/Widgets/DebateDialogWidget.cpp` - 带可疑点高亮的辩论陈述显示
+- `UI/Widgets/DebateMenuWidget.h` - 辩论菜单控件接口
+- `UI/Widgets/DebateMenuWidget.cpp` - 辩论选项菜单控件
+- `UI/Widgets/DebateSpeedWidget.h` - 辩论速度控制控件接口
+- `UI/Widgets/DebateSpeedWidget.cpp` - 辩论序列的速度控制 UI
+- `UI/Widgets/TimerWidget.h` - 计时器控件接口
+- `UI/Widgets/TimerWidget.cpp` - 定时事件的计时器显示控件
+- `UI/Widgets/UIButtonWidget.h` - 按钮控件接口
+- `UI/Widgets/UIButtonWidget.cpp` - 通用按钮控件实现
 
 ---
 
