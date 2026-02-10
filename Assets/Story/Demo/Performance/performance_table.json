@@ -1,0 +1,23 @@
+{
+  "performances": [
+    {
+      "id": "debate_default",
+      "hud": {
+        "debate_text_track": {
+          "space": "normalized",
+          "start": [0.40, 0.30],
+          "end":   [0.20, 0.32],
+
+          "pivot": "top_left",
+
+          "rotation": {
+            "mode": "slope",
+            "keep_upright": true
+          },
+
+          "motion": { "type": "linear" }
+        }
+      }
+    }
+  ]
+}

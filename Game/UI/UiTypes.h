@@ -83,6 +83,13 @@ struct PresentHudModel {
     int selectedItem = 0;
 };
 
+struct HudPose2D {
+    float baseX  = 0.0f;
+    float baseY  = 0.0f;
+    float rotRad = 0.0f;
+    float alpha  = 1.0f;
+};
+
 struct DebateHudModel {
     bool visible = false;
     std::string speakerUtf8;
@@ -99,6 +106,8 @@ struct DebateHudModel {
     int selectedOpt  = 0;
 
     float timeScale = 1.0f;
+
+    HudPose2D dialogPose;
 };
 
 // ==============================

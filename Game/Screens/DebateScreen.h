@@ -5,6 +5,7 @@
 #include "IStoryScreen.h"
 
 #include "Game/Story/StoryPlayer.h"
+#include "Game/Story/StoryTables.h"
 #include "Game/UI/Widgets/DebateDialogWidget.h"
 #include "Game/UI/Widgets/DebateMenuWidget.h"
 #include "Game/UI/Widgets/DebateSpeedWidget.h"
@@ -23,6 +24,7 @@ class DebateScreen final : public IStoryScreen {
 public:
     void SetPlayer(Story::StoryPlayer* player) override { player_ = player; }
     void SetHistory(Session::StoryHistory* history) override { history_ = history; }
+    void SetTables(const Story::StoryTables* tables) { tables_ = tables; }
     void SetTheme(UI::TextTheme* theme) { theme_ = theme; baker_.SetTheme(theme); }
 
     void Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) override;
@@ -51,6 +53,7 @@ private:
     Story::StoryPlayer* player_ = nullptr;
     Session::StoryHistory* history_ = nullptr;
     UI::TextTheme* theme_ = nullptr;
+    const Story::StoryTables* tables_ = nullptr;
 
     int lastStmtInx_ = -283;
 

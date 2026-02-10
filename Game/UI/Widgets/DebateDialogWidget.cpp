@@ -8,6 +8,10 @@
 
 namespace Salt2D::Game::UI {
 
+static inline Render::Color4F ApplyAlpha(const Render::Color4F& c, float alpha) {
+    return Render::Color4F{c.r, c.g, c.b, c.a * alpha};
+}
+
 // ======================= Begin of text typeset helper =========================
 
 static inline void ApplyGlobalPivotRotate(TextOp& op, float pivotPx, float pivotPy, float rotRad) {
@@ -27,9 +31,6 @@ static inline void ApplyGlobalPivotRotate(TextOp& op, float pivotPx, float pivot
 DebateDialogWidget::LayoutRegion DebateDialogWidget::ComputeLayout(uint32_t canvasW, uint32_t canvasH) {
     const float w = static_cast<float>(canvasW);
     const float h = static_cast<float>(canvasH);
-
-    baseX_ = w * 0.2f;
-    baseY_ = h * 0.3f;
 
     LayoutRegion region;
     region.x0 = baseX_;
@@ -60,7 +61,7 @@ void DebateDialogWidget::PushSegment(
     if (segUtf8.empty()) return;
 
     const TextStyleId styleId = isSus ? TextStyleId::DebateSus : TextStyleId::DebateBody;
-    const Render::Color4F tint = isSus ? cfg_.susTint : cfg_.bodyTint;
+    const Render::Color4F tint = ApplyAlpha(isSus ? cfg_.susTint : cfg_.bodyTint, alpha_);
     int textIdx = PushText(frame, styleId, segUtf8, region.x0, region.y0, region.w, region.h, tint);
 
     Piece piece{ .textIdx = textIdx, .isSus = isSus };
@@ -127,14 +128,10 @@ void DebateDialogWidget::Build(const DebateHudModel& model, uint32_t canvasW, ui
     lineBegin_.clear();
     lineCount_.clear();
 
-    const float w = static_cast<float>(canvasW);
-    const float h = static_cast<float>(canvasH);
-
-    // TODO: 文字布局应当由 model 生成（几种固定的文字轨道，由screen决定当前文字用哪个轨道并交给 model ）
-
-    baseX_ = w * 0.2f;
-    baseY_ = h * 0.3f;
-    rotRad_ = 0.2f;
+    alpha_  = model.dialogPose.alpha;
+    baseX_  = model.dialogPose.baseX;
+    baseY_  = model.dialogPose.baseY;
+    rotRad_ = model.dialogPose.rotRad;
 
     const LayoutRegion region = ComputeLayout(canvasW, canvasH);
 
@@ -147,8 +144,9 @@ void DebateDialogWidget::Build(const DebateHudModel& model, uint32_t canvasW, ui
 
     auto parsed = Story::ParseSusMarkup(model.bodyUtf8);
     if (!parsed.ok) {
+        auto tint = ApplyAlpha(cfg_.bodyTint, alpha_);
         PushText(frame, TextStyleId::DebateBody, parsed.plainTextUtf8,
-            region.x0, region.y0, region.w, region.h, cfg_.bodyTint);
+            region.x0, region.y0, region.w, region.h, tint);
         return; 
     }
 
@@ -207,7 +205,7 @@ void DebateDialogWidget::ApplyHover(UIFrame& frame, HitKey hoveredKey) {
         if (piece.spanIdx == hoveredSpan) {
             op->tint = cfg_.susHoverTint;
         } else {
-            op->tint = cfg_.susTint;
+            op->tint = ApplyAlpha(cfg_.susTint, alpha_);
         }
     }
 }

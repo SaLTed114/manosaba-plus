@@ -4,9 +4,10 @@
 
 namespace Salt2D::Game::Session {
 
-void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* history) {
-    player_ = player;
+void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* history, Story::StoryTables* tables) {
+    player_  = player;
     history_ = history;
+    tables_  = tables;
 
     vn_.     SetPlayer(player);
     debate_. SetPlayer(player);
@@ -17,6 +18,8 @@ void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* hi
     debate_. SetHistory(history);
     present_.SetHistory(history);
     choice_. SetHistory(history);
+
+    debate_.SetTables(tables);
 
     theme_.InitDefault();
     themeInited_ = true;

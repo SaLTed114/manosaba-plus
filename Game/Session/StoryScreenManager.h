@@ -11,6 +11,7 @@
 #include "Game/Screens/ChoiceScreen.h"
 #include "Game/Screens/StoryOverlayLayer.h"
 #include "Game/Story/StoryTypes.h"
+#include "Game/Story/StoryTables.h"
 #include "Game/UI/Theme/TextTheme.h"
 #include "Core/Time/FrameClock.h"
 
@@ -18,7 +19,7 @@ namespace Salt2D::Game::Session {
 
 class StoryScreenManager {
 public:
-    void Initialize(Story::StoryPlayer* player, StoryHistory* history);
+    void Initialize(Story::StoryPlayer* player, StoryHistory* history, Story::StoryTables* tables);
 
     void Tick(const Core::FrameTime& ft, const Core::InputState& in, uint32_t canvasW, uint32_t canvasH);
     void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service);
@@ -33,6 +34,8 @@ private:
     Story::StoryPlayer* player_  = nullptr;
     StoryHistory*       history_ = nullptr;
     Story::NodeType lastType_ = Story::NodeType::Unknown;
+
+    const Story::StoryTables* tables_ = nullptr;
 
     UI::TextTheme theme_;
     bool themeInited_ = false;

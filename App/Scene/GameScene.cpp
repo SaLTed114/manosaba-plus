@@ -63,9 +63,10 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
 
     texture_.SetMissing(Game::UI::TextureId::Checker);
 
-    auto graphPath = std::filesystem::path("Assets/Story/Demo/demo_story.graph.json");
-    session_.Initialize(graphPath, "n0_intro");
-    screens_.Initialize(&session_.Player(), &session_.History());
+    auto storyRoot = std::filesystem::path("Assets/Story/Demo/");
+    auto graphPath = std::filesystem::path("demo_story.graph.json");
+    session_.Initialize(storyRoot, graphPath, "n0_intro");
+    screens_.Initialize(&session_.Player(), &session_.History(), &session_.Tables());
 
     // tmp
     Resources::ImageRGBA8 bgImg;

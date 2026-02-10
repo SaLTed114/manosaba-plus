@@ -87,6 +87,7 @@ private:
 
     int spanCount_ = 0;
 
+    float alpha_  = 1.0f;
     float baseX_  = 0.0f;
     float baseY_  = 0.0f;
     float rotRad_ = 0.0f;

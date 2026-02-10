@@ -1,5 +1,6 @@
 set(GAME_SOURCES
     Common/Logger.cpp
+    Director/HudEvaluator.cpp
     Story/StoryGraphLoader.cpp
     Story/StoryPlayer.cpp
     Story/StoryRuntime.cpp
@@ -7,6 +8,7 @@ set(GAME_SOURCES
     Story/Resources/PresentDefLoader.cpp
     Story/Resources/DebateDefLoader.cpp
     Story/Resources/ChoiceDefLoader.cpp
+    Story/Resources/PerformanceDefLoader.cpp
     Story/Runners/VnRunner.cpp
     Story/Runners/PresentRunner.cpp
     Story/Runners/DebateRunner.cpp

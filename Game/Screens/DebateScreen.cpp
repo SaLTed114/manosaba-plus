@@ -1,6 +1,7 @@
 // Game/Sceens/DebateScreen.cpp
 #include "DebateScreen.h"
 
+#include "Game/Director/HudEvaluator.h"
 #include "Game/Session/StoryActions.h"
 #include "Game/Session/StoryHistory.h"
 #include "Game/Story/StoryPlayer.h"
@@ -156,6 +157,13 @@ void DebateScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
 
     model.selectedSpan = Utils::ClampWarp(selectedSpan_,   static_cast<int>(view->spanIds.size()));
     model.selectedOpt  = Utils::ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
+
+    model.dialogPose = Director::DefaultDebateDialogPose(canvasW, canvasH);
+    if (tables_) {
+        model.dialogPose = Director::EvalDebateDialogPose(*tables_,
+            canvasW, canvasH, view->stmtTotalSec, view->stmtRemainSec,
+            "debate_default");
+    }
 
     dialog_.Build(model, canvasW, canvasH, frame_);
     menu_.Build(model, canvasW, canvasH, frame_);
