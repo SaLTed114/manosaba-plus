@@ -10,6 +10,9 @@ namespace Salt2D::Game::Story {
 struct DebateStatement {
     std::string speaker;
     std::string text;
+
+    // empty means default setting
+    std::string prefId;
 };
 
 struct DebateOption {

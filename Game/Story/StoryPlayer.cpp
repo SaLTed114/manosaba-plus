@@ -311,6 +311,8 @@ void StoryPlayer::UpdateView() {
         view.speaker  = stmt.speaker;
         view.fullText = stmt.text;
 
+        view.prefId = stmt.prefId.empty() ? "debate_default" : stmt.prefId;
+
         view.spanIds      = debate_.CurrentSpanIds();
         view.menuOpen     = debate_.IsMenuOpen();
         view.openedSpanId = debate_.OpenedSpanId();

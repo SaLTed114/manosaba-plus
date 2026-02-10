@@ -35,6 +35,7 @@ struct StoryView {
 
         std::string speaker;
         std::string fullText;
+        std::string prefId;
 
         std::vector<std::string> spanIds;
 

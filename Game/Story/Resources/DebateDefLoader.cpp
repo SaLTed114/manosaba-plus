@@ -22,6 +22,13 @@ static int RequireInt(const json& j, const char* key, const std::string& context
     return j[key].get<int>();
 }
 
+static bool TryString(const json& j, const char* key, std::string& out) {
+    if (!j.contains(key)) return false;
+    if (!j[key].is_string()) return false;
+    out = j[key].get<std::string>();
+    return true;
+}
+
 DebateDef LoadDebateDef(Utils::IFileSystem& fs, const std::filesystem::path& fullPath) {
     if (!fs.Exists(fullPath)) {
         throw std::runtime_error("DebateDefLoader: file does not exist: " + fullPath.string());
@@ -48,6 +55,8 @@ DebateDef LoadDebateDef(Utils::IFileSystem& fs, const std::filesystem::path& ful
         DebateStatement statement;
         statement.speaker = RequireString(jStatement, "speaker", ctx);
         statement.text    = RequireString(jStatement, "text",    ctx);
+
+        TryString(jStatement, "pref_id", statement.prefId);
         def.statements.push_back(std::move(statement));
     }
 

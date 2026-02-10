@@ -18,6 +18,64 @@
           "motion": { "type": "linear" }
         }
       }
+    },
+    {
+      "id": "debate_normal1",
+      "hud": {
+        "debate_text_track": {
+          "space": "normalized",
+          "start": [0.20, 0.34],
+          "end":   [0.30, 0.32],
+
+          "pivot": "top_left",
+
+          "rotation": {
+            "mode": "slope",
+            "keep_upright": true
+          },
+
+          "motion": { "type": "linear" }
+        }
+      }
+    },
+    {
+      "id": "debate_normal2",
+      "hud": {
+        "debate_text_track": {
+          "space": "normalized",
+          "start": [0.50, 0.50],
+          "end":   [0.35, 0.48],
+
+          "pivot": "top_left",
+
+          "rotation": {
+            "mode": "slope",
+            "keep_upright": true
+          },
+
+          "motion": { "type": "linear" }
+        }
+      }
+    },
+    {
+      "id": "debate_normal3",
+      "hud": {
+        "debate_text_track": {
+          "space": "normalized",
+          "start": [0.20, 0.60],
+          "end":   [0.20, 0.55],
+
+          "pivot": "top_left",
+
+          "rotation": {
+            "mode": "fixed",
+            "keep_upright": true,
+            "fixed_rad": 0.0
+          },
+
+          "motion": { "type": "linear" }
+        }
+      }
     }
   ]
 }
