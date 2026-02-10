@@ -20,7 +20,6 @@ struct VnHudConfig {
     float nameSegGap  = 2.0f;
     float namePartGap = 2.0f;
 
-    Render::Color4F nameAccentTint{0.85f, 0.55f, 1.0f, 1.0f};
     Render::Color4F nameRestTint{1.0f, 1.0f, 1.0f, 1.0f};
 
     Render::Color4F panelTint{0.0f, 0.0f, 0.0f, 0.55f};

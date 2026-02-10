@@ -37,7 +37,7 @@ void VnDialogWidget::Build(const VnHudModel& model, uint32_t canvasW, uint32_t c
     fam_ = AddFirstGlyphText(frame,
         TextStyleId::VnNameFamilyBig, TextStyleId::VnNameRest,
         family, nameBaseX_, nameBaseY_, w, cfg_.speakerH,
-        cfg_.nameAccentTint, cfg_.nameRestTint, 0.25f, cfg_.nameSegGap);
+        model.color, cfg_.nameRestTint, 0.25f, cfg_.nameSegGap);
 
     giv_ = AddFirstGlyphText(frame,
         TextStyleId::VnNameGivenBig, TextStyleId::VnNameRest,

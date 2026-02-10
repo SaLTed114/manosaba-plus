@@ -56,6 +56,16 @@ void VnScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     model.speakerUtf8 = view->speaker;
     model.bodyUtf8 = view->fullText;
 
+    if (tables_) {
+        const auto& castDef = tables_->cast.FindByName(view->speaker);
+        if (castDef) {
+            model.color.r = castDef->textColor.r;
+            model.color.g = castDef->textColor.g;
+            model.color.b = castDef->textColor.b;
+            model.color.a = castDef->textColor.a;
+        }
+    }
+
     dialog_.Build(model, canvasW, canvasH, frame_);
 }
 

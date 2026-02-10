@@ -62,6 +62,7 @@ struct VnHudModel {
     bool visible = false;
     std::string speakerUtf8;
     std::string bodyUtf8;
+    Render::Color4F color{1,1,1,1};
 };
 
 struct ChoiceHudModel {

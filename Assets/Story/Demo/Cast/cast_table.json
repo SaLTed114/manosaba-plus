@@ -1,0 +1,28 @@
+{
+  "casts": [
+    {
+      "id": "sakuraba_emma",
+      "name": "樱羽 艾玛",
+      "aliases": ["艾玛", "エマ", "658"],
+      "color_code": "#FB92B0",
+      "head_y": 1.35,
+      "card_image": "Image/emma.png"
+    },
+    {
+      "id": "nikaidou_hiro",
+      "name": "二阶堂 希罗",
+      "aliases": ["希罗", "ヒロ", "659"],
+      "color_code": "#F44854",
+      "head_y": 1.35,
+      "card_image": "Image/hiro.png"
+    },
+    {
+      "id": "tsukishiro_yuki",
+      "name": "月代 雪",
+      "aliases": ["雪", "ユキ", "000"],
+      "color_code": "#C5D1E8",
+      "head_y": 1.35,
+      "card_image": "Image/yuki.png"
+    }
+  ]
+}

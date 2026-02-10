@@ -9,6 +9,7 @@ set(GAME_SOURCES
     Story/Resources/DebateDefLoader.cpp
     Story/Resources/ChoiceDefLoader.cpp
     Story/Resources/PerformanceDefLoader.cpp
+    Story/Resources/CastDefLoader.cpp
     Story/Runners/VnRunner.cpp
     Story/Runners/PresentRunner.cpp
     Story/Runners/DebateRunner.cpp

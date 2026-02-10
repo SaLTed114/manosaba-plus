@@ -11,7 +11,6 @@
 #include "Utils/MathUtils.h"
 
 #include <Windows.h>
-#include <iostream>
 
 namespace Salt2D::Game::Screens {
 
@@ -160,7 +159,6 @@ void DebateScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
 
     model.dialogPose = Director::DefaultDebateDialogPose(canvasW, canvasH);
     if (tables_) {
-        std::cout << "Evaluating debate dialog pose for prefId: " << view->prefId << std::endl;
         model.dialogPose = Director::EvalDebateDialogPose(*tables_,
             canvasW, canvasH, view->stmtTotalSec, view->stmtRemainSec,
             view->prefId);

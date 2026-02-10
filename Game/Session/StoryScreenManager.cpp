@@ -19,7 +19,8 @@ void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* hi
     present_.SetHistory(history);
     choice_. SetHistory(history);
 
-    debate_.SetTables(tables);
+    vn_.     SetTables(tables);
+    debate_. SetTables(tables);
 
     theme_.InitDefault();
     themeInited_ = true;

@@ -3,11 +3,13 @@
 #define GAME_STORY_STORYTABLES_H
 
 #include "Game/Story/Resources/PerformanceDef.h"
+#include "Game/Story/Resources/CastDef.h"
 
 namespace Salt2D::Game::Story {
 
 struct StoryTables {
     PerformanceTable perf;
+    CastTable cast;
     // placeholder for more tables like Present Catalog, etc.
 };
 
