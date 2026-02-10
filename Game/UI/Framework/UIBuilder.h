@@ -64,8 +64,11 @@ inline int PushText(
     op.layer = layer;
     op.styleId = styleId;
     op.textUtf8 = std::move(textUtf8);
+
+    // initial placement, will adjust after bake
     op.x = x;
     op.y = y;
+
     op.layoutW = layoutW;
     op.layoutH = layoutH;
     op.tint = tint;
@@ -87,7 +90,8 @@ inline int PushTextBox(
     const Render::RectF& rect,
     float alignX, float alignY, float offsetX, float offsetY,
     const Render::Color4F& tint, float z = 0.0f,
-    Render::Layer layer = Render::Layer::HUD
+    Render::Layer layer = Render::Layer::HUD,
+    Transform2D transform = {}
 ) {
     TextOp op;
     op.layer = layer;
@@ -103,11 +107,14 @@ inline int PushTextBox(
     op.offsetX = offsetX;
     op.offsetY = offsetY;
 
+    // initial placement, will adjust after bake
     op.x = rect.x;
     op.y = rect.y;
 
     op.tint = tint;
     op.z = z;
+    
+    op.transform = transform;
 
     int idx = static_cast<int>(frame.texts.size());
     frame.texts.push_back(std::move(op));
@@ -270,15 +277,79 @@ inline void CenterFirstGlyphTextInRect(UIFrame& frame, const FirstGlyphTextRef& 
 // Hit AABB helper
 // =============================
 
+inline Render::RectF ComputeTransformedAABB(float x, float y, float w, float h, const Transform2D& t) {
+    if (w <= 0.0f || h <= 0.0f) return Render::RectF{x,y,0,0};
+    if (!t.hasTransform) return Render::RectF{x,y,w,h};
+
+    // Compute the AABB of the transformed rectangle
+    const float px = t.pivotX * w;
+    const float py = t.pivotY * h;
+    const float sx = t.scaleX;
+    const float sy = t.scaleY;
+
+    const float cosR = std::cos(t.rotRad);
+    const float sinR = std::sin(t.rotRad);
+
+    auto Transform = [&](float localX, float localY, float& outX, float& outY) {
+        // Apply pivot and scale
+        float tx = (localX - px) * sx;
+        float ty = (localY - py) * sy;
+
+        // Apply rotation
+        float rotX = tx * cosR - ty * sinR;
+        float rotY = tx * sinR + ty * cosR;
+
+        // Apply translation
+        outX = x + rotX + px;
+        outY = y + rotY + py;
+    };
+
+    float x00, y00, x10, y10, x01, y01, x11, y11;
+    Transform(0, 0, x00, y00);
+    Transform(w, 0, x10, y10);
+    Transform(0, h, x01, y01);
+    Transform(w, h, x11, y11);
+
+    float minX = (std::min)({x00, x10, x01, x11});
+    float maxX = (std::max)({x00, x10, x01, x11});
+    float minY = (std::min)({y00, y10, y01, y11});
+    float maxY = (std::max)({y00, y10, y01, y11});
+
+    return Render::RectF{minX, minY, maxX - minX, maxY - minY};
+}
+
+inline void UpdateTextAABB(TextOp& op) {
+    const float bw = static_cast<float>(op.baked.w);
+    const float bh = static_cast<float>(op.baked.h);
+    op.aabb = ComputeTransformedAABB(op.x, op.y, bw, bh, op.transform);
+}
+
 inline void SetHitRectFromTextAABB(UIFrame& frame, int hitIdx, int textIdx) {
     HitOp* hitOp = GetHit(frame, hitIdx);
     TextOp* textOp = GetText(frame, textIdx);
     if (!hitOp || !textOp) return;
 
-    hitOp->rect.x = textOp->x;
-    hitOp->rect.y = textOp->y;
-    hitOp->rect.w = static_cast<float>(textOp->baked.w);
-    hitOp->rect.h = static_cast<float>(textOp->baked.h);
+    const float bw = static_cast<float>(textOp->baked.w);
+    const float bh = static_cast<float>(textOp->baked.h);
+
+    hitOp->rect = textOp->aabb;
+
+    hitOp->baseRect = Render::RectF{textOp->x, textOp->y, bw, bh};
+    hitOp->transform = textOp->transform;
+    hitOp->hasTransform = textOp->transform.hasTransform;
+}
+
+// =============================
+// Transform helper
+// =============================
+
+inline Transform2D TransformRotateRad(float rotRad, float pivotX = 0.5f, float pivotY = 0.5f) {
+    Transform2D t{};
+    t.hasTransform = true;
+    t.rotRad = rotRad;
+    t.pivotX = pivotX; t.pivotY = pivotY;
+    t.scaleX = 1.0f;   t.scaleY = 1.0f;
+    return t;
 }
     
 } // namespace Salt2D::Game::UI

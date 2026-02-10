@@ -10,6 +10,20 @@ namespace Salt2D::Game::UI {
 
 // ======================= Begin of text typeset helper =========================
 
+static inline void ApplyGlobalPivotRotate(TextOp& op, float pivotPx, float pivotPy, float rotRad) {
+    const float bw = static_cast<float>(op.baked.w);
+    const float bh = static_cast<float>(op.baked.h);
+    if (bw <= 0.0f || bh <= 0.0f) { op.transform.hasTransform = false; return; }
+
+    op.transform.hasTransform = true;
+    op.transform.rotRad = rotRad;
+    op.transform.scaleX = 1.0f;
+    op.transform.scaleY = 1.0f;
+
+    op.transform.pivotX = (pivotPx - op.x) / bw;
+    op.transform.pivotY = (pivotPy - op.y) / bh;
+}
+
 DebateDialogWidget::LayoutRegion DebateDialogWidget::ComputeLayout(uint32_t canvasW, uint32_t canvasH) {
     const float w = static_cast<float>(canvasW);
     const float h = static_cast<float>(canvasH);
@@ -120,6 +134,7 @@ void DebateDialogWidget::Build(const DebateHudModel& model, uint32_t canvasW, ui
 
     baseX_ = w * 0.2f;
     baseY_ = h * 0.3f;
+    rotRad_ = 0.2f;
 
     const LayoutRegion region = ComputeLayout(canvasW, canvasH);
 
@@ -164,7 +179,9 @@ void DebateDialogWidget::AfterBake(UIFrame& frame) {
             op->x = x;
             op->y = y + (maxLineH - static_cast<float>(op->baked.h)) * 0.5f;
             x += static_cast<float>(op->baked.w);
+            ApplyGlobalPivotRotate(*op, baseX_, baseY_, rotRad_);
 
+            UpdateTextAABB(*op);
             if (piece.isSus && piece.hitIdx >= 0) {
                 SetHitRectFromTextAABB(frame, piece.hitIdx, piece.textIdx);
             }

@@ -57,6 +57,14 @@ struct SpriteDrawItem {
     Layer layer = Layer::Stage;
     float z = 0.0f;
     uint32_t order = 0;
+
+    // 2D transform
+    bool hasTransform = false;
+    float rotRad = 0.0f;
+    float scaleX = 1.0f;
+    float scaleY = 1.0f;
+    float pivotX = 0.0f; // 0: left, 0.5: center, 1: right
+    float pivotY = 0.0f; // 0: top,  0.5: center, 1: bottom
 };
 
 constexpr static inline uint8_t ToLayerIndex(Layer layer) {

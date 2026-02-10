@@ -87,8 +87,9 @@ private:
 
     int spanCount_ = 0;
 
-    float baseX_ = 0.0f;
-    float baseY_ = 0.0f;
+    float baseX_  = 0.0f;
+    float baseY_  = 0.0f;
+    float rotRad_ = 0.0f;
 
     std::unordered_map<std::string, int,
         TransparentStringHash, TransparentStringEqual> spanMap_;

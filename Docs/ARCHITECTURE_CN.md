@@ -12,6 +12,8 @@ manosaba-plus/
 │   ├── Application.cpp                        # 应用初始化与主循环
 │   ├── main.cpp                               # 应用程序入口点
 │   └── Scene/
+│       ├── GameScene.h                        # 游戏场景接口
+│       ├── GameScene.cpp                      # 游戏场景接口
 │       ├── DemoScene.h                        # 演示场景接口
 │       └── DemoScene.cpp                      # 演示场景实现
 │

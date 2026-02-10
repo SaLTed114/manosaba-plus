@@ -19,6 +19,8 @@ enum class HitAction : uint8_t {
 };
 
 struct Transform2D {
+    bool hasTransform = false;
+
     float rotRad = 0.0f;
     float scaleX = 1.0f;
     float scaleY = 1.0f;
@@ -70,10 +72,15 @@ struct TextOp {
 
 struct HitOp {
     HitKey key = 0;
-    Render::RectF rect{};
+    Render::RectF rect{}; // AABB hitbox
     HitAction action = HitAction::None;
     bool enabled = true;
     bool visible = true;
+
+    // Precise hitbox (OBB)
+    bool hasTransform = false;
+    Render::RectF baseRect{};
+    Transform2D transform{};
 };
 
 struct UIFrame {

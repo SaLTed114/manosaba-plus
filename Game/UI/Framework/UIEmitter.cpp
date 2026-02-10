@@ -36,9 +36,17 @@ void UIEmitter::Emit(Render::DrawList& drawList,
             static_cast<float>(text.baked.w),
             static_cast<float>(text.baked.h)
         };
-        drawList.PushSprite(text.layer,
+        
+        auto& item = drawList.PushSprite(text.layer,
             text.baked.tex.SRV(),
             dst, text.z, {}, text.tint);
+
+        item.hasTransform = text.transform.hasTransform;
+        item.rotRad = text.transform.rotRad;
+        item.scaleX = text.transform.scaleX;
+        item.scaleY = text.transform.scaleY;
+        item.pivotX = text.transform.pivotX;
+        item.pivotY = text.transform.pivotY;
     }
 }
 
