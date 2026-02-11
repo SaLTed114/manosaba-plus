@@ -43,16 +43,12 @@ void StageWorld::Initialize(const Story::StoryTables* tables, RenderBridge::Text
     cards_.clear();
     anchors_.clear();
 
-    camera_.SetPosition({0.0f, 1.4f, 0.0f});
-    camera_.SetFovY(60.0f * XM_PI / 180.0f);
-    camera_.SetClip(0.1f, 100.0f);
-    // camera_.LookAt({0.0f, 1.2f, 0.0f});
 }
 
-bool StageWorld::FindAnchor(const std::string_view& castId, DirectX::XMFLOAT3& outHead) const {
+bool StageWorld::FindAnchor(const std::string_view& castId, Anchor& outHead) const {
     const auto it = anchors_.find(std::string(castId));
     if (it == anchors_.end()) return false;
-    outHead = it->second.head;
+    outHead = it->second;
     return true;
 }
 
@@ -160,8 +156,15 @@ void StageWorld::LoadStage(const RHI::DX11::DX11Device& device, std::string_view
 
         cards_.push_back(charItem);
 
+        auto NormalizeXZ = [](XMFLOAT3 v) {
+            float len = std::sqrt(v.x*v.x + v.z*v.z);
+            if (len < 1e-6f) return XMFLOAT3{0.0f, 0.0f, 1.0f};
+            return XMFLOAT3{v.x / len, 0.0f, v.z / len};
+        };
+
         Anchor anchor{};
         anchor.head = {x, cy + cast->headY, z};
+        anchor.outward = NormalizeXZ({x - cx, 0.0f, z - cz});
         anchors_[cast->id] = anchor;
     }
 }

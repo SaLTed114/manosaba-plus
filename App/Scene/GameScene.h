@@ -9,6 +9,7 @@
 #include "Render/DX11Renderer.h"
 #include "Render/RenderPlan.h"
 #include "Render/Draw/DrawList.h"
+#include "Render/Scene3D/Camera3D.h"
 #include "RHI/DX11/DX11Texture2D.h"
 
 #include "Core/Time/FrameClock.h"
@@ -22,6 +23,7 @@
 #include "Game/RenderBridge/TextureService.h"
 #include "Game/RenderBridge/TextureCatalog.h"
 #include "Game/Director/StageWorld.h"
+#include "Game/Director/StageCameraDirector.h"
 
 namespace Salt2D::App {
 
@@ -52,6 +54,9 @@ private:
     RHI::DX11::DX11Texture2D checker_;
 
     Game::Director::StageWorld stage_;
+
+    Game::Director::StageCameraDirector director_;
+    Render::Scene3D::Camera3D camera_;
 };
 
 } // namespace Salt2D::App

@@ -76,6 +76,12 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
 
     stage_.Initialize(&session_.Tables(), &texCatalog_);
     stage_.LoadStage(device, "inquisition");
+
+    camera_.SetPosition({0.0f, 1.4f, 0.0f});
+    camera_.SetFovY(60.0f * XM_PI / 180.0f);
+    camera_.SetClip(0.1f, 100.0f);
+
+    director_.Initialize(&stage_, &session_.Tables(), &camera_);
 }
 
 // ========================= End of Initialization ==========================
@@ -92,6 +98,8 @@ void GameScene::Update(
     screens_.Tick(ft, in, canvasW, canvasH);
     screens_.Bake(device, text_);
     screens_.PostBake(in, canvasW, canvasH);
+
+    director_.Tick(session_.Player(), ft);
 
     // static float angle_ = 0.0f;
     // float t = static_cast<float>(ft.totalSec);
@@ -110,8 +118,8 @@ void GameScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sce
     // frame.proj     = XMMatrixIdentity();
     // frame.viewProj = XMMatrixIdentity();
 
-    frame.view     = stage_.Camera().GetView();
-    frame.proj     = stage_.Camera().GetProj(sceneW, sceneH);
+    frame.view     = camera_.GetView();
+    frame.proj     = camera_.GetProj(sceneW, sceneH);
     frame.viewProj = XMMatrixMultiply(frame.view, frame.proj);
 }
 

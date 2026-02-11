@@ -22,6 +22,11 @@ namespace Salt2D::Render {
 
 namespace Salt2D::Game::Director {
 
+struct Anchor {
+    DirectX::XMFLOAT3 head{};
+    DirectX::XMFLOAT3 outward{};
+};
+
 class StageWorld {
 public:
     void Initialize(const Story::StoryTables* tables, RenderBridge::TextureCatalog* catalog);
@@ -32,17 +37,9 @@ public:
 
     std::span<const Render::CardDrawItem> Cards() const { return cards_; }
 
-    Render::Scene3D::Camera3D& Camera() { return camera_; }
-    const Render::Scene3D::Camera3D& Camera() const { return camera_; }
-
-    bool FindAnchor(const std::string_view& castId, DirectX::XMFLOAT3& outHead) const;
+    bool FindAnchor(const std::string_view& castId, Anchor& outHead) const;
 
     void EmitBackground(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) const;
-
-private:
-    struct Anchor {
-        DirectX::XMFLOAT3 head{};
-    };
 
 private:
     const Story::StoryTables* tables_ = nullptr;
@@ -52,8 +49,6 @@ private:
     std::unordered_map<std::string, Anchor> anchors_; // by cast ID
 
     RenderBridge::TextureRef bgTex_{};
-
-    Render::Scene3D::Camera3D camera_;
 };
 
 } // namespace Salt2D::Game::Director
