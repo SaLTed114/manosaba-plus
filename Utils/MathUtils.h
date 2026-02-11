@@ -44,6 +44,35 @@ inline T Clamp(T value, T minValue, T maxValue) {
     return (std::max)(minValue, (std::min)(value, maxValue));
 }
 
+/// <summary> 
+/// Clamps a value between 0 and 1 (inclusive).
+/// </summary>
+template<typename T>
+inline T Clamp01(T value) {
+    return Clamp(value, static_cast<T>(0), static_cast<T>(1));
+}
+
+/// <summary>
+/// Linearly interpolates between a and b by t (0 <= t <= 1).
+/// </summary>
+/// <param name="a">The start value</param>
+/// <param name="b">The end value</param>
+/// <param name="t">The interpolation factor (0 <= t <= 1)</param>
+/// <returns>The interpolated value</returns>
+template<typename T>
+inline T Lerp(T a, T b, float t) {
+    return a + (b - a) * t;
+}
+
+/// <summary>
+/// Converts degrees to radians.
+/// </summary> 
+/// <param name="deg">Angle in degrees</param>
+/// <returns>Angle in radians</returns
+inline float DegToRad(float deg) {
+    return deg * (3.14159265358979323846f / 180.0f);
+}
+
 } // namespace Salt2D::Utils
 
 #endif // UTILS_MATHUTILS_H

@@ -17,6 +17,16 @@
 
           "motion": { "type": "linear" }
         }
+      },
+      "stage": {
+        "camera": {
+          "space": "anchor",
+          "start": { "dist": 1.5, "lift_y": 0.30, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "end":   { "dist": 2.0, "lift_y": 0.12, "side_x": 0.0, "fov_y_deg": 60.0 },
+          "target_list_y": 0.05,
+
+          "motion": { "type": "linear" }
+        }
       }
     },
     {
@@ -33,6 +43,16 @@
             "mode": "slope",
             "keep_upright": true
           },
+
+          "motion": { "type": "linear" }
+        }
+      },
+      "stage": {
+        "camera": {
+          "space": "anchor",
+          "start": { "dist": 2.0, "lift_y": 0.15, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "end":   { "dist": 1.5, "lift_y": 0.12, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "target_list_y": 0.05,
 
           "motion": { "type": "linear" }
         }
@@ -55,6 +75,16 @@
 
           "motion": { "type": "linear" }
         }
+      },
+      "stage": {
+        "camera": {
+          "space": "anchor",
+          "start": { "dist": 2.2, "lift_y": 0.12, "side_x": -0.05, "fov_y_deg": 55.0 },
+          "end":   { "dist": 2.0, "lift_y": 0.12, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "target_list_y": 0.05,
+
+          "motion": { "type": "linear" }
+        }
       }
     },
     {
@@ -72,6 +102,16 @@
             "keep_upright": true,
             "fixed_rad": 0.0
           },
+
+          "motion": { "type": "linear" }
+        }
+      },
+      "stage": {
+        "camera": {
+          "space": "anchor",
+          "start": { "dist": 2.0, "lift_y": 0.20, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "end":   { "dist": 1.8, "lift_y": 0.12, "side_x": 0.1, "fov_y_deg": 55.0 },
+          "target_list_y": 0.05,
 
           "motion": { "type": "linear" }
         }

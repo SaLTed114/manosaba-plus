@@ -2,6 +2,7 @@
 #ifndef GAME_STORY_RESOURCES_PERFORMANCEDEF_H
 #define GAME_STORY_RESOURCES_PERFORMANCEDEF_H
 
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -34,6 +35,11 @@ enum class MotionType : uint8_t {
     Linear = 0,
 };
 
+enum class CameraSpace : uint8_t {
+    Anchor = 0,
+    // World = 1, // future expansion
+};
+
 struct RotationPolicy {
     RotateMode mode  = RotateMode::Slope;
     bool keepUpright = true;
@@ -56,15 +62,36 @@ struct DebateTextTrack2D {
     MotionPolicy motion{};
 };
 
+struct StageCameraPoseAnchor {
+    // eye = head + face * dist + up * liftY + right * sideX
+    float dist = 2.0f;
+    float liftY = 0.12f;
+    float sideX = 0.0f;
+    float fovYDeg = 55.0f;
+};
+
+struct StageCameraTrack {
+    CameraSpace space = CameraSpace::Anchor;
+
+    StageCameraPoseAnchor start{};
+    StageCameraPoseAnchor end{};
+
+    float targetListY = 0.05f; // look = head + up * targetListY
+    MotionPolicy motion{};
+};
+
 struct HudPerformance {
     std::optional<DebateTextTrack2D> debateTextTrack;
+};
+
+struct StagePerformance {
+    std::optional<StageCameraTrack> cameraTrack;
 };
 
 struct PerformanceDef {
     std::string id;
     HudPerformance hud;
-
-    // placeholder for future camera/stage track definitions
+    StagePerformance stage;
 };
 
 struct PerformanceTable {

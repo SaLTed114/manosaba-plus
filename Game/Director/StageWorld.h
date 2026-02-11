@@ -24,7 +24,8 @@ namespace Salt2D::Game::Director {
 
 struct Anchor {
     DirectX::XMFLOAT3 head{};
-    DirectX::XMFLOAT3 outward{};
+    DirectX::XMFLOAT3 face{};       // face toward center
+    DirectX::XMFLOAT3 radialOut{};  // face outward
 };
 
 class StageWorld {

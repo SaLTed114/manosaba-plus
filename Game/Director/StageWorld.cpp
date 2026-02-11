@@ -164,7 +164,8 @@ void StageWorld::LoadStage(const RHI::DX11::DX11Device& device, std::string_view
 
         Anchor anchor{};
         anchor.head = {x, cy + cast->headY, z};
-        anchor.outward = NormalizeXZ({x - cx, 0.0f, z - cz});
+        anchor.radialOut = NormalizeXZ({x - cx, 0.0f, z - cz});
+        anchor.face = {-anchor.radialOut.x, 0.0f, -anchor.radialOut.z};
         anchors_[cast->id] = anchor;
     }
 }
