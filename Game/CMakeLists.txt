@@ -10,6 +10,7 @@ set(GAME_SOURCES
     Story/Resources/ChoiceDefLoader.cpp
     Story/Resources/PerformanceDefLoader.cpp
     Story/Resources/CastDefLoader.cpp
+    Story/Resources/StageDefLoader.cpp
     Story/Runners/VnRunner.cpp
     Story/Runners/PresentRunner.cpp
     Story/Runners/DebateRunner.cpp
@@ -28,6 +29,7 @@ set(GAME_SOURCES
     UI/Widgets/TimerWidget.cpp
     RenderBridge/TextService.cpp
     RenderBridge/TextureService.cpp
+    RenderBridge/TextureCatalog.cpp
     Screens/VnScreen.cpp
     Screens/DebateScreen.cpp
     Screens/PresentScreen.cpp

@@ -1,0 +1,27 @@
+{
+  "stages": [
+    {
+      "id": "inquisition",
+
+      "ring": {
+        "podium_count": 13,
+        "radius": 5.0,
+        "center_x": 0.0,
+        "center_y": 0.0,
+        "center_z": 0.0,
+        "yaw_offset_rad": 0.0
+      },
+
+      "podium_image": "Image/podium.png",
+
+      "bg_mode": "PlaceholderBG",
+      "bg_image": "Image/background.png",
+
+      "slots": [
+        { "cast_id": "sakuraba_emma", "podium": 0 },
+        { "cast_id": "nikaidou_hiro", "podium": 1 },
+        { "cast_id": "tsukishiro_yuki", "podium": 7 }
+      ]
+    }
+  ]
+}

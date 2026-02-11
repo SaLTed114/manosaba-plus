@@ -4,12 +4,14 @@
 
 #include "Game/Story/Resources/PerformanceDef.h"
 #include "Game/Story/Resources/CastDef.h"
+#include "Game/Story/Resources/StageDef.h"
 
 namespace Salt2D::Game::Story {
 
 struct StoryTables {
     PerformanceTable perf;
     CastTable cast;
+    StageTable stage;
     // placeholder for more tables like Present Catalog, etc.
 };
 

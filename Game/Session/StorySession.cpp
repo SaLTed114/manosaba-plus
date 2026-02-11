@@ -3,23 +3,12 @@
 #include "Game/Story/StoryGraphLoader.h"
 #include "Game/Story/Resources/PerformanceDefLoader.h"
 #include "Game/Story/Resources/CastDefLoader.h"
+#include "Game/Story/Resources/StageDefLoader.h"
 #include "Utils/FileUtils.h"
 
 #include <Windows.h>
 
 namespace Salt2D::Game::Session {
-
-// tmp: dump cast table to debug output
-static void DumpCastTable(const Story::CastTable& table, const Logger& logger) {
-    for (const auto& [id, def] : table.byId) {
-        std::string line = "Cast: id=" + id + " name=" + def.name + " aliases=[";
-        for (const auto& alias : def.aliases) {
-            line += alias + ",";
-        }
-        line += "]";
-        logger.Debug("StorySession", line);
-     }
-}
 
 StorySession::StorySession(Utils::DiskFileSystem& fs) : fs_(fs) {}
 
@@ -38,7 +27,9 @@ void StorySession::Initialize(const std::filesystem::path& storyRoot, const std:
 
     const auto castTablePath = storyRoot_ / "Cast/cast_table.json";
     tables_.cast = Story::LoadCastTable(fs_, castTablePath);
-    DumpCastTable(tables_.cast, logger_);
+
+    const auto stageTablePath = storyRoot_ / "Stage/stage_table.json";
+    tables_.stage = Story::LoadStageTable(fs_, stageTablePath);
 
     const auto fullGraphPath = storyRoot_ / graphPath;
     graph_ = Story::LoadStoryGraph(fs_, fullGraphPath);
