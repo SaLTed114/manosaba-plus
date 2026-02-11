@@ -87,8 +87,13 @@ BakedText TextBaker::BakeToTexture(
     ThrowIfFailed(textLayout->GetMetrics(&textMetrics),
         "TextBaker::BakeText: GetMetrics failed.");
 
-    uint32_t texW = static_cast<uint32_t>(std::ceil(textMetrics.widthIncludingTrailingWhitespace)) + 2;
-    uint32_t texH = static_cast<uint32_t>(std::ceil(textMetrics.height)) + 2;
+    const int radius = (style.outlinePx > 0.0f) ? static_cast<int>(std::ceil(style.outlinePx)) : 0;
+    const int basePad   = 1;
+    const int filterPad = 1;
+    const int pad = basePad + filterPad + radius;
+
+    uint32_t texW = static_cast<uint32_t>(std::ceil(textMetrics.widthIncludingTrailingWhitespace)) + 2 * pad;
+    uint32_t texH = static_cast<uint32_t>(std::ceil(textMetrics.height)) + 2 * pad;
     texW = (std::max)(texW, 1u);
     texH = (std::max)(texH, 1u);
 
@@ -122,7 +127,23 @@ BakedText TextBaker::BakeToTexture(
     d2dRenderTarget->BeginDraw();
     d2dRenderTarget->Clear(D2D1::ColorF{0,0,0,0});
 
-    D2D1_POINT_2F origin{1.0f, 1.0f};
+    D2D1_POINT_2F origin{static_cast<float>(pad), static_cast<float>(pad)};
+
+    if (radius > 0) {
+        brush->SetColor(D2D1::ColorF{0,0,0,1});
+        const int r2 = radius * radius;
+        for (int dy = -radius; dy <= radius; ++dy) {
+            for (int dx = -radius; dx <= radius; ++dx) {
+                if (dx == 0 && dy == 0) continue;
+                if (dx*dx + dy*dy > r2) continue;
+                D2D1_POINT_2F offset{static_cast<float>(pad + dx), static_cast<float>(pad + dy)};
+                d2dRenderTarget->DrawTextLayout(offset,
+                    textLayout.Get(), brush.Get(), D2D1_DRAW_TEXT_OPTIONS_NONE);
+            }
+        }
+    }
+
+    brush->SetColor(D2D1::ColorF{1,1,1,1});
     d2dRenderTarget->DrawTextLayout(origin, textLayout.Get(), brush.Get(), D2D1_DRAW_TEXT_OPTIONS_NONE);
 
     HRESULT hr = d2dRenderTarget->EndDraw();
@@ -162,12 +183,17 @@ BakedText TextBaker::BakeToTexture(
             const uint8_t r = src[col * 4 + 2];
             const uint8_t a = src[col * 4 + 3];
 
-            uint8_t cov = (std::max)({a, r, g, b});
+            uint8_t outR = 0, outG = 0, outB = 0;
+            if (a != 0) {
+                outR = static_cast<uint8_t>((std::min)(255u, static_cast<uint32_t>(r) * 255u / static_cast<uint32_t>(a)));
+                outG = static_cast<uint8_t>((std::min)(255u, static_cast<uint32_t>(g) * 255u / static_cast<uint32_t>(a)));
+                outB = static_cast<uint8_t>((std::min)(255u, static_cast<uint32_t>(b) * 255u / static_cast<uint32_t>(a)));
+            }
 
-            dst[col * 4 + 0] = 255;
-            dst[col * 4 + 1] = 255;
-            dst[col * 4 + 2] = 255;
-            dst[col * 4 + 3] = cov;
+            dst[col * 4 + 0] = outR;
+            dst[col * 4 + 1] = outG;
+            dst[col * 4 + 2] = outB;
+            dst[col * 4 + 3] = a;
         }
     }
 

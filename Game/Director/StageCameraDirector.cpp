@@ -160,6 +160,8 @@ void StageCameraDirector::Tick(const Story::StoryPlayer& player, const Core::Fra
         camera_->SetPosition(sample.eye);
         camera_->LookAt(sample.target);
 
+        InvalidateLP();
+
         break;
     }
     case Story::NodeType::Debate: {

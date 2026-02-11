@@ -15,8 +15,8 @@ struct CameraDirectorConfig {
     float liftY = 0.15f;
 
     // lowpass filter for camera movement to reduce jitter
-    float tauEyeSec = 0.60f;
-    float tauTargetSec = 0.50f;
+    float tauEyeSec = 0.20f;
+    float tauTargetSec = 0.15f;
     float tauFovSec = 0.18f;
     
     float snapDist = 3.0f;

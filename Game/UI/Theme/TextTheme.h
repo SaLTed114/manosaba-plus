@@ -31,11 +31,13 @@ struct TextTheme {
         debateBody.fontFamily = L"SimSun";
         debateBody.fontSize   = 70.0f;
         debateBody.weight     = DWRITE_FONT_WEIGHT_MEDIUM;
+        debateBody.outlinePx  = 4.0f;
 
         auto& debateSus = styles[static_cast<size_t>(TextStyleId::DebateSus)];
         debateSus.fontFamily = L"SimSun";
         debateSus.fontSize   = 80.0f;
         debateSus.weight     = DWRITE_FONT_WEIGHT_MEDIUM;
+        debateSus.outlinePx  = 5.0f;
 
         auto& presentPrompt = styles[static_cast<size_t>(TextStyleId::PresentPrompt)];
         presentPrompt.fontFamily = L"SimSun";
@@ -93,7 +95,7 @@ struct TextTheme {
         presentShowRest.weight     = DWRITE_FONT_WEIGHT_EXTRA_BOLD;
 
         auto& timer = styles[static_cast<size_t>(TextStyleId::Timer)];
-        timer.fontFamily = L"SimSun";
+        timer.fontFamily = L"Microsoft YaHei";
         timer.fontSize   = 40.0f;
         timer.weight     = DWRITE_FONT_WEIGHT_BOLD;
     }

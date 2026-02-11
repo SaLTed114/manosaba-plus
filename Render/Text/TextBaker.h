@@ -28,6 +28,8 @@ struct TextStyle {
 
     float lineHeightScale = 0.0f;
     float baselineScale = 1.0f;
+
+    float outlinePx = 0.0f;
 };
 
 struct BakedText {

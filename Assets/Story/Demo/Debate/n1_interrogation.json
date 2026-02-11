@@ -4,7 +4,7 @@
     { "speaker": "二阶堂 希罗", "text": "既然是模拟审判，\n当然要按流程走。", "pref_id": "debate_normal2" },
     { "speaker": "月代 雪", "text": "当然，趁这个机会\n你也可以问问\n感兴趣的事情哦，艾玛。", "pref_id": "debate_default" },
     { "speaker": "樱羽 艾玛", "text": "可以我感觉{sus:Q1}想不到{/sus}\n什么{sus:Q2}想问的事情{/sus}", "pref_id": "debate_normal1" },
-    { "speaker": "月代 雪", "text": "哦，是吗？", "pref_id": "debate_normal3" }
+    { "speaker": "月代 雪", "text": "哦，是这样吗？", "pref_id": "debate_normal3" }
   ],
   "menus": [
     {
