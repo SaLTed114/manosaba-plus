@@ -88,9 +88,19 @@ manosaba-plus/
 │   │   ├── StoryPlayer.cpp                    # Story orchestration and view management
 │   │   ├── StoryView.h                        # Unified view data structures (VN, Present, Debate, Choice)
 │   │   ├── StoryTimer.h                       # Story timer structure and utilities
+│   │   ├── StoryTables.h                      # Story data tables management (cast, stage, performance)
 │   │   ├── Resources/
 │   │   │   ├── VnScript.h                     # Visual novel script structure
 │   │   │   ├── VnScript.cpp                   # VN script parser
+│   │   │   ├── CastDef.h                      # Cast definition structure (characters)
+│   │   │   ├── CastDefLoader.h                # Cast definition loader interface
+│   │   │   ├── CastDefLoader.cpp              # JSON parsing for cast definitions
+│   │   │   ├── StageDef.h                     # Stage definition structure (3D stage layout)
+│   │   │   ├── StageDefLoader.h               # Stage definition loader interface
+│   │   │   ├── StageDefLoader.cpp             # JSON parsing for stage definitions
+│   │   │   ├── PerformanceDef.h               # Performance definition structure (camera, effects)
+│   │   │   ├── PerformanceDefLoader.h         # Performance definition loader interface
+│   │   │   ├── PerformanceDefLoader.cpp       # JSON parsing for performance definitions
 │   │   │   ├── PresentDef.h                   # Evidence presentation definition
 │   │   │   ├── PresentDefLoader.h             # Present definition loader interface
 │   │   │   ├── PresentDefLoader.cpp           # JSON parsing for present nodes
@@ -112,6 +122,15 @@ manosaba-plus/
 │   │       ├── DebateRunner.cpp               # Statement progression and menu handling
 │   │       ├── ChoiceRunner.h                 # Choice runner interface
 │   │       └── ChoiceRunner.cpp               # Choice option selection and validation
+│   ├── Director/
+│   │   ├── StageWorld.h                       # Stage world management interface
+│   │   ├── StageWorld.cpp                     # 3D stage world state and anchor management
+│   │   ├── StageCameraDirector.h              # Stage camera director interface
+│   │   ├── StageCameraDirector.cpp            # Camera control and positioning logic
+│   │   ├── HudEvaluator.h                     # HUD evaluation interface
+│   │   ├── HudEvaluator.cpp                   # HUD state evaluation and updates
+│   │   └── Filters/
+│   │       └── LowPass.h                      # Low-pass filter for smooth value transitions
 │   └── UI/
 │       ├── UITypes.h                          # UI type definitions
 │       ├── Framework/
@@ -346,10 +365,20 @@ The story system implements a node-based narrative engine supporting visual nove
 - `Story/StoryPlayer.cpp` - Orchestrates runners, updates views, handles user actions
 - `Story/StoryView.h` - Unified view structures for all node types (VN, Present, Debate, Choice)
 - `Story/StoryTimer.h` - Story timer structure and utilities for timed events
+- `Story/StoryTables.h` - Centralized story data table management (cast, stage, performance definitions)
 
 **Resource Definitions**
 - `Story/Resources/VnScript.h` - Visual novel script structure (commands, speaker, text)
 - `Story/Resources/VnScript.cpp` - VN script parser for text-based dialogue files
+- `Story/Resources/CastDef.h` - Cast definition structure (character properties, visual attributes)
+- `Story/Resources/CastDefLoader.h` - Cast definition loader interface
+- `Story/Resources/CastDefLoader.cpp` - JSON parser for character definitions
+- `Story/Resources/StageDef.h` - Stage definition structure (3D stage layout, positions, ring configuration)
+- `Story/Resources/StageDefLoader.h` - Stage definition loader interface
+- `Story/Resources/StageDefLoader.cpp` - JSON parser for stage layout definitions
+- `Story/Resources/PerformanceDef.h` - Performance definition structure (camera tracks, visual effects)
+- `Story/Resources/PerformanceDefLoader.h` - Performance definition loader interface
+- `Story/Resources/PerformanceDefLoader.cpp` - JSON parser for performance/cinematic definitions
 - `Story/Resources/PresentDef.h` - Evidence presentation definition (prompt, items)
 - `Story/Resources/PresentDefLoader.h` - Present definition loader interface
 - `Story/Resources/PresentDefLoader.cpp` - JSON parser for evidence selection nodes
@@ -373,6 +402,18 @@ The story system implements a node-based narrative engine supporting visual nove
 - `Story/Runners/DebateRunner.cpp` - Statement advancement, suspicion menu handling, option validation
 - `Story/Runners/ChoiceRunner.h` - Choice runner interface
 - `Story/Runners/ChoiceRunner.cpp` - Choice option display and selection handling
+
+**Director System**
+
+The director system manages 3D stage presentation, camera control, and HUD state evaluation.
+
+- `Director/StageWorld.h` - Stage world management interface
+- `Director/StageWorld.cpp` - 3D stage world state, character positioning, anchor management
+- `Director/StageCameraDirector.h` - Stage camera director interface
+- `Director/StageCameraDirector.cpp` - Cinematic camera control, interpolation, anchor-based positioning
+- `Director/HudEvaluator.h` - HUD evaluation interface
+- `Director/HudEvaluator.cpp` - Evaluates and updates HUD state based on story context
+- `Director/Filters/LowPass.h` - Low-pass filter template for smooth value transitions
 
 **UI System**
 - `UI/UITypes.h` - UI type definitions and common structures

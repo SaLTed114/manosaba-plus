@@ -90,9 +90,19 @@ manosaba-plus/
 │   │   ├── StoryPlayer.cpp                    # 故事编排与视图管理
 │   │   ├── StoryView.h                        # 统一视图数据结构（VN、Present、Debate、Choice）
 │   │   ├── StoryTimer.h                       # 故事计时器结构与工具
+│   │   ├── StoryTables.h                      # 故事数据表管理（角色、舞台、表演）
 │   │   ├── Resources/
 │   │   │   ├── VnScript.h                     # 视觉小说脚本结构
 │   │   │   ├── VnScript.cpp                   # VN 脚本解析器
+│   │   │   ├── CastDef.h                      # 角色定义结构（角色）
+│   │   │   ├── CastDefLoader.h                # 角色定义加载器接口
+│   │   │   ├── CastDefLoader.cpp              # 角色定义 JSON 解析
+│   │   │   ├── StageDef.h                     # 舞台定义结构（3D 舞台布局）
+│   │   │   ├── StageDefLoader.h               # 舞台定义加载器接口
+│   │   │   ├── StageDefLoader.cpp             # 舞台定义 JSON 解析
+│   │   │   ├── PerformanceDef.h               # 表演定义结构（相机、特效）
+│   │   │   ├── PerformanceDefLoader.h         # 表演定义加载器接口
+│   │   │   ├── PerformanceDefLoader.cpp       # 表演定义 JSON 解析
 │   │   │   ├── PresentDef.h                   # 证据出示定义
 │   │   │   ├── PresentDefLoader.h             # Present 定义加载器接口
 │   │   │   ├── PresentDefLoader.cpp           # Present 节点 JSON 解析
@@ -114,6 +124,15 @@ manosaba-plus/
 │   │       ├── DebateRunner.cpp               # 陈述推进与菜单处理
 │   │       ├── ChoiceRunner.h                 # 选择运行器接口
 │   │       └── ChoiceRunner.cpp               # 选择选项选择与验证
+│   ├── Director/
+│   │   ├── StageWorld.h                       # 舞台世界管理接口
+│   │   ├── StageWorld.cpp                     # 3D 舞台世界状态与锚点管理
+│   │   ├── StageCameraDirector.h              # 舞台相机导演接口
+│   │   ├── StageCameraDirector.cpp            # 相机控制与定位逻辑
+│   │   ├── HudEvaluator.h                     # HUD 评估接口
+│   │   ├── HudEvaluator.cpp                   # HUD 状态评估与更新
+│   │   └── Filters/
+│   │       └── LowPass.h                      # 低通滤波器，用于平滑值过渡
 │   └── UI/
 │       ├── UITypes.h                          # UI 类型定义
 │       ├── Framework/
@@ -348,10 +367,20 @@ manosaba-plus/
 - `Story/StoryPlayer.cpp` - 编排运行器、更新视图、处理用户操作
 - `Story/StoryView.h` - 所有节点类型的统一视图结构（VN、Present、Debate、Choice）
 - `Story/StoryTimer.h` - 故事计时器结构与工具，用于定时事件
+- `Story/StoryTables.h` - 集中式故事数据表管理（角色、舞台、表演定义）
 
 **资源定义**
 - `Story/Resources/VnScript.h` - 视觉小说脚本结构（命令、说话人、文本）
 - `Story/Resources/VnScript.cpp` - 基于文本的对话文件的 VN 脚本解析器
+- `Story/Resources/CastDef.h` - 角色定义结构（角色属性、视觉特征）
+- `Story/Resources/CastDefLoader.h` - 角色定义加载器接口
+- `Story/Resources/CastDefLoader.cpp` - 角色定义的 JSON 解析器
+- `Story/Resources/StageDef.h` - 舞台定义结构（3D 舞台布局、位置、环形配置）
+- `Story/Resources/StageDefLoader.h` - 舞台定义加载器接口
+- `Story/Resources/StageDefLoader.cpp` - 舞台布局定义的 JSON 解析器
+- `Story/Resources/PerformanceDef.h` - 表演定义结构（相机轨道、视觉效果）
+- `Story/Resources/PerformanceDefLoader.h` - 表演定义加载器接口
+- `Story/Resources/PerformanceDefLoader.cpp` - 表演/过场定义的 JSON 解析器
 - `Story/Resources/PresentDef.h` - 证据出示定义（提示、项目）
 - `Story/Resources/PresentDefLoader.h` - Present 定义加载器接口
 - `Story/Resources/PresentDefLoader.cpp` - 证据选择节点的 JSON 解析器
@@ -375,6 +404,18 @@ manosaba-plus/
 - `Story/Runners/DebateRunner.cpp` - 陈述推进、可疑点菜单处理、选项验证
 - `Story/Runners/ChoiceRunner.h` - 选择运行器接口
 - `Story/Runners/ChoiceRunner.cpp` - 选择选项显示与选择处理
+
+**导演系统（Director）**
+
+导演系统管理 3D 舞台演出、相机控制和 HUD 状态评估。
+
+- `Director/StageWorld.h` - 舞台世界管理接口
+- `Director/StageWorld.cpp` - 3D 舞台世界状态、角色定位、锚点管理
+- `Director/StageCameraDirector.h` - 舞台相机导演接口
+- `Director/StageCameraDirector.cpp` - 电影式相机控制、插值、基于锚点的定位
+- `Director/HudEvaluator.h` - HUD 评估接口
+- `Director/HudEvaluator.cpp` - 基于故事上下文评估和更新 HUD 状态
+- `Director/Filters/LowPass.h` - 低通滤波器模板，用于平滑值过渡
 
 **UI 系统**
 - `UI/UITypes.h` - UI 类型定义与通用结构
