@@ -42,7 +42,7 @@ struct StageDef {
 struct StageTable {
     std::unordered_map<std::string, StageDef> byId;
 
-    const StageDef* FindById(std::string_view id) const {
+    const StageDef* Find(std::string_view id) const {
         auto it = byId.find(std::string(id));
         return it != byId.end() ? &it->second : nullptr;
     }

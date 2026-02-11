@@ -21,6 +21,7 @@
 #include "Game/RenderBridge/TextService.h"
 #include "Game/RenderBridge/TextureService.h"
 #include "Game/RenderBridge/TextureCatalog.h"
+#include "Game/Director/StageWorld.h"
 
 namespace Salt2D::App {
 
@@ -50,8 +51,7 @@ private:
     RHI::DX11::DX11Texture2D white1x1_;
     RHI::DX11::DX11Texture2D checker_;
 
-    // tmp
-    RHI::DX11::DX11Texture2D background_;
+    Game::Director::StageWorld stage_;
 };
 
 } // namespace Salt2D::App

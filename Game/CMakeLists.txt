@@ -1,6 +1,7 @@
 set(GAME_SOURCES
     Common/Logger.cpp
     Director/HudEvaluator.cpp
+    Director/StageWorld.cpp
     Story/StoryGraphLoader.cpp
     Story/StoryPlayer.cpp
     Story/StoryRuntime.cpp

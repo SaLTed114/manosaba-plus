@@ -2,6 +2,7 @@
 #include "GameScene.h"
 
 #include "Render/Passes/SceneSpritePass.h"
+#include "Render/Passes/CardPass.h"
 #include "Render/Passes/ComposePass.h"
 #include "Resources/Image/WICImageLoader.h"
 
@@ -64,18 +65,17 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
 
     texService_.SetMissing(Game::UI::TextureId::Checker);
 
+    texCatalog_.SetAssetsRoot("Assets/");
+    texCatalog_.SetMissing({ checker_.SRV(), 64, 64, true });
+    // TODO: catalog settings like missing texture and logger
+
     auto storyRoot = std::filesystem::path("Assets/Story/Demo/");
     auto graphPath = std::filesystem::path("demo_story.graph.json");
     session_.Initialize(storyRoot, graphPath, "n0_intro");
     screens_.Initialize(&session_.Player(), &session_.History(), &session_.Tables());
 
-    // tmp
-    Resources::ImageRGBA8 bgImg;
-    std::filesystem::path bgPath = "Assets/Image/background.png";
-    if (!Resources::LoadImageRGBA8_WIC(bgPath.string(), bgImg)) {
-        throw std::runtime_error("Failed to load image in GameScene: " + bgPath.string());
-    }
-    background_ = RHI::DX11::DX11Texture2D::CreateRGBA8(device, bgImg.width, bgImg.height, bgImg.pixels.data(), bgImg.rowPitch);
+    stage_.Initialize(&session_.Tables(), &texCatalog_);
+    stage_.LoadStage(device, "inquisition");
 }
 
 // ========================= End of Initialization ==========================
@@ -92,6 +92,11 @@ void GameScene::Update(
     screens_.Tick(ft, in, canvasW, canvasH);
     screens_.Bake(device, text_);
     screens_.PostBake(in, canvasW, canvasH);
+
+    // static float angle_ = 0.0f;
+    // float t = static_cast<float>(ft.totalSec);
+    // angle_ += static_cast<float>(ft.dtSec) * 0.2f;
+    // stage_.Camera().SetYawPitchRoll(angle_, sinf(t) * 0.02f, cos(t) * 0.01f);
 }
 
 // ========================= End of Update Functions ==========================
@@ -99,25 +104,23 @@ void GameScene::Update(
 
 // ======================== Begin of Render Functions ==========================
 
-void GameScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t /*sceneW*/, uint32_t /*sceneH*/) {
+void GameScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sceneW, uint32_t sceneH) {
     // VN MVP doesn't need a 3D camera; keep identity.
-    frame.view     = XMMatrixIdentity();
-    frame.proj     = XMMatrixIdentity();
-    frame.viewProj = XMMatrixIdentity();
+    // frame.view     = XMMatrixIdentity();
+    // frame.proj     = XMMatrixIdentity();
+    // frame.viewProj = XMMatrixIdentity();
+
+    frame.view     = stage_.Camera().GetView();
+    frame.proj     = stage_.Camera().GetProj(sceneW, sceneH);
+    frame.viewProj = XMMatrixMultiply(frame.view, frame.proj);
 }
 
 void GameScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
     (void)canvasW; (void)canvasH;
 
+    // stage_.EmitBackground(drawList, canvasW, canvasH);
     screens_.EmitDraw(drawList, texService_);
 
-    // tmp
-    const float magicScale = 1080.0f / 2048.0f; // scale down the 4096x2048 background to fit 1080p height
-    const float magicW = static_cast<float>(background_.GetWidth())  * magicScale;
-    const float magicH = static_cast<float>(background_.GetHeight()) * magicScale;
-    const float magicOffset = -90.0f; // center the background better (this is a very rough adjustment for the demo story graph)
-    drawList.PushSprite(Render::Layer::Background, background_.SRV(),
-        Render::RectF{magicOffset,0,magicW,magicH}, 0.0f);
 }
 
 void GameScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& drawList) {
@@ -130,6 +133,9 @@ void GameScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& draw
     auto p0 = std::make_unique<SpritePass>("Scene_BG_2D", Target::Scene, DepthMode::Off, BlendMode::Alpha, bg);
     p0->SetClearScene(0.15f, 0.15f, 0.18f, 1.0f);
     plan.passes.push_back(std::move(p0));
+
+    auto pCard = std::make_unique<CardPass>("Scene_Cards_2D", Target::Scene, DepthMode::RW, BlendMode::Alpha, stage_.Cards());
+    plan.passes.push_back(std::move(pCard));
 
     // Compose scene to backbuffer
     auto p1 = std::make_unique<ComposePass>("Compose");

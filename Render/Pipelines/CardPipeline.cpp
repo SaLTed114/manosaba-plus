@@ -63,6 +63,7 @@ void CardPipeline::Initialize(const RHI::DX11::DX11Device& device, ShaderManager
     rastDesc.FillMode = D3D11_FILL_SOLID;
     rastDesc.CullMode = D3D11_CULL_NONE;
     rastDesc.DepthClipEnable = TRUE;
+    rastDesc.FrontCounterClockwise = TRUE;
 
     ThrowIfFailed(d3dDevice->CreateRasterizerState(&rastDesc, rast_.GetAddressOf()),
         "CardPipeline::Initialize: CreateRasterizerState failed.");

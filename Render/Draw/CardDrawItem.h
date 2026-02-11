@@ -13,6 +13,9 @@ struct CardDrawItem {
     float yaw = 0.0f;
     DirectX::XMFLOAT2 size{1.0f, 1.6f};
     float alphaCut = 0.5f;
+
+    bool flipX = false;
+    bool flipY = false;
 };
 
 } // namespace Salt2D::Render

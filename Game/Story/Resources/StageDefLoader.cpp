@@ -69,7 +69,7 @@ StageTable LoadStageTable(Utils::IFileSystem& fs, const std::filesystem::path& f
         if (def.id.empty()) {
             throw std::runtime_error("StageDefLoader: " + ctx + ".id cannot be empty");
         }
-        if (table.FindById(def.id) != nullptr) {
+        if (table.Find(def.id) != nullptr) {
             throw std::runtime_error("StageDefLoader: duplicate stage id '" + def.id + "' in " + ctx);
         }
 
