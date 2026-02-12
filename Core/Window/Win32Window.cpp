@@ -7,6 +7,73 @@
 
 namespace Salt2D::Core {
 
+static RECT GetMonitorRectFromWindow(HWND hwnd) {
+    HMONITOR hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+    MONITORINFO mi{};
+    mi.cbSize = sizeof(mi);
+    GetMonitorInfo(hMonitor, &mi);
+    return mi.rcMonitor;
+}
+
+void Win32Window::SetCorderlessFullscreen(bool enable) {
+    if (!hwnd_) return;
+    if (enable == borderlessFullscreen_) return;
+
+    if (enable) {
+        // Enter borderless fullscreen
+        windowedStyle_   = static_cast<DWORD>(GetWindowLong(hwnd_, GWL_STYLE));
+        windowedExStyle_ = static_cast<DWORD>(GetWindowLong(hwnd_, GWL_EXSTYLE));
+        GetWindowRect(hwnd_, &windowedRect_);
+
+        RECT monitorRect = GetMonitorRectFromWindow(hwnd_);
+
+        DWORD fullscreenStyle = windowedStyle_;
+        fullscreenStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+        fullscreenStyle |= WS_POPUP;
+
+        DWORD fullscreenExStyle = windowedExStyle_;
+        fullscreenExStyle &= ~(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
+
+        SetWindowLong(hwnd_, GWL_STYLE,   fullscreenStyle);
+        SetWindowLong(hwnd_, GWL_EXSTYLE, fullscreenExStyle);
+
+        SetWindowPos(hwnd_, HWND_TOP,
+            monitorRect.left, monitorRect.top,
+            monitorRect.right - monitorRect.left,
+            monitorRect.bottom - monitorRect.top,
+            SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+    } else {
+        SetWindowLongPtrW(hwnd_, GWL_STYLE,   windowedStyle_);
+        SetWindowLongPtrW(hwnd_, GWL_EXSTYLE, windowedExStyle_);
+
+        SetWindowPos(hwnd_, nullptr,
+            windowedRect_.left, windowedRect_.top,
+            windowedRect_.right - windowedRect_.left,
+            windowedRect_.bottom - windowedRect_.top,
+            SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+    }
+
+    borderlessFullscreen_ = enable;
+}
+
+static UINT GetDpiForWindowCompat(HWND hwnd) {
+    UINT dpi = 96; // Default DPI
+    if (auto pGetDpiForWindow = reinterpret_cast<UINT(*)(HWND)>(
+        GetProcAddress(GetModuleHandleW(L"user32.dll"), "GetDpiForWindow"))) {
+        dpi = pGetDpiForWindow(hwnd);
+    }
+    return dpi;
+}
+
+static void AdjustRectForClientSizeDpi(RECT& rect, DWORD style, DWORD exStyle, UINT dpi) {
+    if (auto pAdjustWindowRectExForDpi = reinterpret_cast<BOOL(*)(RECT*, DWORD, BOOL, DWORD, UINT)>(
+        GetProcAddress(GetModuleHandleW(L"user32.dll"), "AdjustWindowRectExForDpi"))) {
+        pAdjustWindowRectExForDpi(&rect, style, FALSE, exStyle, dpi);
+    } else {
+        AdjustWindowRectEx(&rect, style, FALSE, exStyle);
+    }
+}
+
 void Win32Window::GetClientSize(uint32_t& width, uint32_t& height) const {
     RECT rect{};
     GetClientRect(hwnd_, &rect);
@@ -15,17 +82,33 @@ void Win32Window::GetClientSize(uint32_t& width, uint32_t& height) const {
 }
 
 void Win32Window::SetClientSize(uint32_t width, uint32_t height) {
+    if (!hwnd_) return;
+
+    DWORD style   = static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_STYLE));
+    DWORD exStyle = static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_EXSTYLE));
+    UINT dpi      = GetDpiForWindowCompat(hwnd_);
+
     RECT rect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
-    AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
-    
-    SetWindowPos(hwnd_, nullptr, 0, 0,
-        rect.right - rect.left,
-        rect.bottom - rect.top,
-        SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+    AdjustRectForClientSizeDpi(rect, style, exStyle, dpi);
+
+    RECT windowRect{};
+    GetWindowRect(hwnd_, &windowRect);
+
+    int winW = rect.right - rect.left;
+    int winH = rect.bottom - rect.top;
+
+    SetWindowPos(hwnd_, nullptr,
+        windowRect.left, windowRect.top,
+        winW, winH,
+        SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 Win32Window::Win32Window(const std::string& title, int width, int height)
     : width_(width), height_(height) {
+
+    DWORD style = WS_OVERLAPPEDWINDOW;
+    style &= ~WS_THICKFRAME;
+    style &= ~WS_MAXIMIZEBOX;
 
     WNDCLASS wc = {};
     wc.lpfnWndProc   = Win32Window::WndProc;
@@ -37,12 +120,12 @@ Win32Window::Win32Window(const std::string& title, int width, int height)
     RegisterClass(&wc);
 
     RECT rect = {0, 0, width_, height_};
-    AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+    AdjustWindowRect(&rect, style, FALSE);
 
     std::wstring wtitle(title.begin(), title.end());
     hwnd_ = CreateWindowEx(
         0, wc.lpszClassName, wtitle.c_str(),
-        WS_OVERLAPPEDWINDOW,
+        style,
         CW_USEDEFAULT, CW_USEDEFAULT,
         rect.right - rect.left, rect.bottom - rect.top,
         nullptr, nullptr, wc.hInstance, this
@@ -164,6 +247,7 @@ LRESULT Win32Window::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     // ==== Window Events ====
 
     case WM_SIZE: {
+        if (wParam == SIZE_MINIMIZED) return 0;
         width_  = LOWORD(lParam);
         height_ = HIWORD(lParam);
         if (onResized_) onResized_(static_cast<uint32_t>(width_), static_cast<uint32_t>(height_));
@@ -171,15 +255,27 @@ LRESULT Win32Window::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
     }
 
     case WM_DPICHANGED: {
+        if (borderlessFullscreen_) return 0;
+
         RECT* suggested = reinterpret_cast<RECT*>(lParam);
+
+        UINT dpiX = LOWORD(wParam);
+        float dpiScale = static_cast<float>(dpiX) / 96.0f;
+        if (onDpiChanged_) onDpiChanged_(dpiScale);
+
+        DWORD style   = static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_STYLE));
+        DWORD exStyle = static_cast<DWORD>(GetWindowLongPtr(hwnd_, GWL_EXSTYLE));
+
+        RECT rect = {0, 0, static_cast<LONG>(width_), static_cast<LONG>(height_)};
+        AdjustRectForClientSizeDpi(rect, style, exStyle, dpiX);
+
+        int winW = rect.right - rect.left;
+        int winH = rect.bottom - rect.top;
+
         SetWindowPos(hwnd_, nullptr,
             suggested->left, suggested->top,
-            suggested->right - suggested->left,
-            suggested->bottom - suggested->top,
+            winW, winH,
             SWP_NOZORDER | SWP_NOACTIVATE);
-
-        float dpiScale = static_cast<float>(HIWORD(wParam)) / 96.0f;
-        if (onDpiChanged_) onDpiChanged_(dpiScale);
         return 0;
     }
 

@@ -38,18 +38,27 @@ public:
     void GetClientSize(uint32_t& width, uint32_t& height) const;
     void SetClientSize(uint32_t width, uint32_t height);
 
+    void ToggleBorderlessFullscreen() { SetCorderlessFullscreen(!borderlessFullscreen_); }
+    bool IsBorderlessFullscreen() const { return borderlessFullscreen_; }
+    
     void setOnResized(ResizedCallback callback) { onResized_ = std::move(callback); }
     void setOnDpiChanged(DpiChangedCallback callback) { onDpiChanged_ = std::move(callback); }
-
 
 private:
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+    void SetCorderlessFullscreen(bool enable);
+
 private:
     HWND hwnd_ = nullptr;
     int width_  = 0;
     int height_ = 0;
+
+    bool borderlessFullscreen_ = false;
+    DWORD windowedStyle_   = 0;
+    DWORD windowedExStyle_ = 0;
+    RECT  windowedRect_{};
 
     InputSystem input_;
 

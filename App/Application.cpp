@@ -64,8 +64,28 @@ void Application::Tick(const Core::FrameTime& ft, const Core::InputState& in) {
 void Application::Run() {
     clock_.Reset();
 
+    // tmp: clear after runtime settings are implemented
+    static const struct { uint32_t w, h; } testSizes[] = {
+        { 1280, 720 },
+        { 1920, 1080 },
+        { 2560, 1440 },
+        { 3840, 2160 },
+    };
+    static int resizeIndex = 2;
+
     while (window_->ProcessMessages()) {
         auto& in = window_->GetInputState();
+
+        // tmp: clear after runtime settings are implemented
+        if (in.Pressed(VK_F6)) {
+            resizeIndex = (resizeIndex + 1) % std::size(testSizes);
+            const auto& sz = testSizes[resizeIndex];
+            window_->SetClientSize(sz.w, sz.h);
+        }
+        if (in.Pressed(VK_F11)) {
+            window_->ToggleBorderlessFullscreen();
+        }
+
         auto ft = clock_.Tick();
 
         Tick(ft, in);

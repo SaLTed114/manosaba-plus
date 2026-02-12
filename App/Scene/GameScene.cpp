@@ -126,7 +126,7 @@ void GameScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sce
 void GameScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
     (void)canvasW; (void)canvasH;
 
-    // stage_.EmitBackground(drawList, canvasW, canvasH);
+    stage_.EmitBackground(drawList, canvasW, canvasH);
     screens_.EmitDraw(drawList, texService_);
 
 }
