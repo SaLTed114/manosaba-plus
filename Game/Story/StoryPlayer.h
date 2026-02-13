@@ -46,6 +46,11 @@ public:
     void SetVnAutoMode(bool autoMode) { vnAutoMode_ = autoMode; }
     void ToggleVnAutoMode() { vnAutoMode_ = !vnAutoMode_; }
 
+    bool HistoryOpened() const { return historyOpened_; }
+    void SetHistoryOpened(bool opened) { historyOpened_ = opened; }
+    void OpenHistory() { historyOpened_ = true; }
+    void CloseHistory() { historyOpened_ = false; }
+
     void SetEffectCallback(StoryRuntime::EffectCallback callback) { rt_.SetEffectCallback(std::move(callback)); }
     
     void SetLogger(const Game::Logger* logger) { 
@@ -82,6 +87,8 @@ private:
     StatementTimer stmtTimer_;
     VnAutoTimer vnTimer_;
     bool vnAutoMode_ = false;
+
+    bool historyOpened_ = false;
 
     const Game::Logger* logger_ = nullptr;
 };

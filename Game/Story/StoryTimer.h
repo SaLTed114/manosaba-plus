@@ -49,9 +49,9 @@ struct StatementTimer {
 
 struct VnAutoTimerConfig {
     float baseSec_ = 0.3f;
-    float cps_ = 15.0f;
-    float minSec_ = 0.2f;
-    float maxSec_ = 5.0f;
+    float cps_ = 18.0f;
+    float minSec_ = 0.8f;
+    float maxSec_ = 1.5f;
 };
 
 struct VnAutoTimer {

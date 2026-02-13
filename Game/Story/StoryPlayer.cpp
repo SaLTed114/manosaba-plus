@@ -18,13 +18,13 @@ void StoryPlayer::Tick(double dtSec) {
     float dtGame = static_cast<float>(dtSec) * timeScale_;
 
     const auto& type = rt_.CurrentNode().type;
-    // if (type != NodeType::Debate) return;
-
 
     switch (type) {
     case NodeType::VN:
     case NodeType::BE:
     case NodeType::Error: {
+        if (historyOpened_) { UpdateView(); return; }
+
         vn_.Tick(dtGame, vnTimer_.cfg.cps_);
 
         const auto& state = vn_.State();

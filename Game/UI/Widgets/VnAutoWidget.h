@@ -16,8 +16,8 @@ struct VnAutoConfig {
     Render::Color4F bgOffColor{1.0f, 1.0f, 1.0f, 0.6f};
     Render::Color4F bgHoverColor{1.0f, 0.4f, 0.4f, 0.8f};
     Render::Color4F textColor{1.0f, 1.0f, 1.0f, 1.0f};
-    float zBg = 0.80f;
-    float zText = 0.85f;
+    float zBg = 0.30f;
+    float zText = 0.35f;
 };
 
 class VnAutoWidget {

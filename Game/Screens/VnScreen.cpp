@@ -19,8 +19,8 @@ void VnScreen::HandleKeyboard(Session::ActionFrame& af) {
     const auto confirm = af.actions.ConsumeConfirm();
     const auto cancel = af.actions.ConsumeCancel();
 
-    if (logOpened_) {
-        if (cancel) logOpened_ = false;
+    if (player_->HistoryOpened()) {
+        if (cancel) player_->CloseHistory();
         return;
     }
 
@@ -31,8 +31,8 @@ void VnScreen::HandleKeyboard(Session::ActionFrame& af) {
     }
 
     if (history) {
+        player_->OpenHistory();
         if (history_) history_->DumpToLogger();
-        logOpened_ = true;
         return;
     }
 
@@ -44,8 +44,9 @@ void VnScreen::HandleKeyboard(Session::ActionFrame& af) {
 }
 
 void VnScreen::HandlePointer(Session::ActionFrame& af) {
+    const auto interaction = UI::UIInteraction::Update(frame_, af, pointer_);
+
     if (auto_.Visible()) {
-        const auto interaction = UI::UIInteraction::Update(frame_, af, pointer_);
         auto_.ApplyHover(frame_, interaction.hovered);
         
         if (auto_.TryToggle(interaction.clicked)) {
@@ -54,7 +55,7 @@ void VnScreen::HandlePointer(Session::ActionFrame& af) {
         }
     }
 
-    if (af.pointer.lPressed && dialog_.Visible()) {
+    if (af.pointer.lPressed && dialog_.Visible() && interaction.hovered == 0) {
         player_->Advance();
         LogHistory();
     }

@@ -48,9 +48,6 @@ private:
 
     std::string lastLineKey_;
 
-    // TODO: log should be managed by player or session, not screen
-    bool logOpened_ = false;
-
     UI::UIFrame   frame_;
     UI::UIBaker   baker_;
     UI::UIEmitter emitter_;

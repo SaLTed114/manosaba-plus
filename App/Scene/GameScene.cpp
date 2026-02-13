@@ -100,11 +100,6 @@ void GameScene::Update(
     screens_.PostBake(in, canvasW, canvasH);
 
     director_.Tick(session_.Player(), ft);
-
-    // static float angle_ = 0.0f;
-    // float t = static_cast<float>(ft.totalSec);
-    // angle_ += static_cast<float>(ft.dtSec) * 0.2f;
-    // stage_.Camera().SetYawPitchRoll(angle_, sinf(t) * 0.02f, cos(t) * 0.01f);
 }
 
 // ========================= End of Update Functions ==========================
@@ -113,11 +108,6 @@ void GameScene::Update(
 // ======================== Begin of Render Functions ==========================
 
 void GameScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sceneW, uint32_t sceneH) {
-    // VN MVP doesn't need a 3D camera; keep identity.
-    // frame.view     = XMMatrixIdentity();
-    // frame.proj     = XMMatrixIdentity();
-    // frame.viewProj = XMMatrixIdentity();
-
     frame.view     = camera_.GetView();
     frame.proj     = camera_.GetProj(sceneW, sceneH);
     frame.viewProj = XMMatrixMultiply(frame.view, frame.proj);
