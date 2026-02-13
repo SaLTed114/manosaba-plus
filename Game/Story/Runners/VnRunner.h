@@ -18,6 +18,7 @@ struct VnState {
     size_t revealed = 0;
     bool lineDone = false;
     bool finished = false;
+    int lineSerial = 0;
 };
 
 class VnRunner {
@@ -32,6 +33,8 @@ public:
     std::optional<GraphEvent> Advance();
     std::optional<GraphEvent> SkipLine();
     std::optional<GraphEvent> FastForwardAll();
+
+    void Tick(float dtSec, float cps);
 
     const VnState& State() const { return state_; }
 
@@ -48,6 +51,9 @@ private:
     Utils::IFileSystem& fs_;
     VnScript script_;
     size_t cmdIndex_ = 0;
+
+    size_t lineTotalCp_ = 0;
+    float  revealAcc_ = 0.0f;
 
     VnState state_;
     CueCallback onCue_;

@@ -10,9 +10,9 @@
 
 namespace Salt2D::Game::Screens {
 
-void VnScreen::HandleInput(Session::ActionFrame& af) {
+void VnScreen::HandleKeyboard(Session::ActionFrame& af) {
     const auto& view = player_->View().vn;
-    if (!view.has_value()) { dialog_.SetVisible(false); return; }
+    if (!view.has_value()) { dialog_.SetVisible(false); auto_.SetVisible(false); return; }
 
     const auto accel = af.actions.accelHolded;
     const auto history = af.actions.vnHistoryUp;
@@ -43,18 +43,37 @@ void VnScreen::HandleInput(Session::ActionFrame& af) {
     }
 }
 
+void VnScreen::HandlePointer(Session::ActionFrame& af) {
+    if (auto_.Visible()) {
+        const auto interaction = UI::UIInteraction::Update(frame_, af, pointer_);
+        auto_.ApplyHover(frame_, interaction.hovered);
+        
+        if (auto_.TryToggle(interaction.clicked)) {
+            player_->ToggleVnAutoMode();
+            return;
+        }
+    }
+
+    if (af.pointer.lPressed && dialog_.Visible()) {
+        player_->Advance();
+        LogHistory();
+    }
+}
+
 void VnScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     frame_.Clear();
     dialog_.SetVisible(false);
+    auto_.SetVisible(false);
 
     if (!player_) return;
     const auto& view = player_->View().vn;
-    if (!view.has_value()) { dialog_.SetVisible(false); return; }
+    if (!view.has_value()) { dialog_.SetVisible(false); auto_.SetVisible(false); return; }
 
     UI::VnHudModel model;
     model.visible = true;
     model.speakerUtf8 = view->speaker;
     model.bodyUtf8 = view->fullText;
+    model.autoMode = player_->VnAutoMode();
 
     if (tables_) {
         const auto& castDef = tables_->cast.FindByName(view->speaker);
@@ -67,12 +86,13 @@ void VnScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     }
 
     dialog_.Build(model, canvasW, canvasH, frame_);
+    auto_.Build(model, canvasW, canvasH, frame_);
 }
 
 void VnScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) {
-    if (!player_) { frame_.Clear(); dialog_.SetVisible(false); return; }
+    if (!player_) { frame_.Clear(); dialog_.SetVisible(false); auto_.SetVisible(false); return; }
 
-    HandleInput(af);
+    HandleKeyboard(af);
     BuildUI(canvasW, canvasH);
 }
 
@@ -83,11 +103,19 @@ void VnScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextServi
 
     baker_.Bake(device, service, frame_);
     dialog_.AfterBake(frame_);
+    auto_.AfterBake(frame_);
+}
+
+void VnScreen::PostBake(Session::ActionFrame& af, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {
+    if (!player_) return;
+    if (!dialog_.Visible() && !auto_.Visible()) return;
+
+    HandlePointer(af);
 }
 
 void VnScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) {
     if (!player_) return;
-    if (!dialog_.Visible()) return;
+    if (!dialog_.Visible() && !auto_.Visible()) return;
 
     emitter_.Emit(drawList, service, frame_);
 }
@@ -106,12 +134,14 @@ void VnScreen::LogHistory() {
 
 void VnScreen::OnEnter() {
     dialog_.SetVisible(false);
+    auto_.SetVisible(false);
     baker_.SetTheme(theme_);
     LogHistory();
 }
 
 void VnScreen::OnExit() {
     dialog_.SetVisible(false);
+    auto_.SetVisible(false);
 }
 
 } // namespace Salt2D::Game::Screens

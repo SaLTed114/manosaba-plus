@@ -42,6 +42,10 @@ public:
     void SetTimeScale(float scale) { timeScale_ = scale; }
     void SetTimeScale(TimeScaleMode mode);
 
+    bool VnAutoMode() const { return vnAutoMode_; }
+    void SetVnAutoMode(bool autoMode) { vnAutoMode_ = autoMode; }
+    void ToggleVnAutoMode() { vnAutoMode_ = !vnAutoMode_; }
+
     void SetEffectCallback(StoryRuntime::EffectCallback callback) { rt_.SetEffectCallback(std::move(callback)); }
     
     void SetLogger(const Game::Logger* logger) { 
@@ -57,6 +61,7 @@ private:
     void OnEnteredNode();
     void ResetTimer();
     void ResetStatementTimer(std::string plainText, int stmtIndex);
+    void ResetVnAutoTimer(std::string fullText, int lineSerial);
     void PumpAuto();
     void UpdateView();
 
@@ -75,6 +80,8 @@ private:
     float timeScale_ = 1.0f;
 
     StatementTimer stmtTimer_;
+    VnAutoTimer vnTimer_;
+    bool vnAutoMode_ = false;
 
     const Game::Logger* logger_ = nullptr;
 };

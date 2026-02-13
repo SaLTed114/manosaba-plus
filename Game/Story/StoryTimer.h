@@ -47,6 +47,29 @@ struct StatementTimer {
     }
 };
 
+struct VnAutoTimerConfig {
+    float baseSec_ = 0.3f;
+    float cps_ = 15.0f;
+    float minSec_ = 0.2f;
+    float maxSec_ = 5.0f;
+};
+
+struct VnAutoTimer {
+    bool active = false;
+    int lineSerial = 0;
+    float totalSec = 0.0f;
+    float remainSec = 0.0f;
+
+    VnAutoTimerConfig cfg;
+
+    void Reset() {
+        active = false;
+        totalSec = 0.0f;
+        remainSec = 0.0f;
+        lineSerial = 0;
+    }
+};
+
 } // namespace Salt2D::Game::Story
 
 #endif // GAME_STORY_STORYTIMER_H

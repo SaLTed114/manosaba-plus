@@ -1,6 +1,7 @@
 // Game/Story/Runners/VnRunner.cpp
 #include "VnRunner.h"
 
+#include <cmath>
 #include <stdexcept>
 
 namespace Salt2D::Game::Story {
@@ -23,17 +24,14 @@ std::optional<GraphEvent> VnRunner::Advance() {
     if (state_.finished) return GraphEvent{Trigger::Auto, ""};
 
     if (!state_.lineDone) {
-        const size_t totalCp = CountCodepoints(state_.fullText);
-        if (state_.revealed < totalCp) {
-            state_.revealed++;
-            if (logger_) {
-                std::string currentText = Utf8PrefixByCodepoints(state_.fullText, state_.revealed);
-                logger_->Debug("VnRunner", 
-                    "Advance: " + state_.speaker + ": " + currentText + 
-                    " [" + std::to_string(state_.revealed) + "/" + std::to_string(totalCp) + "]");
-            }
+        // auto mode: while not done, advance means reveal all immediately
+        state_.revealed = lineTotalCp_;
+        state_.lineDone = true;
+
+        if (logger_) {
+            logger_->Debug("VnRunner",
+                "Advance: " + state_.speaker + ": " + state_.fullText);
         }
-        state_.lineDone = (state_.revealed >= totalCp);
         return std::nullopt;
     }
 
@@ -50,8 +48,7 @@ std::optional<GraphEvent> VnRunner::Advance() {
 std::optional<GraphEvent> VnRunner::SkipLine() {
     if (state_.finished) return GraphEvent{Trigger::Auto, ""};
 
-    const size_t totalCp = CountCodepoints(state_.fullText);
-    state_.revealed = totalCp;
+    state_.revealed = lineTotalCp_;
     state_.lineDone = true;
     if (logger_) {
         logger_->Debug("VnRunner",
@@ -73,8 +70,7 @@ std::optional<GraphEvent> VnRunner::FastForwardAll() {
         logger_->Debug("VnRunner", "FastForwardAll: Starting fast forward...");
     }
     while (!state_.finished) {
-        const size_t totalCp = CountCodepoints(state_.fullText);
-        state_.revealed = totalCp;
+        state_.revealed = lineTotalCp_;
         state_.lineDone = true;
         if (logger_) {
             logger_->Debug("VnRunner",
@@ -87,6 +83,27 @@ std::optional<GraphEvent> VnRunner::FastForwardAll() {
             "FastForwardAll: Finished script");
     }
     return GraphEvent{Trigger::Auto, ""};
+}
+
+void VnRunner::Tick(float dtSec, float cps) {
+    if (state_.finished || state_.lineDone) return;
+    if (dtSec < 0.0f || cps <= 0.0f) return;
+
+    revealAcc_ += dtSec * cps;
+    const size_t add = static_cast<size_t>(std::floor(revealAcc_));
+    if (add == 0) return;
+
+    revealAcc_ -= static_cast<float>(add);
+    
+    state_.revealed = (std::min)(state_.revealed + add, lineTotalCp_);
+    state_.lineDone = (state_.revealed >= lineTotalCp_);
+
+    if (logger_) {
+        std::string currentText = Utf8PrefixByCodepoints(state_.fullText, state_.revealed);
+        logger_->Debug("VnRunner",
+            "Tick: " + state_.speaker + ": " + currentText + 
+            " [" + std::to_string(state_.revealed) + "/" + std::to_string(lineTotalCp_) + "]");
+    }
 }
 
 void VnRunner::LoadNextLineOrFinish() {
@@ -103,6 +120,16 @@ void VnRunner::LoadNextLineOrFinish() {
         state_.revealed = 0;
         state_.lineDone = false;
         state_.finished = false;
+        state_.lineSerial++;
+
+        lineTotalCp_ = CountCodepoints(state_.fullText);
+        revealAcc_ = 0.0f;
+
+        if (lineTotalCp_ == 0) {
+            state_.revealed = 0;
+            state_.lineDone = true;
+        }
+
         if (logger_) {
             logger_->Debug("VnRunner",
                 "LoadNextLine: New line loaded - " +

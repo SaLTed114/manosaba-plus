@@ -98,6 +98,11 @@ struct TextTheme {
         timer.fontFamily = L"Microsoft YaHei";
         timer.fontSize   = 40.0f;
         timer.weight     = DWRITE_FONT_WEIGHT_BOLD;
+
+        auto& vnAuto = styles[static_cast<size_t>(TextStyleId::VnAuto)];
+        vnAuto.fontFamily = L"Microsoft YaHei";
+        vnAuto.fontSize   = 20.0f;
+        vnAuto.weight     = DWRITE_FONT_WEIGHT_REGULAR;
     }
 
     const Render::Text::TextStyle& GetStyle(TextStyleId id) const {

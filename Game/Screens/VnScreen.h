@@ -6,9 +6,11 @@
 
 #include "Game/Story/StoryTables.h"
 #include "Game/UI/Widgets/VnDialogWidget.h"
+#include "Game/UI/Widgets/VnAutoWidget.h"
 #include "Game/UI/Framework/UIFrame.h"
 #include "Game/UI/Framework/UIBaker.h"
 #include "Game/UI/Framework/UIEmitter.h"
+#include "Game/UI/Framework/UIInteraction.h"
 #include "Game/UI/Theme/TextTheme.h"
 #include "Render/Text/TextBaker.h"
 
@@ -24,6 +26,7 @@ public:
     void Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) override;
     void Sync(uint32_t canvasW, uint32_t canvasH) override { BuildUI(canvasW, canvasH); }
     void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) override;
+    void PostBake(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) override;
     void EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService& service) override;
 
     bool Visible() const { return dialog_.Visible(); }
@@ -32,7 +35,8 @@ public:
     void OnExit()  override;
 
 private:
-    void HandleInput(Session::ActionFrame& af);
+    void HandleKeyboard(Session::ActionFrame& af);
+    void HandlePointer(Session::ActionFrame& af);
     void BuildUI(uint32_t canvasW, uint32_t canvasH);
     void LogHistory();
 
@@ -43,13 +47,17 @@ private:
     const Story::StoryTables* tables_ = nullptr;
 
     std::string lastLineKey_;
+
+    // TODO: log should be managed by player or session, not screen
     bool logOpened_ = false;
 
     UI::UIFrame   frame_;
     UI::UIBaker   baker_;
     UI::UIEmitter emitter_;
 
+    UI::UIPointerState pointer_;
     UI::VnDialogWidget dialog_;
+    UI::VnAutoWidget   auto_;
 };
 
 } // namespace Salt2D::Game::Screens

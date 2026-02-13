@@ -22,6 +22,7 @@ set(GAME_SOURCES
     UI/Framework/UIEmitter.cpp
     UI/Framework/UIInteraction.cpp
     UI/Widgets/VnDialogWidget.cpp
+    UI/Widgets/VnAutoWidget.cpp
     UI/Widgets/ChoiceDialogWidget.cpp
     UI/Widgets/PresentDialogWidget.cpp
     UI/Widgets/DebateDialogWidget.cpp

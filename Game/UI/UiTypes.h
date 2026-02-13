@@ -34,6 +34,7 @@ enum class TextStyleId : uint8_t {
     PresentShowRest,
     PresentDetail,
     Timer,
+    VnAuto,
     Count
 };
 
@@ -46,6 +47,7 @@ enum class HitKind : uint8_t {
     DebateOption = 5,
     DebateBack   = 6,
     DebateSpeed  = 7,
+    VNAuto       = 8,
     Count
 };
 
@@ -63,6 +65,8 @@ struct VnHudModel {
     std::string speakerUtf8;
     std::string bodyUtf8;
     Render::Color4F color{1,1,1,1};
+
+    bool autoMode = false;
 };
 
 struct ChoiceHudModel {

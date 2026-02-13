@@ -43,7 +43,7 @@ ActionFrame StoryActionMap::Map(Story::NodeType type, const Core::InputState& in
         frame.actions.vnHistoryUp = (in.Pressed(Core::Key::Up) || in.wheel > 0);
         frame.actions.confirmPressed =
             keyConfirm || in.Pressed(Core::Key::Down) ||
-            (in.wheel < 0) || frame.pointer.lPressed;
+            (in.wheel < 0);
         frame.actions.navY = 0; // Disable nav in VN
         break;
     case Story::NodeType::Debate:
