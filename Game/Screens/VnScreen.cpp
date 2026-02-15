@@ -12,28 +12,18 @@
 namespace Salt2D::Game::Screens {
 
 void VnScreen::HandleKeyboard(Session::ActionFrame& af) {
+    if (!player_) return;
+    if (player_->HistoryOpened()) return;
+
     const auto& view = player_->View().vn;
     if (!view.has_value()) { dialog_.SetVisible(false); auto_.SetVisible(false); return; }
 
     const auto accel = af.actions.accelHolded;
-    const auto history = af.actions.vnHistoryUp;
     const auto confirm = af.actions.ConsumeConfirm();
-    const auto cancel = af.actions.ConsumeCancel();
-
-    if (player_->HistoryOpened()) {
-        if (cancel) player_->CloseHistory();
-        return;
-    }
 
     if (accel) {
         player_->FastForward();
         LogHistory();
-        return;
-    }
-
-    if (history) {
-        player_->OpenHistory();
-        if (history_) history_->DumpToLogger();
         return;
     }
 
@@ -45,6 +35,9 @@ void VnScreen::HandleKeyboard(Session::ActionFrame& af) {
 }
 
 void VnScreen::HandlePointer(Session::ActionFrame& af) {
+    if (!player_) return;
+    if (player_->HistoryOpened()) return;
+
     const auto interaction = UI::UIInteraction::Update(frame_, af, pointer_);
 
     if (auto_.Visible()) {

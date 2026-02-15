@@ -30,6 +30,7 @@ set(GAME_SOURCES
     UI/Widgets/DebateSpeedWidget.cpp
     UI/Widgets/UIButtonWidget.cpp
     UI/Widgets/TimerWidget.cpp
+    UI/Widgets/HistoryWidget.cpp
     RenderBridge/TextService.cpp
     RenderBridge/TextureService.cpp
     RenderBridge/TextureCatalog.cpp

@@ -48,6 +48,7 @@ enum class HitKind : uint8_t {
     DebateBack   = 6,
     DebateSpeed  = 7,
     VNAuto       = 8,
+    HistoryClose = 9,
     Count
 };
 

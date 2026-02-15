@@ -26,6 +26,9 @@ void ChoiceScreen::CommitOption() {
 }
 
 void ChoiceScreen::HandleKeyboard(Session::ActionFrame& af) {
+    if (!player_) return;
+    if (player_->HistoryOpened()) return;
+
     const auto& view = player_->View().choice;
     if (!view.has_value()) { dialog_.SetVisible(false); return; }
 
@@ -46,6 +49,8 @@ void ChoiceScreen::HandleKeyboard(Session::ActionFrame& af) {
 }
 
 void ChoiceScreen::HandlePointer(Session::ActionFrame& af) {
+    if (!player_) return;
+    if (player_->HistoryOpened()) return;
     if (!dialog_.Visible()) return;
     const auto interaction = UI::UIInteraction::Update(frame_, af, pointer_);
     dialog_.ApplyHover(frame_, interaction.hovered);

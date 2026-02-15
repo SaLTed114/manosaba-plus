@@ -102,12 +102,13 @@ void VnRunner::Tick(float dtSec, float cps) {
     state_.revealed = (std::min)(state_.revealed + add, lineTotalCp_);
     state_.lineDone = (state_.revealed >= lineTotalCp_);
 
-    if (logger_) {
-        std::string currentText = Utf8PrefixByCodepoints(state_.fullText, state_.revealed);
-        logger_->Debug("VnRunner",
-            "Tick: " + state_.speaker + ": " + currentText + 
-            " [" + std::to_string(state_.revealed) + "/" + std::to_string(lineTotalCp_) + "]");
-    }
+    // too noisy to log every tick
+    // if (logger_) {
+    //     std::string currentText = Utf8PrefixByCodepoints(state_.fullText, state_.revealed);
+    //     logger_->Debug("VnRunner",
+    //         "Tick: " + state_.speaker + ": " + currentText + 
+    //         " [" + std::to_string(state_.revealed) + "/" + std::to_string(lineTotalCp_) + "]");
+    // }
 }
 
 void VnRunner::LoadNextLineOrFinish() {

@@ -31,6 +31,7 @@ void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* hi
     choice_. SetTheme(&theme_);
 
     overlay_.SetPlayer(player);
+    overlay_.SetHistory(history);
     overlay_.SetTheme(&theme_);
 }
 
@@ -70,12 +71,11 @@ void StoryScreenManager::Tick(const Core::FrameTime& ft, const Core::InputState&
     SwitchTo(type0, canvasW, canvasH);
 
     auto af = actionMap_.Map(type0, in);
+    overlay_.Tick(ft, af, canvasW, canvasH);
     if (active_) active_->Tick(af, canvasW, canvasH);
 
     const auto& type1 = player_->View().nodeType;
     if (type1 != type0) SwitchTo(type1, canvasW, canvasH);
-
-    overlay_.Tick(ft, in, canvasW, canvasH);
 }
 
 void StoryScreenManager::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
@@ -86,9 +86,8 @@ void StoryScreenManager::Bake(const RHI::DX11::DX11Device& device, RenderBridge:
 void StoryScreenManager::PostBake(const Core::InputState& in, uint32_t canvasW, uint32_t canvasH) {
     if (!player_) return;
 
-    overlay_.PostBake(in, canvasW, canvasH);
-
     auto af = actionMap_.Map(player_->View().nodeType, in);
+    overlay_.PostBake(af, canvasW, canvasH);
     if (active_) active_->PostBake(af, canvasW, canvasH);
 }
 

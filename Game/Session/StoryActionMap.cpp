@@ -11,6 +11,8 @@ static inline bool PressedAny(const Core::InputState& in, const std::vector<uint
     return false;
 }
 
+// TODO: maybe seperating pointer and keyboard action maps is a better implementation
+
 ActionFrame StoryActionMap::Map(Story::NodeType type, const Core::InputState& in) const {
     ActionFrame frame;
 
@@ -40,7 +42,7 @@ ActionFrame StoryActionMap::Map(Story::NodeType type, const Core::InputState& in
     case Story::NodeType::VN:
     case Story::NodeType::BE:
     case Story::NodeType::Error:
-        frame.actions.vnHistoryUp = (in.Pressed(Core::Key::Up) || in.wheel > 0);
+        frame.actions.vnHistoryUp = in.Pressed(Core::Key::Up);
         frame.actions.confirmPressed =
             keyConfirm || in.Pressed(Core::Key::Down) ||
             (in.wheel < 0);
@@ -55,6 +57,7 @@ ActionFrame StoryActionMap::Map(Story::NodeType type, const Core::InputState& in
         frame.actions.confirmPressed = keyConfirm;
         break;
     case Story::NodeType::Choice:
+        frame.actions.vnHistoryUp = in.Pressed(Core::Key::Up);
         frame.actions.confirmPressed = keyConfirm;
     default:
         break;
