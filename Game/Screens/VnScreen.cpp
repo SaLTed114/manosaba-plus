@@ -5,6 +5,7 @@
 #include "Game/Session/StoryHistory.h"
 #include "Game/Story/StoryPlayer.h"
 #include "Render/Draw/DrawList.h"
+#include "Utils/MathUtils.h"
 
 #include <Windows.h>
 
@@ -75,6 +76,11 @@ void VnScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     model.speakerUtf8 = view->speaker;
     model.bodyUtf8 = view->fullText;
     model.autoMode = player_->VnAutoMode();
+
+    if (view->totalCp > 0) {
+        model.bodyRevealU01 = view->revealCpF / static_cast<float>(view->totalCp);
+        model.bodyRevealU01 = Utils::Clamp01(model.bodyRevealU01);
+    }
 
     if (tables_) {
         const auto& castDef = tables_->cast.FindByName(view->speaker);

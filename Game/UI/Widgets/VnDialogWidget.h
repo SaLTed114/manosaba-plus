@@ -42,6 +42,8 @@ private:
     FirstGlyphTextRef giv_;
     float nameBaseX_ = 0.0f;
     float nameBaseY_ = 0.0f;
+
+    int bodyTextIdx_ = -1;
 };
 
 } // namespace Salt2D::Game::UI

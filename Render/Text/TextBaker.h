@@ -10,6 +10,7 @@
 #include <d2d1.h>
 #include <wincodec.h>
 
+#include "Render/Draw/SpriteDrawItem.h"
 #include "RHI/DX11/DX11Texture2D.h"
 #include "RHI/DX11/DX11Device.h"
 
@@ -36,6 +37,8 @@ struct BakedText {
     RHI::DX11::DX11Texture2D tex;
     uint32_t w = 0;
     uint32_t h = 0;
+
+    std::vector<Render::RectF> lineRectsPx;
 };
 
 class TextBaker {

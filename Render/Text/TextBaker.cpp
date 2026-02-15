@@ -11,6 +11,89 @@ using Microsoft::WRL::ComPtr;
 
 namespace Salt2D::Render::Text {
 
+namespace {
+
+static void BuildLineRectsFromLayout(
+    IDWriteTextLayout* layout,
+    int pad, uint32_t texW, uint32_t texH,
+    std::vector<Render::RectF>& outRects
+) {
+    outRects.clear();
+    if (!layout) return;
+
+    UINT32 lineCount = 0;
+    HRESULT hr = layout->GetLineMetrics(nullptr, 0, &lineCount);
+    if (hr != E_NOT_SUFFICIENT_BUFFER && FAILED(hr)) return;
+    if (lineCount == 0) return;
+
+    std::vector<DWRITE_LINE_METRICS> lineMetrics(lineCount);
+    ThrowIfFailed(layout->GetLineMetrics(lineMetrics.data(), lineCount, &lineCount),
+        "BuildLineRectsFromLayout: GetLineMetrics failed.");
+
+    outRects.reserve(lineCount);
+
+    UINT32 textPos = 0;
+    for (UINT32 i = 0; i < lineCount; ++i) {
+        const auto& lm = lineMetrics[i];
+
+        UINT32 lineLength = lm.length;
+        if (lm.newlineLength <= lineLength) lineLength -= lm.newlineLength;
+
+        FLOAT caretX = 0.0f, caretY = 0.0f;
+        DWRITE_HIT_TEST_METRICS caretMetrics{};
+        ThrowIfFailed(layout->HitTestTextPosition(textPos, false, &caretX, &caretY, &caretMetrics),
+            "BuildLineRectsFromLayout: HitTestTextPosition failed.");
+
+        Render::RectF lineRect{ caretMetrics.left, caretMetrics.top, 0.0f, caretMetrics.height };
+
+        if (lineLength > 0) {
+            UINT32 hitCount = 0;
+            HRESULT hr2 = layout->HitTestTextRange(textPos, lineLength, 0.0f, 0.0f, nullptr, 0, &hitCount);
+            if (hr2 != E_NOT_SUFFICIENT_BUFFER && hr2 != HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER) && FAILED(hr2)) {
+                throw std::runtime_error("BuildLineRectsFromLayout: HitTestTextRange failed.");
+            }
+
+            if (hitCount > 0) {
+                std::vector<DWRITE_HIT_TEST_METRICS> hitMetrics(hitCount);
+                UINT32 actualHitCount = 0;
+
+                HRESULT hr3 = layout->HitTestTextRange(textPos, lineLength, 0.0f, 0.0f,
+                    hitMetrics.data(), hitCount, &actualHitCount);
+
+                if (hr3 != E_NOT_SUFFICIENT_BUFFER && hr3 != HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER) && FAILED(hr3)) {
+                    ThrowIfFailed(hr3, "BuildLineRectsFromLayout: HitTestTextRange (metrics) failed.");
+                }
+
+                float x0 = hitMetrics[0].left;
+                float y0 = hitMetrics[0].top;
+                float x1 = hitMetrics[0].left + hitMetrics[0].width;
+                float y1 = hitMetrics[0].top  + hitMetrics[0].height;
+                for (UINT32 j = 1; j < actualHitCount; ++j) {
+                    const auto& hm = hitMetrics[j];
+                    x0 = (std::min)(x0, hm.left);
+                    y0 = (std::min)(y0, hm.top);
+                    x1 = (std::max)(x1, hm.left + hm.width);
+                    y1 = (std::max)(y1, hm.top  + hm.height);
+                }
+                lineRect = Render::RectF{x0, y0, x1 - x0, y1 - y0};
+            }
+        }
+
+        lineRect.x += static_cast<float>(pad);
+        lineRect.y += static_cast<float>(pad);
+
+        lineRect.x = (std::max)(lineRect.x, 0.0f);
+        lineRect.y = (std::max)(lineRect.y, 0.0f);
+        if (lineRect.x + lineRect.w > static_cast<float>(texW)) lineRect.w = (std::max)(static_cast<float>(texW) - lineRect.x, 0.0f);
+        if (lineRect.y + lineRect.h > static_cast<float>(texH)) lineRect.h = (std::max)(static_cast<float>(texH) - lineRect.y, 0.0f);
+
+        outRects.push_back(lineRect);
+        textPos += lineMetrics[i].length;
+    }
+}
+
+} // Anonymous namespace
+
 void TextBaker::Initialize() {
     ThrowIfFailed(DWriteCreateFactory(
         DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
@@ -203,6 +286,9 @@ BakedText TextBaker::BakeToTexture(
     result.tex.UpdateDynamic(device.GetContext(), rgbaData.data(), expectedRowPitch);
     result.w = texW;
     result.h = texH;
+
+    result.lineRectsPx.clear();
+    BuildLineRectsFromLayout(textLayout.Get(), pad, texW, texH, result.lineRectsPx);
 
     return result;
 }

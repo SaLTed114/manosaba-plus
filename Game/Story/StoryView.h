@@ -15,6 +15,8 @@ struct StoryView {
         std::string speaker;
         std::string fullText;
         size_t revealed = 0; // in codepoints
+        size_t totalCp  = 0; // in codepoints
+        float revealCpF = 0.0f;
         bool lineDone = false;
         bool finished = false;
     };

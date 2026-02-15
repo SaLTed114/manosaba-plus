@@ -336,11 +336,13 @@ void StoryPlayer::UpdateView() {
     case NodeType::Error: {
         const VnState& state = vn_.State();
         StoryView::VnView view;
-        view.speaker  = state.speaker;
-        view.fullText = state.fullText;
-        view.revealed = state.revealed;
-        view.lineDone = state.lineDone;
-        view.finished = state.finished;
+        view.speaker   = state.speaker;
+        view.fullText  = state.fullText;
+        view.revealed  = state.revealed;
+        view.totalCp   = state.totalCp;
+        view.revealCpF = state.revealCpF;
+        view.lineDone  = state.lineDone;
+        view.finished  = state.finished;
 
         if (!vnTimer_.active || vnTimer_.lineSerial != state.lineSerial) {
             ResetVnAutoTimer(state.fullText, state.lineSerial);

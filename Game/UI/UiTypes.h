@@ -67,6 +67,8 @@ struct VnHudModel {
     Render::Color4F color{1,1,1,1};
 
     bool autoMode = false;
+
+    float bodyRevealU01 = 1.0f;
 };
 
 struct ChoiceHudModel {

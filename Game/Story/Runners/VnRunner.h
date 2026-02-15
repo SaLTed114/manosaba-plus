@@ -16,6 +16,8 @@ struct VnState {
     std::string speaker;
     std::string fullText;
     size_t revealed = 0;
+    size_t totalCp  = 0;
+    float revealCpF = 0.0f;
     bool lineDone = false;
     bool finished = false;
     int lineSerial = 0;

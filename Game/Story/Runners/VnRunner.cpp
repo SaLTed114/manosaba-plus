@@ -27,6 +27,7 @@ std::optional<GraphEvent> VnRunner::Advance() {
         // auto mode: while not done, advance means reveal all immediately
         state_.revealed = lineTotalCp_;
         state_.lineDone = true;
+        state_.revealCpF = static_cast<float>(lineTotalCp_);
 
         if (logger_) {
             logger_->Debug("VnRunner",
@@ -90,6 +91,9 @@ void VnRunner::Tick(float dtSec, float cps) {
     if (dtSec < 0.0f || cps <= 0.0f) return;
 
     revealAcc_ += dtSec * cps;
+    state_.revealCpF += dtSec * cps;
+    state_.revealCpF = (std::min)(state_.revealCpF, static_cast<float>(lineTotalCp_));
+
     const size_t add = static_cast<size_t>(std::floor(revealAcc_));
     if (add == 0) return;
 
@@ -115,15 +119,17 @@ void VnRunner::LoadNextLineOrFinish() {
             continue;
         }
 
+        lineTotalCp_ = CountCodepoints(cmd.text);
+        revealAcc_ = 0.0f;
+
         state_.speaker  = cmd.speaker;
         state_.fullText = cmd.text;
         state_.revealed = 0;
+        state_.totalCp  = lineTotalCp_;
         state_.lineDone = false;
         state_.finished = false;
         state_.lineSerial++;
-
-        lineTotalCp_ = CountCodepoints(state_.fullText);
-        revealAcc_ = 0.0f;
+        state_.revealCpF = 0.0f;
 
         if (lineTotalCp_ == 0) {
             state_.revealed = 0;

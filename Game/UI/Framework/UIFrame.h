@@ -68,6 +68,11 @@ struct TextOp {
     Render::RectF aabb{0,0,0,0}; // updated after bake
 
     Render::Text::BakedText baked{};
+
+    bool revealEnabled = false;
+    float revealU01 = 1.0f;
+    float revealSoftPx = 0.0f;
+    int revealSoftStep = 12;
 };
 
 struct HitOp {

@@ -45,13 +45,17 @@ void VnDialogWidget::Build(const VnHudModel& model, uint32_t canvasW, uint32_t c
         cfg_.nameRestTint, cfg_.nameRestTint, 0.25f, cfg_.nameSegGap);
 
     // Body
-    PushText(frame, TextStyleId::VnBody, model.bodyUtf8,
+    bodyTextIdx_ = PushText(frame, TextStyleId::VnBody, model.bodyUtf8,
         cfg_.bodyScale.x * w, cfg_.bodyScale.y * h,
-        (1.0f - cfg_.bodyScale.x) * w, (1.0f - cfg_.bodyScale.y) * h,
+        (0.75f - cfg_.bodyScale.x) * w, (1.0f - cfg_.bodyScale.y) * h,
         Render::Color4F{1,1,1,1}, 0.2f, Render::Layer::HUD);
 
-    // Hit area
-    // placeholder: whole panel is clickable
+    if (TextOp* bodyOp = GetText(frame, bodyTextIdx_)) {
+        bodyOp->revealEnabled = true;
+        bodyOp->revealU01 = model.bodyRevealU01;
+        bodyOp->revealSoftPx = 108.0f;
+        bodyOp->revealSoftStep = 12;
+    }
 }
 
 void VnDialogWidget::AfterBake(UIFrame& frame) {
