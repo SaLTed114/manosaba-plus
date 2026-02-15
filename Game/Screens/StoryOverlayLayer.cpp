@@ -19,7 +19,9 @@ void StoryOverlayLayer::HandleKeyboard(Session::ActionFrame& af) {
     case Story::NodeType::Choice:
         if (history && !player_->HistoryOpened()) {
             player_->OpenHistory();
-            historyLogger_->DumpToLogger();
+            if (historyLogger_) {
+                historyLogger_->DumpToLogger();
+            }
             return;
         }
         if (cancel && player_->HistoryOpened()) {
@@ -43,14 +45,20 @@ void StoryOverlayLayer::HandlePointer(Session::ActionFrame& af) {
     case Story::NodeType::VN:
     case Story::NodeType::BE:
     case Story::NodeType::Error:
-    case Story::NodeType::Choice:
+    case Story::NodeType::Choice: {
         if (history_.Visible()) {
             history_.ApplyHover(frame_, iteraction.hovered);
+
+            const float step = 36.0f;
+            scrollY_ -= static_cast<float>(af.pointer.wheel / 120.0f) * step;
+            scrollY_ = std::clamp(scrollY_, 0.0f, history_.MaxScroll());
 
             if (history_.TryClose(iteraction.clicked)) {
                 player_->CloseHistory();
             }
         }
+        break;
+    }
     case Story::NodeType::Present:
     case Story::NodeType::Debate:
     default:
@@ -70,7 +78,13 @@ void StoryOverlayLayer::BuildUI(uint32_t canvasW, uint32_t canvasH) {
 
     UI::HistoryModel model;
     model.active = player_->HistoryOpened();
-    if (historyLogger_) model.entries = historyLogger_->GetEntries();
+    model.scrollY = scrollY_;
+    if (historyLogger_) {
+        const auto& entries = historyLogger_->GetEntries();
+        model.entries = std::span<const Session::HistoryEntry>(entries.data(), entries.size());
+    } else {
+        model.entries = std::span<const Session::HistoryEntry>();
+    }
     
     history_.Build(model, canvasW, canvasH, frame_);
 }

@@ -28,6 +28,8 @@ struct HistoryEntry {
     std::string idUtf8;
 };
 
+// TODO: history should be managed by player instead of screen
+
 class StoryHistory {
 public:
     void SetLogger(const Logger* logger) { logger_ = logger; }

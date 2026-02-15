@@ -17,11 +17,18 @@ namespace Salt2D::Game::UI {
 struct HistoryModel {
     bool active = false;
     std::span<const Session::HistoryEntry> entries;
+    float scrollY = 0.0f;
 };
 
 struct HistoryConfig {
     RectScale rectScale{0.0f, 0.0f, 1.0f, 1.0f};
-    RectScale closeBtnRect{0.9f, 0.05f, 0.08f, 0.05f};
+    RectScale closeBtnRect{0.9f, 0.05f, 0.02f, 0.04f};
+
+    float marginPx     = 36.0f;
+    float headerHPx    = 80.0f;
+    float rowGapPx     = 18.0f;
+    float speakerGapPx = 6.0f;
+    float indentPx     = 0.0f;
 
     Render::Color4F textTint{1.0f, 1.0f, 1.0f, 1.0f};
     Render::Color4F panelTint{0.0f, 0.0f, 0.0f, 0.6f};
@@ -40,6 +47,18 @@ public:
 
     bool Visible() const { return visible_; }
     void SetVisible(bool v) { visible_ = v; }
+
+    float MaxScroll() const { return (std::max)(0.0f, contentH_ - contentRect_.h); }
+
+private:
+    struct RowIds { int speaker = -1; int body = -1; };
+    std::vector<RowIds> rows_;
+
+    Render::RectF panelRect_{};
+    Render::RectF contentRect_{};
+
+    float scrollY_  = 0.0f;
+    float contentH_ = 0.0f;
 
 private:
     HistoryConfig cfg_{};

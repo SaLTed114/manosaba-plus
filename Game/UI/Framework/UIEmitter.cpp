@@ -60,6 +60,9 @@ static inline void EmitTextNormal(Render::DrawList& drawList,
     item.scaleY = text.transform.scaleY;
     item.pivotX = text.transform.pivotX;
     item.pivotY = text.transform.pivotY;
+
+    item.clipEnabled = text.clipEnabled;
+    item.clipRect    = text.clipRect;
 }
 
 static inline void EmitTextVnLineRevealWeighted(
@@ -108,6 +111,9 @@ static inline void EmitTextVnLineRevealWeighted(
             item.pivotX = (dst.w > 0.0f) ? (globalPivotX - dst.x) / dst.w : 0.0f;
             item.pivotY = (dst.h > 0.0f) ? (globalPivotY - dst.y) / dst.h : 0.0f;
         }
+
+        item.clipEnabled = text.clipEnabled;
+        item.clipRect    = text.clipRect;
     };
 
     const float softPx = (std::max)(text.revealSoftPx, 0.0f);

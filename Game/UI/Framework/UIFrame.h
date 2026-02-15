@@ -73,6 +73,9 @@ struct TextOp {
     float revealU01 = 1.0f;
     float revealSoftPx = 0.0f;
     int revealSoftStep = 12;
+
+    bool clipEnabled = false;
+    Render::RectI clipRect{};
 };
 
 struct HitOp {

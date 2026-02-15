@@ -45,6 +45,8 @@ private:
     UI::UIPointerState pointer_;
     UI::TimerWidget timer_;
     UI::HistoryWidget history_;
+
+    float scrollY_ = 0.0f;
 };
 
 } // namespace Salt2D::Game::Screens
