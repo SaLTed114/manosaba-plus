@@ -36,6 +36,7 @@ void StorySession::Initialize(const std::filesystem::path& storyRoot, const std:
 
     player_ = std::make_unique<Story::StoryPlayer>(graph_, fs_);
     player_->SetLogger(&logger_);
+    player_->SetHistory(&history_);
 
     player_->SetEffectCallback([](const Salt2D::Game::Story::Effect& e) {
         // Placeholder: later route to Director/CameraRig/etc.

@@ -14,11 +14,6 @@ void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* hi
     present_.SetPlayer(player);
     choice_. SetPlayer(player);
 
-    vn_.     SetHistory(history);
-    debate_. SetHistory(history);
-    present_.SetHistory(history);
-    choice_. SetHistory(history);
-
     vn_.     SetTables(tables);
     debate_. SetTables(tables);
 

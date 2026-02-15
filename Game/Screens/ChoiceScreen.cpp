@@ -19,10 +19,7 @@ void ChoiceScreen::CommitOption() {
     selectedOption_ = Utils::ClampWarp(selectedOption_, static_cast<int>(view->options.size()));
 
     const std::string optionId = view->options[selectedOption_].first;
-    const std::string optionLabel = view->options[selectedOption_].second;
     player_->CommitOption(optionId);
-    if (history_) history_->Push(Story::NodeType::Choice,
-        Session::HistoryKind::OptionPick, "", optionLabel, optionId);
 }
 
 void ChoiceScreen::HandleKeyboard(Session::ActionFrame& af) {
@@ -115,13 +112,6 @@ void ChoiceScreen::OnEnter() {
     pointer_ = {};
     dialog_.SetVisible(false);
     baker_.SetTheme(theme_);
-
-    const auto& view = player_->View().choice;
-    if (!view.has_value()) return;
-    std::string line;
-    for (const auto& [id, label] : view->options) line += "| " + label;
-    if (history_) history_->Push(Story::NodeType::Choice,
-        Session::HistoryKind::OptionList, "", line, "");
 }
 
 void ChoiceScreen::OnExit() {

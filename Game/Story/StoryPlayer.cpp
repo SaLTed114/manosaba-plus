@@ -103,22 +103,35 @@ void StoryPlayer::Advance() {
     switch (node.type) {
     case NodeType::VN:
     case NodeType::BE:
-    case NodeType::Error:
+    case NodeType::Error: {
         if (auto ev = vn_.Advance(); ev.has_value()) {
             rt_.PushEvent(*ev);
             OnEnteredNode();
             PumpAuto();
         }
         UpdateView();
+        
+        const auto& state = vn_.State();
+        if (state.lineSerial <= lastLineSerial_ || state.finished) return;
+        lastLineSerial_ = state.lineSerial;
+        if (history_) history_->Push(Story::NodeType::VN, state.speaker, state.fullText);
         return;
-    case NodeType::Debate:
+    }
+    case NodeType::Debate: {
         if (auto ev = debate_.AdvanceStatement(); ev.has_value()) {
             rt_.PushEvent(*ev);
             OnEnteredNode();
             PumpAuto();
         }
         UpdateView();
+
+        const auto& stmtIdx = debate_.StatementIndex();
+        if (stmtIdx <= lastStmtIndex_ || !view_.debate.has_value()) return;
+        lastStmtIndex_ = stmtIdx;
+        const auto& stmt = debate_.CurrentStatement();
+        if (history_) history_->Push(Story::NodeType::Debate, stmt.speaker, stmt.text);
         return;
+    }
     case NodeType::Present:
     case NodeType::Choice:
     default:
@@ -159,6 +172,32 @@ void StoryPlayer::FastForward() {
 }
 
 void StoryPlayer::CommitOption(const std::string& optionId) {
+    const auto type = rt_.CurrentNode().type;
+    switch (type) {
+    case NodeType::Choice: {
+        const auto& def = choice_.Def();
+        auto it = std::find_if(def.options.begin(), def.options.end(),
+            [&optionId](const auto& opt) { return opt.optionId == optionId; });
+        std::string optionLabel = (it != def.options.end()) ? "> " + it->label : "";
+        if (history_) history_->Push(Story::NodeType::Choice,
+            Session::HistoryKind::OptionPick, "", optionLabel, optionId);
+        break;
+    }
+    case NodeType::Debate: {
+        const auto& view = view_.debate;
+        if (!view.has_value()) break;
+        
+        auto it = std::find_if(view->options.begin(), view->options.end(),
+            [&optionId](const auto& opt) { return opt.first == optionId; });
+        std::string optionLabel = (it != view->options.end()) ? "> " + it->second : "";
+        if (history_) history_->Push(Story::NodeType::Debate,
+            Session::HistoryKind::OptionPick, "", optionLabel, optionId);
+        break;
+    }
+    default:
+        break;
+    }
+
     GraphEvent ev{Trigger::Option, optionId};
     rt_.PushEvent(ev);
     OnEnteredNode();
@@ -166,6 +205,21 @@ void StoryPlayer::CommitOption(const std::string& optionId) {
 }
 
 void StoryPlayer::PickEvidence(const std::string& evidenceId) {
+    const auto& node = rt_.CurrentNode();
+    if (node.type != NodeType::Present) {
+        if (logger_) {
+            logger_->Debug("StoryPlayer", "PickEvidence ignored: not in Present node");
+        }
+        return;
+    }
+
+    const auto& def = present_.Def();
+    auto it = std::find_if(def.items.begin(), def.items.end(),
+        [&evidenceId](const auto& item) { return item.itemId == evidenceId; });
+    std::string itemLabel = (it != def.items.end()) ? "> " + it->label : "";
+    if (history_) history_->Push(Story::NodeType::Present,
+        Session::HistoryKind::PresentPick, "", itemLabel, evidenceId);
+
     GraphEvent ev{Trigger::Pick, evidenceId};
     rt_.PushEvent(ev);
     OnEnteredNode();
@@ -183,6 +237,14 @@ void StoryPlayer::OpenSuspicion(const std::string& spanId) {
 
     debate_.OpenSuspicion(spanId);
     UpdateView();
+
+    const auto& view = view_.debate;
+    if (!view.has_value() || !view->menuOpen) return;
+    std::string line = "Options: ";
+    for (const auto& [id, label] : view->options) line += "| " + label + " ";
+    line += " | [Back]";
+    if (history_) history_->Push(Story::NodeType::Debate,
+        Session::HistoryKind::MenuOpen, "", line, view->openedSpanId);
 }
 
 void StoryPlayer::CloseDebateMenu() {
@@ -196,6 +258,9 @@ void StoryPlayer::CloseDebateMenu() {
 
     debate_.CloseMenu();
     UpdateView();
+
+    if (history_) history_->Push(Story::NodeType::Debate,
+        Session::HistoryKind::MenuBack, "", "> [Back]");
 }
 
 void StoryPlayer::SetTimeScale(TimeScaleMode mode) {
@@ -220,25 +285,54 @@ void StoryPlayer::OnEnteredNode() {
 
     ResetTimer();
 
+    lastLineSerial_ = -283;
+    lastStmtIndex_  = -283;
+
     switch (node.type) {
     case NodeType::VN:
     case NodeType::BE:
-    case NodeType::Error:
+    case NodeType::Error: {
         vn_.Enter(node);
         UpdateView();
+
+        const auto& state = vn_.State();
+        if (state.lineSerial <= lastLineSerial_) return;
+        lastLineSerial_ = state.lineSerial;
+        if (history_) history_->Push(node.type, state.speaker, state.fullText);
         return;
-    case NodeType::Present:
+    }
+    case NodeType::Present: {
         present_.Enter(node);
         UpdateView();
+
+        const auto& def = present_.Def();
+        const std::string& prompt = "[" + def.prompt + "]";
+        if (history_) history_->Push(Story::NodeType::Present,
+            Session::HistoryKind::PresentPrompt, "", prompt);
         return;
-    case NodeType::Debate:
+    }
+    case NodeType::Debate: {
         debate_.Enter(node);
         UpdateView();
+
+        const auto& stmtIdx = debate_.StatementIndex();
+        if (stmtIdx <= lastStmtIndex_) return;
+        lastStmtIndex_ = stmtIdx;
+        const auto& stmt = debate_.CurrentStatement();
+        if (history_) history_->Push(Story::NodeType::Debate, stmt.speaker, stmt.text);
         return;
-    case NodeType::Choice:
+    }
+    case NodeType::Choice: {
         choice_.Enter(node);
         UpdateView();
+
+        const auto& def = choice_.Def();
+        std::string optionsStr;
+        for (const auto& [id, label] : def.options) optionsStr += "| " + label + " ";
+        if (history_) history_->Push(Story::NodeType::Choice,
+            Session::HistoryKind::OptionList, "", optionsStr, "");
         return;
+    }
     default:
         if (logger_) {
             logger_->Warn("StoryPlayer",

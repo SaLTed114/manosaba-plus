@@ -19,7 +19,6 @@ namespace Salt2D::Game::Screens {
 class VnScreen final : public IStoryScreen {
 public:
     void SetPlayer(Story::StoryPlayer* player) override { player_ = player; }
-    void SetHistory(Session::StoryHistory* history) override { history_ = history; }
     void SetTables(const Story::StoryTables* tables) { tables_ = tables; }
     void SetTheme(UI::TextTheme* theme) { theme_ = theme; baker_.SetTheme(theme); }
 
@@ -38,11 +37,9 @@ private:
     void HandleKeyboard(Session::ActionFrame& af);
     void HandlePointer(Session::ActionFrame& af);
     void BuildUI(uint32_t canvasW, uint32_t canvasH);
-    void LogHistory();
 
 private:
     Story::StoryPlayer* player_ = nullptr;
-    Session::StoryHistory* history_ = nullptr;
     UI::TextTheme* theme_ = nullptr;
     const Story::StoryTables* tables_ = nullptr;
 

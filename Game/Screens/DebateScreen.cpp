@@ -20,15 +20,6 @@ void DebateScreen::PickSpan() {
     selectedSpan_ = Utils::ClampWarp(selectedSpan_, static_cast<int>(view->spanIds.size()));
     const std::string spanId = view->spanIds[selectedSpan_];
     player_->OpenSuspicion(spanId);
-
-    const auto& updatedView = player_->View().debate;
-    if (updatedView.has_value() && updatedView->menuOpen) {
-        std::string line = "Options: ";
-        for (const auto& [id, label] : updatedView->options) line += "| " + label;
-        line += " | [Back]";
-        if (history_) history_->Push(Story::NodeType::Debate,
-            Session::HistoryKind::MenuOpen, "", line, updatedView->openedSpanId);
-    }
 }
 
 void DebateScreen::CommitOption() {
@@ -40,18 +31,11 @@ void DebateScreen::CommitOption() {
     const auto& option = view->options[selectedOption_];
     
     const std::string optionId = option.first;
-    const std::string optionLabel = option.second;
-    
-    player_->CommitOption(optionId);     
-    if (history_) history_->Push(Story::NodeType::Debate,
-        Session::HistoryKind::OptionPick, "", optionLabel, optionId);
-    LogHistory();
+    player_->CommitOption(optionId);
 }
 
 void DebateScreen::BackOption() {
     player_->CloseDebateMenu();
-    if (history_) history_->Push(Story::NodeType::Debate,
-        Session::HistoryKind::MenuBack, "", "");
 }
 
 void DebateScreen::ChangeSpeed(Story::TimeScaleMode mode) {
@@ -87,7 +71,6 @@ void DebateScreen::HandleKeyboard(Session::ActionFrame& af) {
 
         if (confirm) {
             player_->Advance();
-            LogHistory();
         }
     } else {
         if (!view->options.empty() && confirm) {
@@ -201,29 +184,15 @@ void DebateScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureSer
     emitter_.Emit(drawList, service, frame_);
 }
 
-void DebateScreen::LogHistory() {
-    if (!player_ || !history_) return;
-    const auto& view = player_->View().debate;
-    if (!view.has_value()) return;
-
-    // Log each statement once when it first appears.
-    if (view->statementIndex <= lastStmtInx_) return;
-    lastStmtInx_ = view->statementIndex;
-
-    history_->Push(Story::NodeType::Debate, view->speaker, view->fullText);
-}
-
 void DebateScreen::OnEnter() {
     selectedSpan_ = 0;
     selectedOption_ = 0;
-    lastStmtInx_ = -283;
 
     pointer_ = {};
     dialog_.SetVisible(false);
     menu_.SetVisible(false);
     speed_.SetVisible(false);
     baker_.SetTheme(theme_);
-    LogHistory();
 }
 
 void DebateScreen::OnExit() {

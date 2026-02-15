@@ -23,13 +23,11 @@ void VnScreen::HandleKeyboard(Session::ActionFrame& af) {
 
     if (accel) {
         player_->FastForward();
-        LogHistory();
         return;
     }
 
     if (confirm) {
         player_->Advance();
-        LogHistory();
         return;
     }
 }
@@ -51,7 +49,6 @@ void VnScreen::HandlePointer(Session::ActionFrame& af) {
 
     if (af.pointer.lPressed && dialog_.Visible() && interaction.hovered == 0) {
         player_->Advance();
-        LogHistory();
     }
 }
 
@@ -120,23 +117,10 @@ void VnScreen::EmitDraw(Render::DrawList& drawList, RenderBridge::TextureService
     emitter_.Emit(drawList, service, frame_);
 }
 
-void VnScreen::LogHistory() {
-    if (!player_ || !history_) return;
-    const auto& view = player_->View().vn;
-    if (!view.has_value()) return;
-
-    std::string lineKey = view->speaker + ":" + view->fullText;
-    if (lineKey == lastLineKey_) return;
-
-    history_->Push(Story::NodeType::VN, view->speaker, view->fullText);
-    lastLineKey_ = std::move(lineKey);
-}
-
 void VnScreen::OnEnter() {
     dialog_.SetVisible(false);
     auto_.SetVisible(false);
     baker_.SetTheme(theme_);
-    LogHistory();
 }
 
 void VnScreen::OnExit() {

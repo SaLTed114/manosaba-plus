@@ -19,10 +19,7 @@ void PresentScreen::PickEvidence() {
     selectedItem_ = Utils::ClampWarp(selectedItem_, static_cast<int>(view->items.size()));
 
     const std::string itemId = view->items[selectedItem_].first;
-    const std::string itemLabel = view->items[selectedItem_].second;
     player_->PickEvidence(itemId);
-    if (history_) history_->Push(Story::NodeType::Present,
-        Session::HistoryKind::PresentPick, "", itemLabel, itemId);
 }
 
 void PresentScreen::HandleKeyboard(Session::ActionFrame& af) {
@@ -82,7 +79,6 @@ void PresentScreen::Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t ca
 
     if (kbEnabled_) HandleKeyboard(af);
     BuildUI(canvasW, canvasH);
-    // HandlePointer(af);
 }
 
 void PresentScreen::Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service) {
@@ -113,11 +109,6 @@ void PresentScreen::OnEnter() {
     pointer_ = {};
     dialog_.SetVisible(false);
     baker_.SetTheme(theme_);
-
-    const auto& view = player_->View().present;
-    if (!view.has_value()) return;
-    if (history_) history_->Push(Story::NodeType::Present,
-        Session::HistoryKind::PresentPrompt, "", view->prompt);
 }
 
 void PresentScreen::OnExit() {

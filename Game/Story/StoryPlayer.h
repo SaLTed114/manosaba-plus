@@ -11,6 +11,7 @@
 #include "Game/Story/Runners/DebateRunner.h"
 #include "Game/Story/Runners/ChoiceRunner.h"
 #include "Game/Common/Logger.h"
+#include "Game/Session/StoryHistory.h"
 
 namespace Salt2D::Game::Story {
 
@@ -62,6 +63,8 @@ public:
         choice_.SetLogger(logger);
     }
 
+    void SetHistory(Session::StoryHistory* history) { history_ = history; }
+
 private:
     void OnEnteredNode();
     void ResetTimer();
@@ -91,6 +94,9 @@ private:
     bool historyOpened_ = false;
 
     const Game::Logger* logger_ = nullptr;
+    Session::StoryHistory* history_ = nullptr;
+    int lastLineSerial_ = -283;
+    int lastStmtIndex_  = -283;
 };
 
 } // namespace Salt2D::Game::Story

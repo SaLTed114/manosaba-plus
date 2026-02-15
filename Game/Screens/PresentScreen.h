@@ -19,7 +19,6 @@ namespace Salt2D::Game::Screens {
 class PresentScreen final : public IStoryScreen {
 public:
     void SetPlayer(Story::StoryPlayer* player) override { player_ = player; }
-    void SetHistory(Session::StoryHistory* history) override { history_ = history; }
     void SetTheme(UI::TextTheme* theme) { theme_ = theme; baker_.SetTheme(theme); }
 
     void Tick(Session::ActionFrame& af, uint32_t canvasW, uint32_t canvasH) override;
@@ -42,7 +41,6 @@ private:
 
 private:
     Story::StoryPlayer* player_ = nullptr;
-    Session::StoryHistory* history_ = nullptr;
     UI::TextTheme* theme_ = nullptr;
 
     int selectedItem_ = 0;
