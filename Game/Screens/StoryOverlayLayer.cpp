@@ -19,6 +19,7 @@ void StoryOverlayLayer::HandleKeyboard(Session::ActionFrame& af) {
     case Story::NodeType::Choice:
         if (history && !player_->HistoryOpened()) {
             player_->OpenHistory();
+            openHistory_ = true;
             if (historyLogger_) {
                 historyLogger_->DumpToLogger();
             }
@@ -108,6 +109,7 @@ void StoryOverlayLayer::Bake(const RHI::DX11::DX11Device& device, RenderBridge::
 void StoryOverlayLayer::PostBake(Session::ActionFrame& af, uint32_t /*canvasW*/, uint32_t /*canvasH*/) {
     if (!player_) return;
 
+    if (openHistory_) { scrollY_ = history_.MaxScroll(); openHistory_ = false; }
     HandlePointer(af);
 }
 

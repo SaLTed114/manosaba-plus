@@ -12,7 +12,7 @@ void HistoryWidget::Build(const HistoryModel& model, uint32_t canvasW, uint32_t 
     scrollY_ = model.scrollY;
 
     // background panel
-    panelRect_ = RectFromScale(cfg_.rectScale, canvasW, canvasH);
+    panelRect_ = RectFromScale(cfg_.panelRect, canvasW, canvasH);
     PushSprite(frame, TextureId::White, panelRect_, cfg_.panelTint, 0.9f);
 
     // close button
@@ -34,16 +34,17 @@ void HistoryWidget::Build(const HistoryModel& model, uint32_t canvasW, uint32_t 
     PushTextInRect(frame, TextStyleId::PresentTitleBig,
         "历史", titleRect, cfg_.textTint, 0.95f);
 
+    const float contentMargin = cfg_.contentMarginScale * panelRect_.w;
     contentRect_ = Render::RectF{
-        panelRect_.x + mx,
+        panelRect_.x + contentMargin,
         panelRect_.y + my + headerH,
-        panelRect_.w - 2.0f * mx,
+        panelRect_.w - 2.0f * contentMargin,
         panelRect_.h - 2.0f * my - headerH
     };
 
-    const float x0 = contentRect_.x + cfg_.indentPx;
+    const float x0 = contentRect_.x + cfg_.indentScale * panelRect_.w;
     const float y0 = contentRect_.y;
-    const float lw = contentRect_.w - cfg_.indentPx;
+    const float lw = contentRect_.w - cfg_.indentScale * panelRect_.w;
     const float lh = 4096.0f; // large enough
 
     for (const auto& entry : model.entries) {
@@ -54,7 +55,7 @@ void HistoryWidget::Build(const HistoryModel& model, uint32_t canvasW, uint32_t 
         ids.speaker = PushTextInRect(frame, TextStyleId::VnNameRest,
             speaker, Render::RectF{x0, y0 + contentH_, lw, lh}, cfg_.textTint, 0.95f);
         ids.body = PushTextInRect(frame, TextStyleId::VnBody,
-            text, Render::RectF{x0, y0 + contentH_ + cfg_.speakerGapPx, lw, lh}, cfg_.textTint, 0.95f);
+            text, Render::RectF{x0, y0 + contentH_ + cfg_.speakerGapScale * panelRect_.h, lw, lh}, cfg_.textTint, 0.95f);
 
         rows_.push_back(ids);
     }
@@ -70,7 +71,11 @@ void HistoryWidget::AfterBake(UIFrame& frame) {
         TextOp* bodyOp    = GetText(frame, ids.body);
         if (!speakerOp || !bodyOp) continue;
 
-        speakerOp->x = contentRect_.x + cfg_.indentPx;
+        const float indent = cfg_.indentScale * panelRect_.w;
+        const float speakerGap = cfg_.speakerGapScale * panelRect_.h;
+        const float rowGap = cfg_.rowGapScale * panelRect_.h;
+
+        speakerOp->x = contentRect_.x;
         speakerOp->y = contentRect_.y - scrollY_ + yLocal;
         speakerOp->clipEnabled = true;
         speakerOp->clipRect = Render::RectI{
@@ -79,9 +84,9 @@ void HistoryWidget::AfterBake(UIFrame& frame) {
             static_cast<int>(contentRect_.x + contentRect_.w),
             static_cast<int>(contentRect_.y + contentRect_.h)
         };
-        yLocal += static_cast<float>(speakerOp->baked.h) + cfg_.speakerGapPx;
+        yLocal += static_cast<float>(speakerOp->baked.h) + speakerGap;
 
-        bodyOp->x = contentRect_.x + cfg_.indentPx;
+        bodyOp->x = contentRect_.x + indent;
         bodyOp->y = contentRect_.y - scrollY_ + yLocal;
         bodyOp->clipEnabled = true;
         bodyOp->clipRect = Render::RectI{
@@ -90,10 +95,10 @@ void HistoryWidget::AfterBake(UIFrame& frame) {
             static_cast<int>(contentRect_.x + contentRect_.w),
             static_cast<int>(contentRect_.y + contentRect_.h)
         };
-        yLocal += static_cast<float>(bodyOp->baked.h) + cfg_.rowGapPx;
+        yLocal += static_cast<float>(bodyOp->baked.h) + rowGap;
     }
 
-    contentH_ = yLocal - cfg_.rowGapPx;
+    contentH_ = yLocal - cfg_.rowGapScale * panelRect_.h;
 }
 
 void HistoryWidget::ApplyHover(UIFrame& frame, HitKey hoveredKey) {

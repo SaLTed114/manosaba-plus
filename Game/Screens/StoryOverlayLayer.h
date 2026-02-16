@@ -47,6 +47,7 @@ private:
     UI::HistoryWidget history_;
 
     float scrollY_ = 0.0f;
+    bool openHistory_ = false;
 };
 
 } // namespace Salt2D::Game::Screens

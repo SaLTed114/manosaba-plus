@@ -49,6 +49,8 @@ void VnScreen::HandlePointer(Session::ActionFrame& af) {
 
     if (af.pointer.lPressed && dialog_.Visible() && interaction.hovered == 0) {
         player_->Advance();
+        player_->SetVnAutoMode(false);
+        return;
     }
 }
 

@@ -21,14 +21,16 @@ struct HistoryModel {
 };
 
 struct HistoryConfig {
-    RectScale rectScale{0.0f, 0.0f, 1.0f, 1.0f};
+    RectScale panelRect{0.0f, 0.0f, 1.0f, 1.0f};
     RectScale closeBtnRect{0.9f, 0.05f, 0.02f, 0.04f};
 
     float marginPx     = 36.0f;
     float headerHPx    = 80.0f;
-    float rowGapPx     = 18.0f;
-    float speakerGapPx = 6.0f;
-    float indentPx     = 0.0f;
+
+    float contentMarginScale = 3.2f / 16.0f;
+    float indentScale = 0.6f / 16.0f;
+    float speakerGapScale = 0.3f / 9.0f;
+    float rowGapScale = 0.6f / 9.0f;
 
     Render::Color4F textTint{1.0f, 1.0f, 1.0f, 1.0f};
     Render::Color4F panelTint{0.0f, 0.0f, 0.0f, 0.6f};

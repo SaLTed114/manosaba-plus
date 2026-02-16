@@ -240,9 +240,9 @@ void StoryPlayer::OpenSuspicion(const std::string& spanId) {
 
     const auto& view = view_.debate;
     if (!view.has_value() || !view->menuOpen) return;
-    std::string line = "Options: ";
-    for (const auto& [id, label] : view->options) line += "| " + label + " ";
-    line += " | [Back]";
+    std::string line;
+    for (const auto& [id, label] : view->options) line += "| " + label + "\n";
+    line += "| [Back]";
     if (history_) history_->Push(Story::NodeType::Debate,
         Session::HistoryKind::MenuOpen, "", line, view->openedSpanId);
 }
@@ -328,7 +328,7 @@ void StoryPlayer::OnEnteredNode() {
 
         const auto& def = choice_.Def();
         std::string optionsStr;
-        for (const auto& [id, label] : def.options) optionsStr += "| " + label + " ";
+        for (const auto& [id, label] : def.options) optionsStr += "| " + label + "\n";
         if (history_) history_->Push(Story::NodeType::Choice,
             Session::HistoryKind::OptionList, "", optionsStr, "");
         return;
