@@ -24,10 +24,10 @@ struct NodeTimer {
 };
 
 struct StatementTimeConfig {
-    float stmtBaseSec_ = 0.6f;
-    float stmtCps_ = 12.0f; // characters (Chinese/Japanses) per second
-    float stmtMinSec_ = 0.5f;
-    float stmtMaxSec_ = 10.0f;
+    float stmtBaseSec = 0.6f;
+    float stmtCps = 12.0f; // characters (Chinese/Japanses) per second
+    float stmtMinSec = 0.5f;
+    float stmtMaxSec = 10.0f;
 };
 
 struct StatementTimer {
@@ -48,10 +48,10 @@ struct StatementTimer {
 };
 
 struct VnAutoTimerConfig {
-    float baseSec_ = 0.3f;
-    float cps_ = 18.0f;
-    float minSec_ = 0.8f;
-    float maxSec_ = 1.5f;
+    float baseSec = 0.3f;
+    float cps = 18.0f;
+    float minSec = 0.8f;
+    float maxSec = 1.5f;
 };
 
 struct VnAutoTimer {

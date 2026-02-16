@@ -25,7 +25,7 @@ void StoryPlayer::Tick(double dtSec) {
     case NodeType::Error: {
         if (historyOpened_) { UpdateView(); return; }
 
-        vn_.Tick(dtGame, vnTimer_.cfg.cps_);
+        vn_.Tick(dtGame, vnTimer_.cfg.cps);
 
         const auto& state = vn_.State();
         if (!vnAutoMode_ || state.finished) break;
@@ -377,8 +377,8 @@ void StoryPlayer::ResetStatementTimer(std::string plainText, int stmtIndex) {
         std::string_view(plainText);
 
     float sec = Utils::EstimateReadingTimeSec(plain,
-        stmtTimer_.cfg.stmtCps_, stmtTimer_.cfg.stmtBaseSec_,
-        stmtTimer_.cfg.stmtMinSec_, stmtTimer_.cfg.stmtMaxSec_);
+        stmtTimer_.cfg.stmtCps, stmtTimer_.cfg.stmtBaseSec,
+        stmtTimer_.cfg.stmtMinSec, stmtTimer_.cfg.stmtMaxSec);
     stmtTimer_.active = true;
     stmtTimer_.statementIndex = stmtIndex;
     stmtTimer_.totalSec  = sec;
@@ -397,8 +397,8 @@ void StoryPlayer::ResetVnAutoTimer(std::string fullText, int lineSerial) {
         view_.nodeType != NodeType::Error) { vnTimer_.Reset(); return; }
 
     float sec = Utils::EstimateReadingTimeSec(fullText,
-        vnTimer_.cfg.cps_, vnTimer_.cfg.baseSec_,
-        vnTimer_.cfg.minSec_, vnTimer_.cfg.maxSec_);
+        vnTimer_.cfg.cps, vnTimer_.cfg.baseSec,
+        vnTimer_.cfg.minSec, vnTimer_.cfg.maxSec);
     vnTimer_.active = true;
     vnTimer_.lineSerial = lineSerial;
     vnTimer_.totalSec  = sec;

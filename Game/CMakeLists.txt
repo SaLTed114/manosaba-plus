@@ -3,6 +3,7 @@ set(GAME_SOURCES
     Director/HudEvaluator.cpp
     Director/StageWorld.cpp
     Director/StageCameraDirector.cpp
+    Director/StageCamera/StageCameraSolver.cpp
     Story/StoryGraphLoader.cpp
     Story/StoryPlayer.cpp
     Story/StoryRuntime.cpp

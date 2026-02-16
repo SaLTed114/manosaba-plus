@@ -101,7 +101,7 @@ UI::HudPose2D EvalDebateDialogPose(
     float rotRad = 0.0f;
 
     switch (track.rotation.mode) {
-    case Story::RotateMode::Slope: {
+    case Story::Rotate2DMode::Slope: {
         const float dx = endX - startX;
         const float dy = endY - startY;
 
@@ -109,7 +109,7 @@ UI::HudPose2D EvalDebateDialogPose(
         if (track.rotation.keepUpright) rotRad = KeepUpright(rotRad);
         break;
     }
-    case Story::RotateMode::Fixed:
+    case Story::Rotate2DMode::Fixed:
         rotRad = track.rotation.fixedRad;
         break;
     default:

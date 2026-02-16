@@ -25,10 +25,16 @@ enum class PivotKind : uint8_t {
     Center  = 1,
 };
 
-enum class RotateMode : uint8_t {
+enum class Rotate2DMode : uint8_t {
     None  = 0,
     Slope = 1,
     Fixed = 2,
+};
+
+enum class Rotate3DMode : uint8_t {
+    None   = 0,
+    LookAt = 1,
+    Fixed  = 2,
 };
 
 enum class MotionType : uint8_t {
@@ -40,10 +46,17 @@ enum class CameraSpace : uint8_t {
     // World = 1, // future expansion
 };
 
-struct RotationPolicy {
-    RotateMode mode  = RotateMode::Slope;
+struct Rotation2DPolicy {
+    Rotate2DMode mode  = Rotate2DMode::Slope;
     bool keepUpright = true;
     float fixedRad   = 0.0f;
+};
+
+struct Rotation3DPolicy {
+    Rotate3DMode mode = Rotate3DMode::LookAt;
+    float fixedYawRad   = 0.0f;
+    float fixedPitchRad = 0.0f;
+    float fixedRollRad  = 0.0f;
 };
 
 struct MotionPolicy {
@@ -58,7 +71,7 @@ struct DebateTextTrack2D {
 
     PivotKind pivot = PivotKind::TopLeft;
 
-    RotationPolicy rotation{};
+    Rotation2DPolicy rotation{};
     MotionPolicy motion{};
 };
 
@@ -77,6 +90,8 @@ struct StageCameraTrack {
     StageCameraPoseAnchor end{};
 
     float targetListY = 0.05f; // look = head + up * targetListY
+
+    Rotation3DPolicy rotation{};
     MotionPolicy motion{};
 };
 

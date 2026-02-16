@@ -68,11 +68,18 @@ static PivotKind ParsePivotKind(const std::string str, const std::string& contex
     throw std::runtime_error("PerformanceDefLoader: invalid PivotKind value '" + str + "' in " + context);
 }
 
-static RotateMode ParseRotateMode(const std::string str, const std::string& context) {
-    if (str == "none")  return RotateMode::None;
-    if (str == "slope") return RotateMode::Slope;
-    if (str == "fixed") return RotateMode::Fixed;
-    throw std::runtime_error("PerformanceDefLoader: invalid RotateMode value '" + str + "' in " + context);
+static Rotate2DMode ParseRotate2DMode(const std::string str, const std::string& context) {
+    if (str == "none")  return Rotate2DMode::None;
+    if (str == "slope") return Rotate2DMode::Slope;
+    if (str == "fixed") return Rotate2DMode::Fixed;
+    throw std::runtime_error("PerformanceDefLoader: invalid Rotate2DMode value '" + str + "' in " + context);
+}
+
+static Rotate3DMode ParseRotate3DMode(const std::string str, const std::string& context) {
+    if (str == "none")    return Rotate3DMode::None;
+    if (str == "look_at") return Rotate3DMode::LookAt;
+    if (str == "fixed")   return Rotate3DMode::Fixed;
+    throw std::runtime_error("PerformanceDefLoader: invalid Rotate3DMode value '" + str + "' in " + context);
 }
 
 static MotionType ParseMotionType(const std::string str, const std::string& context) {
@@ -130,7 +137,7 @@ static DebateTextTrack2D ParseDebateTextTrack2D(const json& j, const std::string
             if (!jRot["mode"].is_string()) {
                 throw std::runtime_error("PerformanceDefLoader: 'mode' must be a string in " + rotCtx);
             }
-            track.rotation.mode = ParseRotateMode(jRot["mode"].get<std::string>(), rotCtx + ".mode");
+            track.rotation.mode = ParseRotate2DMode(jRot["mode"].get<std::string>(), rotCtx + ".mode");
         }
 
         if (jRot.contains("keep_upright")) {
@@ -140,7 +147,7 @@ static DebateTextTrack2D ParseDebateTextTrack2D(const json& j, const std::string
             track.rotation.keepUpright = jRot["keep_upright"].get<bool>();
         }
 
-        if (track.rotation.mode == RotateMode::Fixed) {
+        if (track.rotation.mode == Rotate2DMode::Fixed) {
             track.rotation.fixedRad = RequireFloat(jRot, "fixed_rad", rotCtx);
         }
     }
@@ -188,6 +195,27 @@ static StageCameraTrack ParseStageCameraTrack(const json& j, const std::string& 
     track.end = ParseStageCameraPoseAnchor(j["end"], context + ".end");
 
     track.targetListY = RequireFloat(j, "target_list_y", context);
+
+    if (j.contains("rotation")) {
+        const auto& jRot = j["rotation"];
+        const auto rotCtx = context + ".rotation";
+        if (!jRot.is_object()) {
+            throw std::runtime_error("PerformanceDefLoader: " + rotCtx + " must be an object");
+        }
+
+        if (jRot.contains("mode")) {
+            if (!jRot["mode"].is_string()) {
+                throw std::runtime_error("PerformanceDefLoader: 'mode' must be a string in " + rotCtx);
+            }
+            track.rotation.mode = ParseRotate3DMode(jRot["mode"].get<std::string>(), rotCtx + ".mode");
+        }
+
+        if (track.rotation.mode == Rotate3DMode::Fixed) {
+            track.rotation.fixedYawRad   = RequireFloat(jRot, "fixed_yaw_rad",   rotCtx);
+            track.rotation.fixedPitchRad = RequireFloat(jRot, "fixed_pitch_rad", rotCtx);
+            track.rotation.fixedRollRad  = RequireFloat(jRot, "fixed_roll_rad",  rotCtx);
+        }
+    }
 
     if (j.contains("motion")) {
         const auto& jMotion = j["motion"];

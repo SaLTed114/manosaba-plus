@@ -5,8 +5,10 @@
 #include "StageWorld.h"
 #include "Game/Story/StoryTables.h"
 #include "Game/Story/StoryPlayer.h"
-#include "Game/Director/Filters/LowPass.h"
 #include "Render/Scene3D/Camera3D.h"
+#include "Game/Director/StageCamera/StageCameraTypes.h"
+#include "Game/Director/StageCamera/StageCameraSolver.h"
+
 
 namespace Salt2D::Game::Director {
 
@@ -21,12 +23,6 @@ struct CameraDirectorConfig {
     
     float snapDist = 3.0f;
     float snapAngleY = 0.0f;
-};
-
-struct StageCameraSample {
-    DirectX::XMFLOAT3 eye{};
-    DirectX::XMFLOAT3 target{};
-    float fovYRad = DirectX::XM_PIDIV4; // 45 degrees
 };
 
 class StageCameraDirector {
@@ -53,14 +49,7 @@ private:
     Render::Scene3D::Camera3D* camera_ = nullptr;
 
     StageCameraSample lastSample_{};
-
-private:
-    LowPassVec3 eyeLP_;
-    LowPassVec3 targetLP_;
-    LowPass1 fovLP_;
-
-    void InvalidateLP();
-    void ApplyLowPass(float dt, StageCameraSample& sample);
+    StageCameraRotationResult lastRotation_{};
 };
 
 } // namespace Salt2D::Game::Director
