@@ -13,7 +13,7 @@ void VnRunner::Enter(const Node& node) {
         throw std::runtime_error("VnRunner: node resource path is empty");
     }
     const std::string text = fs_.ReadTextFileUtf8(node.resourceFullPath, true);
-    script_ = ParseVnScriptText(text);
+    script_ = VnScriptLoader(fs_, node.resourceFullPath);
 
     cmdIndex_ = 0;
     state_ = VnState{};

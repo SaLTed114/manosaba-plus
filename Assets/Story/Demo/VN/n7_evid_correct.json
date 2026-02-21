@@ -1,0 +1,24 @@
+{
+  "cmds": [
+    {
+      "type": "line",
+      "speaker": "二阶堂 希罗",
+      "text": "你在意的东西，那就是——"
+    },
+    {
+      "type": "line",
+      "speaker": "二阶堂 希罗",
+      "text": "这颗大的有些不寻常苹果。"
+    },
+    {
+      "type": "line",
+      "speaker": "樱羽 艾玛",
+      "text": "kiang"
+    },
+    {
+      "type": "line",
+      "speaker": "月代 雪",
+      "text": "呵呵，又是一把【契诃夫的枪】呢。"
+    }
+  ]
+}

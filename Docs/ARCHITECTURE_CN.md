@@ -131,8 +131,10 @@ manosaba-plus/
 │   │   ├── StageCameraDirector.cpp            # 相机控制与定位逻辑
 │   │   ├── HudEvaluator.h                     # HUD 评估接口
 │   │   ├── HudEvaluator.cpp                   # HUD 状态评估与更新
-│   │   └── Filters/
-│   │       └── LowPass.h                      # 低通滤波器，用于平滑值过渡
+│   │   └── StageCamera/
+│   │       ├── StageCameraTypes.h             # 舞台相机类型定义
+│   │       ├── StageCameraSolver.h            # 舞台相机求解器接口
+│   │       └── StageCameraSolver.cpp          # 相机轨道评估与旋转策略
 │   └── UI/
 │       ├── UITypes.h                          # UI 类型定义
 │       ├── Framework/
@@ -415,7 +417,9 @@ manosaba-plus/
 - `Director/StageCameraDirector.cpp` - 电影式相机控制、插值、基于锚点的定位
 - `Director/HudEvaluator.h` - HUD 评估接口
 - `Director/HudEvaluator.cpp` - 基于故事上下文评估和更新 HUD 状态
-- `Director/Filters/LowPass.h` - 低通滤波器模板，用于平滑值过渡
+- `Director/StageCamera/StageCameraTypes.h` - 舞台相机类型定义（相机采样、旋转结果）
+- `Director/StageCamera/StageCameraSolver.h` - 舞台相机求解器接口
+- `Director/StageCamera/StageCameraSolver.cpp` - 相机轨道评估、旋转策略计算
 
 **UI 系统**
 - `UI/UITypes.h` - UI 类型定义与通用结构

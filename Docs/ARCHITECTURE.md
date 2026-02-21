@@ -129,8 +129,10 @@ manosaba-plus/
 │   │   ├── StageCameraDirector.cpp            # Camera control and positioning logic
 │   │   ├── HudEvaluator.h                     # HUD evaluation interface
 │   │   ├── HudEvaluator.cpp                   # HUD state evaluation and updates
-│   │   └── Filters/
-│   │       └── LowPass.h                      # Low-pass filter for smooth value transitions
+│   │   └── StageCamera/
+│   │       ├── StageCameraTypes.h             # Stage camera type definitions
+│   │       ├── StageCameraSolver.h            # Stage camera solver interface
+│   │       └── StageCameraSolver.cpp          # Camera track evaluation and rotation policy
 │   └── UI/
 │       ├── UITypes.h                          # UI type definitions
 │       ├── Framework/
@@ -413,7 +415,9 @@ The director system manages 3D stage presentation, camera control, and HUD state
 - `Director/StageCameraDirector.cpp` - Cinematic camera control, interpolation, anchor-based positioning
 - `Director/HudEvaluator.h` - HUD evaluation interface
 - `Director/HudEvaluator.cpp` - Evaluates and updates HUD state based on story context
-- `Director/Filters/LowPass.h` - Low-pass filter template for smooth value transitions
+- `Director/StageCamera/StageCameraTypes.h` - Stage camera type definitions (camera samples, rotation results)
+- `Director/StageCamera/StageCameraSolver.h` - Stage camera solver interface
+- `Director/StageCamera/StageCameraSolver.cpp` - Camera track evaluation, rotation policy computation
 
 **UI System**
 - `UI/UITypes.h` - UI type definitions and common structures

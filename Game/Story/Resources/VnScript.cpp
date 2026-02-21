@@ -2,115 +2,59 @@
 #include "VnScript.h"
 #include "Utils/FileUtils.h"
 
+#include <nlohmann/json.hpp>
 #include <sstream>
 
 namespace Salt2D::Game::Story {
 
-static inline bool IsCommentOrEnpty(const std::string& line) {
-    for (char ch : line) {
-        if (ch == '@') return true; // temp: future director commands
-        if (ch == '#') return true;
-        if (!std::isspace(static_cast<unsigned char>(ch))) return false;
+using json = nlohmann::json;
+
+static std::string RequireString(const json& j, const char* key, const std::string& context) {
+    if (!j.contains(key) || !j[key].is_string()) {
+        throw std::runtime_error("VnScriptLoader: missing/invalid string field '" + std::string(key) + "' in " + context);
     }
-    return true;
+    return j[key].get<std::string>();
 }
 
-static inline bool LooksLikeCue(const std::string& line) {
-    // = something =
-    return line.size() >= 3 && line.front() == '=' && line.back() == '=';
+static VnCmdType ParseCmdType(const std::string& str, const std::string& context) {
+    if (str == "line") return VnCmdType::Line;
+    if (str == "cue")  return VnCmdType::Cue;
+    throw std::runtime_error("VnScriptLoader: invalid cmd type '" + str + "' in " + context);
 }
 
-static bool ParseQuotedLine(const std::string& line, std::string& outSpeaker, std::string& outText) {
-    // speaker "text"
-    // speaker 「text」
-    // speaker "text"
-    
-    // Define quote pairs (UTF-8 encoded)
-    struct QuotePair {
-        std::string opening;
-        std::string closing;
-    };
-    
-    const QuotePair quotes[] = {
-        {"\"", "\""},           // ASCII double quote
-        {"\xe3\x80\x8c", "\xe3\x80\x8d"},  // 「」 Japanese quotes
-        {"\xe2\x80\x9c", "\xe2\x80\x9d"}   // "" curly quotes
-    };
-    
-    // Find the first opening quote
-    size_t quotePos = std::string::npos;
-    const QuotePair* selectedQuote = nullptr;
-    
-    for (const auto& quote : quotes) {
-        size_t pos = line.find(quote.opening);
-        if (pos != std::string::npos && (quotePos == std::string::npos || pos < quotePos)) {
-            quotePos = pos;
-            selectedQuote = &quote;
-        }
+VnScript VnScriptLoader(Utils::IFileSystem& fs, const std::filesystem::path& fullPath) {
+    if (!fs.Exists(fullPath)) {
+        throw std::runtime_error("VnScriptLoader: file does not exist: " + fullPath.string());
     }
-    
-    if (quotePos == std::string::npos || !selectedQuote) {
-        return false;  // No opening quote found
-    }
-    
-    // Extract speaker (everything before the quote)
-    std::string speaker = line.substr(0, quotePos);
-    // Trim whitespace
-    Utils::Trim(speaker);
-    if (speaker.empty()) {
-        return false;  // No speaker
-    }
-    
-    // Find closing quote
-    size_t textStart = quotePos + selectedQuote->opening.size();
-    size_t closingPos = line.find(selectedQuote->closing, textStart);
-    
-    if (closingPos == std::string::npos) {
-        return false;  // No closing quote
-    }
-    
-    // Extract text between quotes
-    std::string text = line.substr(textStart, closingPos - textStart);
-    
-    outSpeaker = std::move(speaker);
-    outText = std::move(text);
-    return true;
-}
+    const std::string text = fs.ReadTextFileUtf8(fullPath, true);
 
-VnScript ParseVnScriptText(const std::string& utf8Text) {
+    json root = json::parse(text);
+    if (!root.is_object()) {
+        throw std::runtime_error("VnScriptLoader: root JSON is not an object in " + fullPath.string());
+    }
+
     VnScript script;
-    
-    std::istringstream iss(utf8Text);
-    std::string line;
-    while (std::getline(iss, line)) {
-        Utils::Trim(line);
-        if (line.empty()) continue;
-        if (IsCommentOrEnpty(line)) continue;
-
-        if (LooksLikeCue(line)) {
-            std::string inner = line.substr(1, line.size() - 2);;
-            Utils::Trim(inner);
-            VnCmd cmd;
-            cmd.type = VnCmdType::Cue;
-            cmd.cueName = std::move(inner);
-            script.cmds.push_back(std::move(cmd));
-            continue;
-        }
-
-        std::string speaker, text;
-        if (ParseQuotedLine(line, speaker, text)) {
-            VnCmd cmd;
-            cmd.type = VnCmdType::Line;
-            cmd.speaker = std::move(speaker);
-            cmd.text = std::move(text);
-            script.cmds.push_back(std::move(cmd));
-            continue;
-        }
-
-        // If we reach here, the line format is unrecognized
-        throw std::runtime_error("VnScriptParser: unrecognized line format: " + line);
+    if (!root.contains("cmds") || !root["cmds"].is_array()) {
+        throw std::runtime_error("VnScriptLoader: missing/invalid 'cmds' array in " + fullPath.string());
     }
-    
+    for (size_t i = 0; i < root["cmds"].size(); i++) {
+        const auto& jCmd = root["cmds"][i];
+        const auto ctx = "cmds[" + std::to_string(i) + "]";
+        if (!jCmd.is_object()) {
+            throw std::runtime_error("VnScriptLoader: " + ctx + " must be object");
+        }
+
+        VnCmd cmd;
+        // tmp not supporting cues in json format, only line cmds for now
+        cmd.type = ParseCmdType(RequireString(jCmd, "type", ctx), ctx);
+        if (cmd.type == VnCmdType::Line) {
+            cmd.speaker = RequireString(jCmd, "speaker", ctx);
+            cmd.text = RequireString(jCmd, "text", ctx);
+        }
+
+        script.cmds.push_back(std::move(cmd));
+    }
+
     return script;
 }
 

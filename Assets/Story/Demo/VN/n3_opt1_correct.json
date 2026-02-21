@@ -1,0 +1,19 @@
+{
+  "cmds": [
+    {
+      "type": "line",
+      "speaker": "二阶堂 希罗",
+      "text": "但你明明有在意的东西吧，艾玛。"
+    },
+    {
+      "type": "line",
+      "speaker": "樱羽 艾玛",
+      "text": "诶？"
+    },
+    {
+      "type": "line",
+      "speaker": "二阶堂 希罗",
+      "text": "你在意的东西，那就是——"
+    }
+  ]
+}

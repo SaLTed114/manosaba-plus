@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include "Utils/IFileSystem.h"
 
 namespace Salt2D::Game::Story {
 
@@ -21,7 +22,7 @@ struct VnScript {
     std::vector<VnCmd> cmds;
 };
 
-VnScript ParseVnScriptText(const std::string& utf8Text);
+VnScript VnScriptLoader(Utils::IFileSystem& fs, const std::filesystem::path& fullPath);
 
 } // namespace Salt2D::Game::Story
 

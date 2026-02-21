@@ -1,24 +1,24 @@
 {
   "nodes": [
-    { "id": "n0_intro", "type": "vn", "resource": "VN/n0_intro.txt" },
+    { "id": "n0_intro", "type": "vn", "resource": "VN/n0_intro.json" },
     {
       "id": "n1_interrogation",
       "type": "debate",
       "resource": "Debate/n1_interrogation.json",
       "params": { "time_limit_sec": 180, "be_node": "be_badend" }
     },
-    { "id": "n2_no_commit", "type": "error", "resource": "VN/n2_no_commit.txt" },
-    { "id": "n3_opt1_correct", "type": "vn", "resource": "VN/n3_opt1_correct.txt" },
-    { "id": "n4_opt2_wrong", "type": "error", "resource": "VN/n4_opt2_wrong.txt" },
+    { "id": "n2_no_commit", "type": "error", "resource": "VN/n2_no_commit.json" },
+    { "id": "n3_opt1_correct", "type": "vn", "resource": "VN/n3_opt1_correct.json" },
+    { "id": "n4_opt2_wrong", "type": "error", "resource": "VN/n4_opt2_wrong.json" },
     { "id": "n6_present_evidence", "type": "present", "resource": "Present/n6_present_evidence.json" },
-    { "id": "n7_evid_correct", "type": "vn", "resource": "VN/n7_evid_correct.txt" },
-    { "id": "n8_evid_wrong", "type": "error", "resource": "VN/n8_evid_wrong.txt" },
-    { "id": "n10_next", "type": "vn", "resource": "VN/n10_next.txt" },
-    { "id": "be_badend", "type": "be", "resource": "VN/be_badend.txt" },
+    { "id": "n7_evid_correct", "type": "vn", "resource": "VN/n7_evid_correct.json" },
+    { "id": "n8_evid_wrong", "type": "error", "resource": "VN/n8_evid_wrong.json" },
+    { "id": "n10_next", "type": "vn", "resource": "VN/n10_next.json" },
+    { "id": "be_badend", "type": "be", "resource": "VN/be_badend.json" },
     { "id": "n11_choice", "type": "choice", "resource": "Choice/n11_choice.json" },
-    { "id": "be_choice_badend", "type": "be", "resource": "VN/be_choice_badend.txt" },
+    { "id": "be_choice_badend", "type": "be", "resource": "VN/be_choice_badend.json" },
     { "id": "be_choice_back", "type": "choice", "resource": "Choice/be_choice_back.json" },
-    { "id": "n12_gugugaga_wrong", "type": "error", "resource": "VN/n12_gugugaga_wrong.txt" }
+    { "id": "n12_gugugaga_wrong", "type": "error", "resource": "VN/n12_gugugaga_wrong.json" }
   ],
   "edges": [
     { "from": "n1_interrogation", "to": "n2_no_commit", "trigger": "no_commit" },
