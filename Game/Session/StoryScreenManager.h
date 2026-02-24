@@ -32,7 +32,6 @@ private:
 
 private:
     Story::StoryPlayer* player_  = nullptr;
-    StoryHistory*       history_ = nullptr;
     Story::NodeType lastType_ = Story::NodeType::Unknown;
 
     const Story::StoryTables* tables_ = nullptr;

@@ -6,12 +6,15 @@
 #include "StoryRuntime.h"
 #include "StoryView.h"
 #include "StoryTimer.h"
+#include "StorySignal.h"
 #include "Game/Story/Runners/VnRunner.h"
 #include "Game/Story/Runners/PresentRunner.h"
 #include "Game/Story/Runners/DebateRunner.h"
 #include "Game/Story/Runners/ChoiceRunner.h"
 #include "Utils/Logger.h"
 #include "Game/Session/StoryHistory.h"
+
+#include <iostream>
 
 namespace Salt2D::Game::Story {
 
@@ -33,6 +36,13 @@ public:
 
     void OpenSuspicion(const std::string& spanId);
     void CloseDebateMenu();
+
+    std::optional<StorySignal> ConsumeSignal() {
+        if (!signal_.has_value()) return std::nullopt;
+        auto sig = *signal_;
+        signal_.reset();
+        return sig;
+    }
 
     const NodeId& CurrentNodeId() const { return rt_.CurrentNodeId(); }
     const Node&   CurrentNode()   const { return rt_.CurrentNode(); }
@@ -83,6 +93,7 @@ private:
     ChoiceRunner  choice_;
 
     StoryView view_;
+    std::optional<StorySignal> signal_;
 
     NodeTimer timer_;
     float timeScale_ = 1.0f;

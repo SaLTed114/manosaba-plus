@@ -18,7 +18,8 @@
     { "id": "n11_choice", "type": "choice", "resource": "Choice/n11_choice.json" },
     { "id": "be_choice_badend", "type": "be", "resource": "VN/be_choice_badend.json" },
     { "id": "be_choice_back", "type": "choice", "resource": "Choice/be_choice_back.json" },
-    { "id": "n12_gugugaga_wrong", "type": "error", "resource": "VN/n12_gugugaga_wrong.json" }
+    { "id": "n12_gugugaga_wrong", "type": "error", "resource": "VN/n12_gugugaga_wrong.json" },
+    { "id": "demo_trial_chapter_end", "type": "chapter_end", "resource": "" }
   ],
   "edges": [
     { "from": "n1_interrogation", "to": "n2_no_commit", "trigger": "no_commit" },
@@ -81,6 +82,7 @@
       "trigger": "option",
       "key": "opt_gugugaga"
     },
-    { "from": "n12_gugugaga_wrong", "to": "n1_interrogation", "trigger": "auto" }
+    { "from": "n12_gugugaga_wrong", "to": "n1_interrogation", "trigger": "auto" },
+    { "from": "n10_next", "to": "demo_trial_chapter_end", "trigger": "auto" }
   ]
 }

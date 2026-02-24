@@ -333,6 +333,16 @@ void StoryPlayer::OnEnteredNode() {
             Session::HistoryKind::OptionList, "", optionsStr, "");
         return;
     }
+    case NodeType::ChapterEnd: {
+        timer_.    Reset();
+        stmtTimer_.Reset();
+        vnTimer_.  Reset();
+
+        UpdateView();
+        signal_ = StorySignal{ StorySignal::Kind::ChapterEnd, "", node.id };
+        if (logger_) logger_->Info("StoryPlayer", "Chapter end reached.");
+        return;
+    }
     default:
         if (logger_) {
             logger_->Warn("StoryPlayer",
@@ -344,6 +354,7 @@ void StoryPlayer::OnEnteredNode() {
 
 void StoryPlayer::ResetTimer() {
     const Node& node = rt_.CurrentNode();
+    if (node.type == NodeType::ChapterEnd) { timer_.Reset(); return; }
     if (node.type == NodeType::Present) { timer_.active = false; return; }
     if (node.type == NodeType::VN) { timer_.Reset(); return; }
 

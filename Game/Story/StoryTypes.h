@@ -24,28 +24,31 @@ enum class NodeType : uint8_t {
     Error,
     BE,
     Choice,
+    ChapterEnd,
     Unknown,
 };
 
 inline std::string_view ToString(NodeType type) {
     switch (type) {
-        case NodeType::VN:      return "vn";
-        case NodeType::Debate:  return "debate";
-        case NodeType::Present: return "present";
-        case NodeType::Error:   return "error";
-        case NodeType::BE:      return "be";
-        case NodeType::Choice:  return "choice";
-        default:                return "unknown";
+        case NodeType::VN:         return "vn";
+        case NodeType::Debate:     return "debate";
+        case NodeType::Present:    return "present";
+        case NodeType::Error:      return "error";
+        case NodeType::BE:         return "be";
+        case NodeType::Choice:     return "choice";
+        case NodeType::ChapterEnd: return "chapter_end";
+        default:                   return "unknown";
     }
 }
 
 inline NodeType ParseNodeType(std::string_view str) {
-    if (str == "vn")      return NodeType::VN;
-    if (str == "debate")  return NodeType::Debate;
-    if (str == "present") return NodeType::Present;
-    if (str == "error")   return NodeType::Error;
-    if (str == "be")      return NodeType::BE;
-    if (str == "choice")  return NodeType::Choice;
+    if (str == "vn")          return NodeType::VN;
+    if (str == "debate")      return NodeType::Debate;
+    if (str == "present")     return NodeType::Present;
+    if (str == "error")       return NodeType::Error;
+    if (str == "be")          return NodeType::BE;
+    if (str == "choice")      return NodeType::Choice;
+    if (str == "chapter_end") return NodeType::ChapterEnd;
     return NodeType::Unknown;
 }
 

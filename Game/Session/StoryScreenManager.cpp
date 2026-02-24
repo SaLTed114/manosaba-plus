@@ -6,7 +6,6 @@ namespace Salt2D::Game::Session {
 
 void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* history, Story::StoryTables* tables) {
     player_  = player;
-    history_ = history;
     tables_  = tables;
 
     vn_.     SetPlayer(player);

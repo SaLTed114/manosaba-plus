@@ -119,7 +119,7 @@ void GameScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sce
 void GameScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
     (void)canvasW; (void)canvasH;
 
-    // stage_.EmitBackground(drawList, canvasW, canvasH);
+    stage_.EmitBackground(drawList, canvasW, canvasH);
     screens_.EmitDraw(drawList, texService_);
 
 }
@@ -135,7 +135,7 @@ void GameScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& draw
     p0->SetClearScene(0.15f, 0.15f, 0.18f, 1.0f);
     plan.passes.push_back(std::move(p0));
 
-    auto pCard = std::make_unique<CardPass>("Scene_Cards_2D", Target::Scene, DepthMode::RW, BlendMode::Alpha, stage_.Cards());
+    auto pCard = std::make_unique<CardPass>("Scene_Cards", Target::Scene, DepthMode::RW, BlendMode::Alpha, stage_.Cards());
     plan.passes.push_back(std::move(pCard));
 
     // Compose scene to backbuffer

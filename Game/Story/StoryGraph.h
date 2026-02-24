@@ -78,6 +78,17 @@ public:
     }
 
     void ValidateBasic() const {
+        for (const auto& [id, node] : nodesById_) {
+            // ChapterEnd node should not have edges outbound, resource can be empty
+            if (node.type == NodeType::ChapterEnd) {
+                if (outEdges_.find(id) != outEdges_.end()) {
+                    throw std::runtime_error("ChapterEnd node should not have outgoing edges: " + id);
+                }
+                continue;
+            }
+            if (node.resourcePath.empty()) throw std::runtime_error("Node has empty resource path: " + id);
+        }
+
         for (const auto& edge : edges_) {
             if (!HasNode(edge.from)) throw std::runtime_error("Edge 'from' node does not exist: " + edge.from);
             if (!HasNode(edge.to))   throw std::runtime_error("Edge 'to' node does not exist: " + edge.to);
