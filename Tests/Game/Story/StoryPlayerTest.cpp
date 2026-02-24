@@ -96,7 +96,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         auto graph = LoadStoryGraph(diskFS, graphPath);
         std::cout << "Loaded story graph with " << graph.Nodes().size() << " nodes and " << graph.Edges().size() << " edges.\n\n";
 
-        auto logger = Salt2D::Game::MakeConsoleAndFileLogger("Logs/story_player_test.log", Salt2D::Game::LogLevel::Info, Salt2D::Game::LogLevel::Debug);
+        auto logger = Salt2D::Utils::MakeConsoleAndFileLogger("Logs/story_player_test.log", Salt2D::Utils::LogLevel::Info, Salt2D::Utils::LogLevel::Debug);
 
         StoryPlayer player(graph, diskFS);
         player.SetEffectCallback([](const Effect& effect) {

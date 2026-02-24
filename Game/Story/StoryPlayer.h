@@ -10,7 +10,7 @@
 #include "Game/Story/Runners/PresentRunner.h"
 #include "Game/Story/Runners/DebateRunner.h"
 #include "Game/Story/Runners/ChoiceRunner.h"
-#include "Game/Common/Logger.h"
+#include "Utils/Logger.h"
 #include "Game/Session/StoryHistory.h"
 
 namespace Salt2D::Game::Story {
@@ -54,7 +54,7 @@ public:
 
     void SetEffectCallback(StoryRuntime::EffectCallback callback) { rt_.SetEffectCallback(std::move(callback)); }
     
-    void SetLogger(const Game::Logger* logger) { 
+    void SetLogger(const Utils::Logger* logger) { 
         logger_ = logger; 
         rt_.SetLogger(logger); 
         vn_.SetLogger(logger); 
@@ -93,7 +93,7 @@ private:
 
     bool historyOpened_ = false;
 
-    const Game::Logger* logger_ = nullptr;
+    const Utils::Logger* logger_ = nullptr;
     Session::StoryHistory* history_ = nullptr;
     int lastLineSerial_ = -283;
     int lastStmtIndex_  = -283;

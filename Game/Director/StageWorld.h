@@ -13,7 +13,7 @@
 #include "Render/Scene3D/Camera3D.h"
 #include "Game/RenderBridge/TextureCatalog.h"
 #include "Game/Story/StoryTables.h"
-#include "Game/Common/Logger.h"
+#include "Utils/Logger.h"
 #include "Core/Time/FrameClock.h"
 
 namespace Salt2D::Render {

@@ -7,7 +7,7 @@
 #include <string_view>
 #include <unordered_map>
 
-#include "Game/Common/Logger.h"
+#include "Utils/Logger.h"
 #include "RHI/DX11/DX11Texture2D.h"
 
 struct ID3D11ShaderResourceView;
@@ -27,7 +27,7 @@ public:
     const std::filesystem::path& AssetsRoot() const { return assetsRoot_; }
 
     void SetMissing(TextureRef ref) { missing_ = ref; }
-    void SetLogger(Logger* logger) { logger_ = logger; }
+    void SetLogger(Utils::Logger* logger) { logger_ = logger; }
 
     TextureRef GetOrLoad(const RHI::DX11::DX11Device& device, std::string_view relPathUtf8);
 
@@ -52,7 +52,7 @@ private:
 
     std::unordered_map<std::string, Entry> cache_;
 
-    Logger* logger_ = nullptr;
+    Utils::Logger* logger_ = nullptr;
 };
 
 } // namespace Salt2D::Game::RenderBridge

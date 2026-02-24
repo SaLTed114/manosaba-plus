@@ -40,6 +40,8 @@ struct PassContext {
     ID3D11DepthStencilView*   sceneDSV = nullptr;
     ID3D11RenderTargetView*   backRTV  = nullptr;
 
+    ID3D11ShaderResourceView* prevSceneSRV = nullptr;
+
     uint32_t canvasW = 0, canvasH = 0;
     uint32_t sceneW  = 0, sceneH  = 0;
 

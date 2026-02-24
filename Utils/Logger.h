@@ -1,12 +1,12 @@
-// Game/Common/Logger.h
-#ifndef GAME_COMMON_LOGGER_H
-#define GAME_COMMON_LOGGER_H
+// Utils/Logger.h
+#ifndef UTILS_LOGGER_H
+#define UTILS_LOGGER_H
 
 #include <string>
 #include <functional>
 #include <cstdint>
 
-namespace Salt2D::Game {
+namespace Salt2D::Utils {
     
 enum class LogLevel : uint8_t {
     Debug = 0,
@@ -52,6 +52,6 @@ Logger MakeConsoleAndFileLogger(
     LogLevel fileMinLevel = LogLevel::Debug
 );
 
-} // namespace Salt2D::Game
+} // namespace Salt2D::Utils
 
-#endif // GAME_COMMON_LOGGER_H
+#endif // UTILS_LOGGER_H

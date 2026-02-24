@@ -1,6 +1,7 @@
 set(RENDER_SOURCES
     DX11Renderer.cpp
     DX11CommonState.cpp
+    DX11DebugLogger.cpp
 
     Pipelines/SpritePipeline.cpp
     Pipelines/ComposePipeline.cpp
@@ -29,6 +30,7 @@ set(RENDER_SOURCES
 set(RENDER_HEADERS
     DX11Renderer.h
     DX11CommonState.h
+    DX11DebugLogger.h
 
     Pipelines/SpritePipeline.h
     Pipelines/ComposePipeline.h
@@ -59,14 +61,11 @@ set(RENDER_HEADERS
     Drawers/CardDrawer.h
 )
 
-set(TRIANGLE_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/triangle.hlsl)
 set(SPRITE_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/sprite.hlsl)
 set(COMPOSE_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/compose.hlsl)
 set(MESH_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/mesh.hlsl)
 set(CARD_SHADER_SOURCE ${CMAKE_SOURCE_DIR}/Shaders/card.hlsl)
 
-compile_shader_fxc(${TRIANGLE_SHADER_SOURCE} vs_5_0 VS TRI_VS_CSO)
-compile_shader_fxc(${TRIANGLE_SHADER_SOURCE} ps_5_0 PS TRI_PS_CSO)
 compile_shader_fxc(${SPRITE_SHADER_SOURCE} vs_5_0 VS SPRITE_VS_CSO)
 compile_shader_fxc(${SPRITE_SHADER_SOURCE} ps_5_0 PS SPRITE_PS_CSO)
 compile_shader_fxc(${COMPOSE_SHADER_SOURCE} vs_5_0 VS COMPOSE_VS_CSO)
@@ -80,8 +79,6 @@ add_library(Render STATIC
     ${RENDER_SOURCES}
     ${RENDER_HEADERS}
 
-    ${TRI_VS_CSO}
-    ${TRI_PS_CSO}
     ${SPRITE_VS_CSO}
     ${SPRITE_PS_CSO}
     ${COMPOSE_VS_CSO}

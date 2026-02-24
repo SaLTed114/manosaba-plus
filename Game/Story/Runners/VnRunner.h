@@ -5,7 +5,7 @@
 #include "Game/Story/StoryTypes.h"
 #include "Game/Story/Resources/VnScript.h"
 #include "Utils/IFileSystem.h"
-#include "Game/Common/Logger.h"
+#include "Utils/Logger.h"
 
 #include <optional>
 #include <functional>
@@ -42,7 +42,7 @@ public:
     const VnState& State() const { return state_; }
 
     void SetCueCallback(CueCallback callback) { onCue_ = std::move(callback); }
-    void SetLogger(const Game::Logger* logger) { logger_ = logger; }
+    void SetLogger(const Utils::Logger* logger) { logger_ = logger; }
 
 private:
     void LoadNextLineOrFinish();
@@ -60,7 +60,7 @@ private:
 
     VnState state_;
     CueCallback onCue_;
-    const Game::Logger* logger_ = nullptr;
+    const Utils::Logger* logger_ = nullptr;
 };
 
 } // namespace Salt2D::Game::Story

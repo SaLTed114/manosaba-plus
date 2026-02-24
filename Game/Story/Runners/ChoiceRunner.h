@@ -7,7 +7,7 @@
 #include "Game/Story/StoryTypes.h"
 #include "Game/Story/Resources/ChoiceDef.h"
 #include "Utils/IFileSystem.h"
-#include "Game/Common/Logger.h"
+#include "Utils/Logger.h"
 
 namespace Salt2D::Game::Story {
 
@@ -21,12 +21,12 @@ public:
 
     const ChoiceDef& Def() const { return def_; }
 
-    void SetLogger(const Game::Logger* logger) { logger_ = logger; }
+    void SetLogger(const Utils::Logger* logger) { logger_ = logger; }
 
 private:
     Utils::IFileSystem& fs_;
     ChoiceDef def_;
-    const Game::Logger* logger_ = nullptr;
+    const Utils::Logger* logger_ = nullptr;
 };
 
 } // namespace Salt2D::Game::Story

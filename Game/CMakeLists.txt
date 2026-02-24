@@ -1,5 +1,4 @@
 set(GAME_SOURCES
-    Common/Logger.cpp
     Director/HudEvaluator.cpp
     Director/StageWorld.cpp
     Director/StageCameraDirector.cpp

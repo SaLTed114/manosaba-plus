@@ -16,6 +16,7 @@
 
 #include "Render/Pipelines/PipelineLibrary.h"
 #include "Render/Drawers/DrawServices.h"
+#include "Render/DX11DebugLogger.h"
 
 namespace Salt2D::Render {
 
@@ -35,9 +36,12 @@ public:
     const uint32_t GetSceneW()  const { return sceneW_; }
     const uint32_t GetSceneH()  const { return sceneH_; }
 
+    void FlushDebugMessages();
+
 private:
     void InitShaderSearchPaths();
     void InitSceneTargets(float factor);
+    void InitDebugLayer();
 
 private:
     uint32_t canvasW_ = 0;
@@ -55,10 +59,14 @@ private:
     DX11CommonState states_;
     DX11StateCache  stateCache_;
 
-    RHI::DX11::DX11Texture2D sceneRT_;
+    RHI::DX11::DX11Texture2D sceneRT_[2];
+    uint32_t sceneIdx_ = 0;
+    bool sceneValid_ = false;
 
     PipelineLibrary pipelines_;
     DrawServices draw_;
+
+    DX11DebugLogger debugLogger_;
 };
 
 } // namespace Salt2D::Render

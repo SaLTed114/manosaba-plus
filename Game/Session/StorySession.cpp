@@ -13,9 +13,9 @@ namespace Salt2D::Game::Session {
 StorySession::StorySession(Utils::DiskFileSystem& fs) : fs_(fs) {}
 
 void StorySession::Initialize(const std::filesystem::path& storyRoot, const std::filesystem::path& graphPath, const Story::NodeId& startNode) {
-    logger_ = MakeConsoleAndFileLogger(
+    logger_ = Utils::MakeConsoleAndFileLogger(
         Utils::GenerateTimestampedFilename("Logs/game_scene.log"),
-        LogLevel::Debug, LogLevel::Debug);
+        Utils::LogLevel::Debug, Utils::LogLevel::Debug);
 
     history_.SetLogger(&logger_);
     history_.Clear();

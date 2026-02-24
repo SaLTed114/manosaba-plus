@@ -1,6 +1,7 @@
 set(UTILS_SOURCES
     FileUtils.cpp
     DiskFileSystem.cpp
+    Logger.cpp
 )
 
 set(UTILS_HEADERS
@@ -8,6 +9,9 @@ set(UTILS_HEADERS
     FileUtils.h
     IFileSystem.h
     DiskFileSystem.h
+    Logger.h
+    MathUtils.h
+    StringUtils.h
 )
 
 add_library(Utils STATIC

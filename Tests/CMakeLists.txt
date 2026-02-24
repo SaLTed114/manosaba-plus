@@ -27,7 +27,6 @@ add_executable(StoryRuntimeTest
     Game/Story/StoryRuntimeTest.cpp
     ${CMAKE_SOURCE_DIR}/Game/Story/StoryGraphLoader.cpp
     ${CMAKE_SOURCE_DIR}/Game/Story/StoryRuntime.cpp
-    ${CMAKE_SOURCE_DIR}/Game/Common/Logger.cpp
 )
 
 target_include_directories(StoryRuntimeTest PRIVATE
@@ -57,7 +56,6 @@ add_executable(StoryPlayerTest
     ${CMAKE_SOURCE_DIR}/Game/Story/Resources/DebateDefLoader.cpp
     ${CMAKE_SOURCE_DIR}/Game/Story/Resources/ChoiceDefLoader.cpp
     ${CMAKE_SOURCE_DIR}/Game/Story/TextMarkup/SusMarkup.cpp
-    ${CMAKE_SOURCE_DIR}/Game/Common/Logger.cpp
     ${CMAKE_SOURCE_DIR}/Game/Session/StoryHistory.cpp
 )
 

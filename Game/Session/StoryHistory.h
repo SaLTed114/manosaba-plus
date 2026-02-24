@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include "Game/Story/StoryTypes.h"
-#include "Game/Common/Logger.h"
+#include "Utils/Logger.h"
 
 namespace Salt2D::Game::Session {
 
@@ -30,7 +30,7 @@ struct HistoryEntry {
 
 class StoryHistory {
 public:
-    void SetLogger(const Logger* logger) { logger_ = logger; }
+    void SetLogger(const Utils::Logger* logger) { logger_ = logger; }
 
     void Push(HistoryEntry entry);
     void Push(Story::NodeType type, std::string speakerUtf8, std::string textUtf8);
@@ -47,7 +47,7 @@ private:
     static std::string Format(const HistoryEntry& entry);
 
 private:
-    const Logger* logger_ = nullptr;
+    const Utils::Logger* logger_ = nullptr;
     std::vector<HistoryEntry> entries_;
 };
 

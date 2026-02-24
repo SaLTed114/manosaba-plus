@@ -1,4 +1,4 @@
-// Game/Common/Logger.cpp
+// Utils/Logger.cpp
 #include "Logger.h"
 #include <iostream>
 #include <sstream>
@@ -8,7 +8,7 @@
 #include <mutex>
 #include <filesystem>
 
-namespace Salt2D::Game {
+namespace Salt2D::Utils {
 
 static const inline char* EnsureCategory(const char* category) {
     return category ? category : "";
@@ -108,4 +108,4 @@ Logger MakeConsoleAndFileLogger(
     return logger;
 }
 
-} // namespace Salt2D::Game
+} // namespace Salt2D::Utils

@@ -7,7 +7,7 @@
 
 #include "Utils/DiskFileSystem.h"
 #include "StoryHistory.h"
-#include "Game/Common/Logger.h"
+#include "Utils/Logger.h"
 #include "Game/Story/StoryGraph.h"
 #include "Game/Story/StoryPlayer.h"
 #include "Game/Story/StoryTables.h"
@@ -36,7 +36,7 @@ private:
     Story::StoryGraph graph_;
     Story::StoryTables tables_;
     std::unique_ptr<Story::StoryPlayer> player_;
-    Logger logger_;
+    Utils::Logger logger_;
     StoryHistory history_;
 
     std::filesystem::path storyRoot_;

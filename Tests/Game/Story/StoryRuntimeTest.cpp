@@ -1,7 +1,7 @@
 // Tests/Game/Story/StoryRuntimeTest.cpp
 #include "Game/Story/StoryGraphLoader.h"
 #include "Game/Story/StoryRuntime.h"
-#include "Game/Common/Logger.h"
+#include "Utils/Logger.h"
 
 #include "Utils/DiskFileSystem.h"
 #include <iostream>
@@ -13,7 +13,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         std::cout << "=== StoryRuntime Test ===\n\n";
 
         // 创建Logger
-        auto logger = Salt2D::Game::MakeConsoleAndFileLogger("Logs/story_runtime_test.log", Salt2D::Game::LogLevel::Info, Salt2D::Game::LogLevel::Debug);
+        auto logger = Salt2D::Utils::MakeConsoleAndFileLogger("Logs/story_runtime_test.log", Salt2D::Utils::LogLevel::Info, Salt2D::Utils::LogLevel::Debug);
 
         // 使用DiskFileSystem
         Salt2D::Utils::DiskFileSystem diskFS;

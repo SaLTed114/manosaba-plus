@@ -14,6 +14,7 @@ DX11Renderer::DX11Renderer(HWND hwnd, uint32_t width, uint32_t height)
 {
     internalScale_ = 1.0f;
 
+    InitDebugLayer();
     InitShaderSearchPaths();
     InitSceneTargets(internalScale_);
 
@@ -47,8 +48,19 @@ void DX11Renderer::InitSceneTargets(float factor) {
     sceneW_ = static_cast<uint32_t>(canvasW_  * factor);
     sceneH_ = static_cast<uint32_t>(canvasH_ * factor);
 
-    sceneRT_    = RHI::DX11::DX11Texture2D::CreateRenderTarget(device_, sceneW_, sceneH_);
+    sceneRT_[0] = RHI::DX11::DX11Texture2D::CreateRenderTarget(device_, sceneW_, sceneH_);
+    sceneRT_[1] = RHI::DX11::DX11Texture2D::CreateRenderTarget(device_, sceneW_, sceneH_);
     sceneDepth_ = RHI::DX11::DX11DepthBuffer::Create(device_, sceneW_, sceneH_);
+
+    sceneIdx_   = 0;
+    sceneValid_ = false;
+}
+
+void DX11Renderer::InitDebugLayer() {
+    if (debugLogger_.Initialize(device_.GetDevice())) {
+        // Filter out INFO messages to reduce noise
+        debugLogger_.FilterOutInfo(true);
+    }
 }
 
 // ========================== End of Init Functions ==========================
@@ -69,25 +81,40 @@ void DX11Renderer::Resize(uint32_t width, uint32_t height) {
 
     sceneW_ = canvasW_;
     sceneH_ = canvasH_;
-    sceneRT_ = RHI::DX11::DX11Texture2D::CreateRenderTarget(device_, sceneW_, sceneH_);
+
+    sceneRT_[0] = RHI::DX11::DX11Texture2D::CreateRenderTarget(device_, sceneW_, sceneH_);
+    sceneRT_[1] = RHI::DX11::DX11Texture2D::CreateRenderTarget(device_, sceneW_, sceneH_);
     sceneDepth_ = RHI::DX11::DX11DepthBuffer::Create(device_, sceneW_, sceneH_);
+
+    sceneIdx_   = 0;
+    sceneValid_ = false;
 }
 
 // ========================== Begin of Render Functions ==========================
 
 void DX11Renderer::Present(bool vsync) {
+    FlushDebugMessages();
     swapChain_.Present(vsync);
 }
 
+void DX11Renderer::FlushDebugMessages() {
+    debugLogger_.FlushMessages();
+}
+
 void DX11Renderer::ExecutePlan(const RenderPlan& plan, const FrameBlackboard& frame) {
+    auto& currRT = sceneRT_[sceneIdx_];
+    auto& prevRT = sceneRT_[sceneIdx_ ^ 1];
+
     PassContext ctx{
         .device  = device_,
         .ctx = device_.GetContext(),
 
-        .sceneRTV = sceneRT_.RTV(),
-        .sceneSRV = sceneRT_.SRV(),
+        .sceneRTV = currRT.RTV(),
+        .sceneSRV = currRT.SRV(),
         .sceneDSV = sceneDepth_.DSV(),
         .backRTV  = swapChain_.backBufferRTV(),
+
+        .prevSceneSRV = sceneValid_ ? prevRT.SRV() : currRT.SRV(),
 
         .canvasW = canvasW_,
         .canvasH = canvasH_,
@@ -106,6 +133,9 @@ void DX11Renderer::ExecutePlan(const RenderPlan& plan, const FrameBlackboard& fr
     for (const auto& pass : plan.passes) {
         pass->Record(ctx);
     }
+
+    sceneIdx_ ^= 1;
+    sceneValid_ = true;
 }
 
 // ========================== End of Render Functions ==========================
