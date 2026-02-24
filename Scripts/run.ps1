@@ -18,7 +18,7 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectRoot = Split-Path -Parent $scriptDir
 Set-Location $projectRoot
 
-Write-Host "=== Manosaba+ 启动脚本 ===" -ForegroundColor Cyan
+Write-Host "=== まのさば＋ 启动脚本 ===" -ForegroundColor Cyan
 Write-Host ""
 
 # 清理旧日志

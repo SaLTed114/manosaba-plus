@@ -17,6 +17,8 @@ out/
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+[Dd]ist/
+[Dd]istribution/
 x64/
 x86/
 [Aa]rm/
@@ -26,6 +28,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+*.zip
 
 # Exception: Keep source code in Debug folders
 !**/Render/Debug/
