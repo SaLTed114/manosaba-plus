@@ -432,6 +432,8 @@ void StoryPlayer::UpdateView() {
         StoryView::VnView view;
         view.speaker   = state.speaker;
         view.fullText  = state.fullText;
+        view.perfId    = state.perfId.empty() ? "vn_default" : state.perfId;
+
         view.revealed  = state.revealed;
         view.totalCp   = state.totalCp;
         view.revealCpF = state.revealCpF;
@@ -464,7 +466,7 @@ void StoryPlayer::UpdateView() {
         view.speaker  = stmt.speaker;
         view.fullText = stmt.text;
 
-        view.prefId = stmt.prefId.empty() ? "debate_default" : stmt.prefId;
+        view.perfId = stmt.perfId.empty() ? "debate_default" : stmt.perfId;
 
         view.spanIds      = debate_.CurrentSpanIds();
         view.menuOpen     = debate_.IsMenuOpen();

@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <iostream>
 
 using namespace DirectX;
 
@@ -26,83 +27,45 @@ static inline XMFLOAT3 ComputeRightFromFace(const XMFLOAT3& face) {
     return NormalizeXZ(right);
 }
 
-struct AnchorBasis {
-    XMFLOAT3 right{};
-    XMFLOAT3 up{0, 1, 0};
-    XMFLOAT3 forward{};
-};
-
-static inline AnchorBasis BuildAnchorBasis(const Anchor& anchor) {
-    // yaw=0: face to anchor
-    XMFLOAT3 f0 = {-anchor.face.x, 0, -anchor.face.z};
-    f0 = NormalizeXZ(f0);
-
-    const XMFLOAT3 up{0, 1, 0};
-
-    XMVECTOR U = XMLoadFloat3(&up);
-    XMVECTOR F = XMLoadFloat3(&f0);
-    XMVECTOR R = XMVector3Normalize(XMVector3Cross(U, F));
-
-    XMFLOAT3 r0{};
-    XMStoreFloat3(&r0, R);
-    r0 = NormalizeXZ(r0);
-
-    XMVECTOR R2 = XMLoadFloat3(&r0);
-    XMVECTOR F2 = XMVector3Normalize(XMVector3Cross(R2, U));
-    XMFLOAT3 f1{};
-    XMStoreFloat3(&f1, F2);
-
-    AnchorBasis basis{};
-    basis.up = up;
-    basis.right = r0;
-    basis.forward = f1;
-    return basis;
-}
-
-static inline XMFLOAT4 QuatFromBasis(const AnchorBasis& basis) {
-    XMVECTOR R = XMLoadFloat3(&basis.right);
-    XMVECTOR U = XMLoadFloat3(&basis.up);
-    XMVECTOR F = XMLoadFloat3(&basis.forward);
-
-    XMMATRIX m = XMMatrixIdentity();
-    m.r[0] = R;
-    m.r[1] = U;
-    m.r[2] = F;
-
-    XMVECTOR q = XMQuaternionRotationMatrix(m);
-    q = XMQuaternionNormalize(q);
-    XMFLOAT4 quat{};
-    XMStoreFloat4(&quat, q);
-    return quat;
-}
-
 static inline XMFLOAT4 EvalFixedQuat(
     const Anchor& anchor,
     float yawRad, float pitchRad, float rollRad
 ) {
-    AnchorBasis basis = BuildAnchorBasis(anchor);
-
-    XMVECTOR up0 = XMLoadFloat3(&basis.up);
-    XMVECTOR right0 = XMLoadFloat3(&basis.right);
-    XMVECTOR forward0 = XMLoadFloat3(&basis.forward);
-
-    XMVECTOR qYaw   = XMQuaternionRotationAxis(up0, yawRad);
-
-    XMVECTOR right1 = XMVector3Rotate(right0, qYaw);
-    XMVECTOR qPitch = XMQuaternionRotationAxis(right1, pitchRad);
-
-    XMVECTOR qYawPitch = XMQuaternionMultiply(qPitch, qYaw);
-    XMVECTOR forward2 = XMVector3Rotate(forward0, qYawPitch);
-    XMVECTOR qRoll = XMQuaternionRotationAxis(forward2, rollRad);
-
-    XMFLOAT4 baseQuat = QuatFromBasis(basis);
-    XMVECTOR qBase = XMLoadFloat4(&baseQuat);
-
-    XMVECTOR qFinal = 
-        XMQuaternionMultiply(qRoll,
-        XMQuaternionMultiply(qPitch,
-        XMQuaternionMultiply(qYaw, qBase)));
+    // Base direction: looking towards the stage (opposite of anchor.face)
+    // This gives a consistent world-space orientation regardless of camera position
+    XMFLOAT3 baseLookDir = {-anchor.face.x, 0.0f, -anchor.face.z};
+    baseLookDir = NormalizeXZ(baseLookDir);
     
+    XMVECTOR lookDir = XMLoadFloat3(&baseLookDir);
+    XMVECTOR worldUp = XMVectorSet(0, 1, 0, 0);
+    
+    // Apply yaw rotation around world Y axis
+    XMMATRIX yawMat = XMMatrixRotationAxis(worldUp, yawRad);
+    XMVECTOR lookDirYaw = XMVector3TransformNormal(lookDir, yawMat);
+    
+    // Compute right vector for the yaw-rotated look direction
+    XMVECTOR rightYaw = XMVector3Normalize(XMVector3Cross(worldUp, lookDirYaw));
+    
+    // Apply pitch rotation around the right axis
+    XMMATRIX pitchMat = XMMatrixRotationAxis(rightYaw, pitchRad);
+    XMVECTOR lookDirFinal = XMVector3TransformNormal(lookDirYaw, pitchMat);
+    
+    // Recompute right and up for the final look direction
+    XMVECTOR rightFinal = XMVector3Normalize(XMVector3Cross(worldUp, lookDirFinal));
+    XMVECTOR upFinal = XMVector3Cross(lookDirFinal, rightFinal);
+    
+    // Apply roll rotation around the final look direction
+    XMMATRIX rollMat = XMMatrixRotationAxis(lookDirFinal, rollRad);
+    XMVECTOR rightRolled = XMVector3TransformNormal(rightFinal, rollMat);
+    XMVECTOR upRolled = XMVector3TransformNormal(upFinal, rollMat);
+    
+    // Build final rotation matrix
+    XMMATRIX finalMat = XMMatrixIdentity();
+    finalMat.r[0] = rightRolled;
+    finalMat.r[1] = upRolled;
+    finalMat.r[2] = lookDirFinal;
+    
+    XMVECTOR qFinal = XMQuaternionRotationMatrix(finalMat);
     qFinal = XMQuaternionNormalize(qFinal);
 
     XMFLOAT4 finalQuat{};
@@ -166,7 +129,7 @@ bool StageCameraSolver::EvalAnchorTrackLinear(
 
 StageCameraRotationResult StageCameraSolver::EvalRotation(
     const Story::Rotation3DPolicy& policy,
-    const Anchor& anchor, const StageCameraSample& /*sample*/
+    const Anchor& anchor, const StageCameraSample& 
 ) {
     StageCameraRotationResult result{};
 

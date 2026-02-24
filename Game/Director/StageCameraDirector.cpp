@@ -46,16 +46,35 @@ void StageCameraDirector::Tick(const Story::StoryPlayer& player, const Core::Fra
         Anchor anchor{};
         if (!world_->FindAnchor(cast->id, anchor)) break;
 
+        const Story::PerformanceDef* perf = nullptr;
+        if (!view->perfId.empty()) perf = tables_->perf.Find(view->perfId);
+
         StageCameraSample sample{};
+        StageCameraRotationResult rotation{};
 
-        // const float cur = view->revealCpF;
-        // const float total = static_cast<float>(view->totalCp);
-        // const float u = EvalU01(cur, total);
+        const float cur   = view->revealCpF;
+        const float total = static_cast<float>(view->totalCp);
+        const float u = EvalU01(cur, total);
 
-        StageCameraSolver::DefaultCamera(anchor, sample);
+        bool ok = false;
+        if (perf && perf->stage.cameraTrack.has_value()) {
+            const auto& track = perf->stage.cameraTrack.value();
+            ok = StageCameraSolver::EvalAnchorTrackLinear(track, anchor, u, sample);
+            if (ok) rotation = StageCameraSolver::EvalRotation(track.rotation, anchor, sample);
+        }
+        if (!ok) {
+            StageCameraSolver::DefaultCamera(anchor, sample);
+            rotation.useFixed = false;
+        }
 
         camera_->SetPosition(sample.eye);
-        camera_->LookAt(sample.target);
+        camera_->SetFovY(sample.fovYRad);
+                    
+        if (rotation.useFixed) {
+            camera_->SetRotationQuat(rotation.quat);
+        } else {
+            camera_->LookAt(sample.target);
+        }
 
         break;
     }
@@ -71,7 +90,7 @@ void StageCameraDirector::Tick(const Story::StoryPlayer& player, const Core::Fra
         if (!world_->FindAnchor(cast->id, anchor)) break;
 
         const Story::PerformanceDef* perf = nullptr;
-        if (!view->prefId.empty()) perf = tables_->perf.Find(view->prefId);
+        if (!view->perfId.empty()) perf = tables_->perf.Find(view->perfId);
 
         StageCameraSample sample{};
         StageCameraRotationResult rotation{};

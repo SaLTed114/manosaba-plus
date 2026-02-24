@@ -131,6 +131,97 @@
           "motion": { "type": "linear" }
         }
       }
+    },
+
+
+    {
+      "id": "vn_default",
+      "stage": {
+        "camera": {
+          "space": "anchor",
+          "start": { "dist": 2.0, "lift_y": 0.10, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "end":   { "dist": 2.0, "lift_y": 0.10, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "target_list_y": 0.05,
+
+          "rotation": { "mode": "fixed" },
+          "motion": { "type": "linear" }
+        }
+      }
+    },
+    {
+      "id": "vn_normal_zoomin",
+      "stage": {
+        "camera": {
+          "space": "anchor",
+          "start": { "dist": 2.0, "lift_y": 0.10, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "end":   { "dist": 1.95, "lift_y": 0.10, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "target_list_y": 0.05,
+
+          "rotation": { "mode": "fixed" },
+          "motion": { "type": "linear" }
+        }
+      }
+    },
+    {
+      "id": "vn_normal_zoomout",
+      "stage": {
+        "camera": {
+          "space": "anchor",
+          "start": { "dist": 1.95, "lift_y": 0.10, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "end":   { "dist": 2.0, "lift_y": 0.10, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "target_list_y": 0.05,
+
+          "rotation": { "mode": "fixed" },
+          "motion": { "type": "linear" }
+        }
+      }
+    },
+    {
+      "id": "vn_normal_sideshift",
+      "stage": {
+        "camera": {
+          "space": "anchor",
+          "start": { "dist": 1.8, "lift_y": 0.15, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "end":   { "dist": 1.8, "lift_y": 0.15, "side_x": -0.2, "fov_y_deg": 55.0 },
+          "target_list_y": 0.05,
+
+          "rotation": { "mode": "fixed", "fixed_roll_rad": 0.05 },
+          "motion": { "type": "linear" }
+        }
+      }
+    },
+    {
+      "id": "vn_normal_lift",
+      "stage": {
+        "camera": {
+          "space": "anchor",
+          "start": { "dist": 2.0, "lift_y": 0.0, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "end":   { "dist": 2.0, "lift_y": 0.10, "side_x": 0.0, "fov_y_deg": 55.0 },
+          "target_list_y": 0.05,
+
+          "rotation": { "mode": "fixed" },
+          "motion": { "type": "linear" }
+        }
+      }
+    },
+    {
+      "id": "vn_normal1",
+      "stage": {
+        "camera": {
+          "space": "anchor",
+          "start": { "dist": 1.9, "lift_y": 0.10, "side_x": 0.2, "fov_y_deg": 55.0 },
+          "end":   { "dist": 2.0, "lift_y": 0.10, "side_x": -0.2, "fov_y_deg": 55.0 },
+          "target_list_y": 0.05,
+
+          "rotation": {
+            "mode": "fixed",
+            "fixed_yaw_rad": 0.0,
+            "fixed_pitch_rad": 0.0,
+            "fixed_roll_rad": 0.00
+          },
+          "motion": { "type": "linear" }
+        }
+      }
     }
   ]
 }

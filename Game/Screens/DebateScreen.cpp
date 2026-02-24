@@ -144,7 +144,7 @@ void DebateScreen::BuildUI(uint32_t canvasW, uint32_t canvasH) {
     if (tables_) {
         model.dialogPose = Director::EvalDebateDialogPose(*tables_,
             canvasW, canvasH, view->stmtTotalSec, view->stmtRemainSec,
-            view->prefId);
+            view->perfId);
     }
 
     dialog_.Build(model, canvasW, canvasH, frame_);

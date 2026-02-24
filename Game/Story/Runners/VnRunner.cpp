@@ -114,17 +114,14 @@ void VnRunner::Tick(float dtSec, float cps) {
 void VnRunner::LoadNextLineOrFinish() {
     while (cmdIndex_ < script_.cmds.size()) {
         const VnCmd& cmd = script_.cmds[cmdIndex_++];
-        if (cmd.type == VnCmdType::Cue) {
-            if (onCue_) onCue_(cmd.cueName);
-            else if (logger_) logger_->Debug("VnRunner", "Cue: " + cmd.cueName);
-            continue;
-        }
 
         lineTotalCp_ = CountCodepoints(cmd.text);
         revealAcc_ = 0.0f;
 
         state_.speaker  = cmd.speaker;
         state_.fullText = cmd.text;
+        state_.perfId   = cmd.perfId;
+        
         state_.revealed = 0;
         state_.totalCp  = lineTotalCp_;
         state_.lineDone = false;
@@ -140,7 +137,7 @@ void VnRunner::LoadNextLineOrFinish() {
         if (logger_) {
             logger_->Debug("VnRunner",
                 "LoadNextLine: New line loaded - " +
-                state_.speaker + ": \"" + state_.fullText + "\"");
+                state_.speaker + ": \"" + state_.fullText + "\" (perfId=" + state_.perfId + ")");
         }
         return;
     }

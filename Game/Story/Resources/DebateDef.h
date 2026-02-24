@@ -12,7 +12,7 @@ struct DebateStatement {
     std::string text;
 
     // empty means default setting
-    std::string prefId;
+    std::string perfId;
 };
 
 struct DebateOption {

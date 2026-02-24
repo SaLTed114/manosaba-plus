@@ -14,6 +14,7 @@ struct StoryView {
     struct VnView {
         std::string speaker;
         std::string fullText;
+        std::string perfId;
         size_t revealed = 0; // in codepoints
         size_t totalCp  = 0; // in codepoints
         float revealCpF = 0.0f;
@@ -37,7 +38,7 @@ struct StoryView {
 
         std::string speaker;
         std::string fullText;
-        std::string prefId;
+        std::string perfId;
 
         std::vector<std::string> spanIds;
 

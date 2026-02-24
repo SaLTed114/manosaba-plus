@@ -56,7 +56,7 @@ DebateDef LoadDebateDef(Utils::IFileSystem& fs, const std::filesystem::path& ful
         statement.speaker = RequireString(jStatement, "speaker", ctx);
         statement.text    = RequireString(jStatement, "text",    ctx);
 
-        TryString(jStatement, "pref_id", statement.prefId);
+        TryString(jStatement, "perf_id", statement.perfId);
         def.statements.push_back(std::move(statement));
     }
 

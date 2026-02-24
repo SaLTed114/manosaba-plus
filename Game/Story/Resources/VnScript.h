@@ -9,13 +9,13 @@
 
 namespace Salt2D::Game::Story {
 
-enum class VnCmdType { Line, Cue, };
+enum class VnCmdType { Line, };
 
 struct VnCmd {
     VnCmdType type = VnCmdType::Line;
     std::string speaker;   // For Line
     std::string text;      // For Line
-    std::string cueName;   // For Cue
+    std::string perfId;    // For Line, optional
 };
 
 struct VnScript {

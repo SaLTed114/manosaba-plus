@@ -37,6 +37,13 @@ static float RequireFloat(const json& j, const char* key, const std::string& con
     return true;
 }
 
+static bool TryFloat(const json& j, const char* key, float& out) {
+    if (!j.contains(key)) return false;
+    if (!j[key].is_number()) return false;
+    out = j[key].get<float>();
+    return true;
+}
+
 static Vec2F RequireVec2F(const json& j, const char* key, const std::string& context) {
     if (!j.contains(key) || !j[key].is_array() || j[key].size() != 2) {
         throw std::runtime_error("PerformanceDefLoader: missing/invalid array field '" + std::string(key) + "' in " + context);
@@ -211,9 +218,9 @@ static StageCameraTrack ParseStageCameraTrack(const json& j, const std::string& 
         }
 
         if (track.rotation.mode == Rotate3DMode::Fixed) {
-            track.rotation.fixedYawRad   = RequireFloat(jRot, "fixed_yaw_rad",   rotCtx);
-            track.rotation.fixedPitchRad = RequireFloat(jRot, "fixed_pitch_rad", rotCtx);
-            track.rotation.fixedRollRad  = RequireFloat(jRot, "fixed_roll_rad",  rotCtx);
+            if (!TryFloat(jRot, "fixed_yaw_rad",   track.rotation.fixedYawRad))   track.rotation.fixedYawRad = 0.0f;
+            if (!TryFloat(jRot, "fixed_pitch_rad", track.rotation.fixedPitchRad)) track.rotation.fixedPitchRad = 0.0f;
+            if (!TryFloat(jRot, "fixed_roll_rad",  track.rotation.fixedRollRad))  track.rotation.fixedRollRad = 0.0f;
         }
     }
 

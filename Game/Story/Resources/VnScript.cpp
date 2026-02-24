@@ -16,9 +16,15 @@ static std::string RequireString(const json& j, const char* key, const std::stri
     return j[key].get<std::string>();
 }
 
+static bool TryString(const json& j, const char* key, std::string& out) {
+    if (!j.contains(key)) return false;
+    if (!j[key].is_string()) return false;
+    out = j[key].get<std::string>();
+    return true;
+}
+
 static VnCmdType ParseCmdType(const std::string& str, const std::string& context) {
     if (str == "line") return VnCmdType::Line;
-    if (str == "cue")  return VnCmdType::Cue;
     throw std::runtime_error("VnScriptLoader: invalid cmd type '" + str + "' in " + context);
 }
 
@@ -50,6 +56,7 @@ VnScript VnScriptLoader(Utils::IFileSystem& fs, const std::filesystem::path& ful
         if (cmd.type == VnCmdType::Line) {
             cmd.speaker = RequireString(jCmd, "speaker", ctx);
             cmd.text = RequireString(jCmd, "text", ctx);
+            TryString(jCmd, "perf_id", cmd.perfId);
         }
 
         script.cmds.push_back(std::move(cmd));
