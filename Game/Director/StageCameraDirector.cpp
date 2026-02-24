@@ -26,9 +26,12 @@ void StageCameraDirector::Initialize(
     world_ = world;
     tables_ = tables;
     camera_ = camera;
+
+    vnFade_.SetDuration(0.5f);
+    vnFade_.Reset();
 }
 
-void StageCameraDirector::Tick(const Story::StoryPlayer& player, const Core::FrameTime& /*ft*/) {
+void StageCameraDirector::Tick(const Story::StoryPlayer& player, const Core::FrameTime& ft) {
     if (!world_ || !tables_ || !camera_) return;
 
     const auto& node = player.CurrentNode();
@@ -51,6 +54,13 @@ void StageCameraDirector::Tick(const Story::StoryPlayer& player, const Core::Fra
 
         StageCameraSample sample{};
         StageCameraRotationResult rotation{};
+
+        vnFade_.UpdateVN(player.CurrentNodeId(),
+            view->speaker, view->lineSerial,
+            view->lineDone, static_cast<float>(ft.dtSec));
+
+        sceneCrossfade_ = vnFade_.CrossfadeT();
+        lockPrevScene_  = vnFade_.LockPrev();
 
         const float cur   = view->revealCpF;
         const float total = static_cast<float>(view->totalCp);

@@ -29,6 +29,11 @@ struct FrameBlackboard {
     DirectX::XMMATRIX view;
     DirectX::XMMATRIX proj;
     DirectX::XMMATRIX viewProj;
+
+    // 0: fully previous scene, 1: fully current scene
+    float sceneCrossfade = 1.0f;
+    uint32_t lockPrevScene = 0;
+    uint32_t pad[2] = {0, 0};
 };
 
 struct PassContext {

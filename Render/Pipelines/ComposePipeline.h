@@ -16,14 +16,17 @@ class ShaderManager;
 class ComposePipeline {
 public:
     void Initialize(const RHI::DX11::DX11Device& device, ShaderManager& shaderManager);
-
     void Bind(ID3D11DeviceContext* context);
+
+    void SetConstants(ID3D11DeviceContext* context, float crossfade);
 
 private:
     Microsoft::WRL::ComPtr<ID3D11VertexShader> vs_;
     Microsoft::WRL::ComPtr<ID3D11PixelShader>  ps_;
     Microsoft::WRL::ComPtr<ID3D11SamplerState> samp_;
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> rast_;
+
+    Microsoft::WRL::ComPtr<ID3D11Buffer> cbCompose_;
 };
 
 } // namespace Salt2D::Render

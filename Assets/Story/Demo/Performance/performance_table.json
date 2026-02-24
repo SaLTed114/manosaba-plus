@@ -185,7 +185,7 @@
           "end":   { "dist": 1.8, "lift_y": 0.15, "side_x": -0.2, "fov_y_deg": 55.0 },
           "target_list_y": 0.05,
 
-          "rotation": { "mode": "fixed", "fixed_roll_rad": 0.05 },
+          "rotation": { "mode": "fixed", "fixed_roll_rad": -0.04 },
           "motion": { "type": "linear" }
         }
       }

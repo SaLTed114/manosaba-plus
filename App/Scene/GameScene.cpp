@@ -111,12 +111,15 @@ void GameScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sce
     frame.view     = camera_.GetView();
     frame.proj     = camera_.GetProj(sceneW, sceneH);
     frame.viewProj = XMMatrixMultiply(frame.view, frame.proj);
+
+    frame.sceneCrossfade = director_.SceneCrossfade();
+    frame.lockPrevScene  = director_.LockPrevScene() ? 1 : 0;
 }
 
 void GameScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
     (void)canvasW; (void)canvasH;
 
-    stage_.EmitBackground(drawList, canvasW, canvasH);
+    // stage_.EmitBackground(drawList, canvasW, canvasH);
     screens_.EmitDraw(drawList, texService_);
 
 }

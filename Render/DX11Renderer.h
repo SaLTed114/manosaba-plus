@@ -61,6 +61,7 @@ private:
 
     RHI::DX11::DX11Texture2D sceneRT_[2];
     uint32_t sceneIdx_ = 0;
+    uint32_t snapshotIdx_ = 1;  // 第一帧快照的缓冲区索引
     bool sceneValid_ = false;
 
     PipelineLibrary pipelines_;

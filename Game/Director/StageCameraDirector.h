@@ -8,22 +8,11 @@
 #include "Render/Scene3D/Camera3D.h"
 #include "Game/Director/StageCamera/StageCameraTypes.h"
 #include "Game/Director/StageCamera/StageCameraSolver.h"
+#include "Game/Director/SceneCrossfadeController.h"
 
+#include <string>
 
 namespace Salt2D::Game::Director {
-
-struct CameraDirectorConfig {
-    float dist = 2.0f;
-    float liftY = 0.15f;
-
-    // lowpass filter for camera movement to reduce jitter
-    float tauEyeSec = 0.20f;
-    float tauTargetSec = 0.15f;
-    float tauFovSec = 0.18f;
-    
-    float snapDist = 3.0f;
-    float snapAngleY = 0.0f;
-};
 
 class StageCameraDirector {
 public:
@@ -31,25 +20,22 @@ public:
         const Story::StoryTables* tables,
         Render::Scene3D::Camera3D* camera);
 
-    void SetConfig(const CameraDirectorConfig& cfg) { cfg_ = cfg; }
-
     void Tick(const Story::StoryPlayer& player, const Core::FrameTime& ft);
 
-private:
-    bool EvalStageCamera(const Story::PerformanceDef& perf,
-        const Anchor& anchor, float u01, StageCameraSample& out) const;
-    
-    void DefaultCamera(const Anchor& anchor, StageCameraSample& out) const;
+    float SceneCrossfade() const { return sceneCrossfade_; }
+    bool  LockPrevScene() const { return lockPrevScene_; }
 
 private:
-    CameraDirectorConfig cfg_{};
-
     StageWorld* world_ = nullptr;
     const Story::StoryTables* tables_ = nullptr;
     Render::Scene3D::Camera3D* camera_ = nullptr;
 
     StageCameraSample lastSample_{};
     StageCameraRotationResult lastRotation_{};
+
+    SceneCrossfadeController vnFade_;
+    float sceneCrossfade_ = 1.0f;
+    bool  lockPrevScene_ = false;
 };
 
 } // namespace Salt2D::Game::Director

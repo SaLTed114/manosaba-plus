@@ -3,10 +3,16 @@
 #include "Render/Shader/ShaderManager.h"
 #include "RHI/DX11/DX11Common.h"
 #include "RHI/DX11/DX11Device.h"
+#include "Utils/MathUtils.h"
 
 #include <stdexcept>
 
 namespace Salt2D::Render {
+
+struct alignas(16) CBComposeData {
+    float sceneCrossfade;
+    uint32_t pad[3];
+};
 
 void ComposePipeline::Initialize(const RHI::DX11::DX11Device& device, ShaderManager& shaderManager) {
     auto d3dDevice = device.GetDevice();
@@ -42,6 +48,15 @@ void ComposePipeline::Initialize(const RHI::DX11::DX11Device& device, ShaderMana
 
     ThrowIfFailed(d3dDevice->CreateRasterizerState(&rastDesc, rast_.GetAddressOf()),
         "ComposePipeline::Initialize: CreateRasterizerState failed.");
+
+    D3D11_BUFFER_DESC cbDesc{};
+    cbDesc.ByteWidth = sizeof(CBComposeData);
+    cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+    cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+    ThrowIfFailed(d3dDevice->CreateBuffer(&cbDesc, nullptr, cbCompose_.GetAddressOf()),
+        "ComposePipeline::Initialize: CreateBuffer failed.");
 }
 
 void ComposePipeline::Bind(ID3D11DeviceContext* context) {
@@ -56,6 +71,23 @@ void ComposePipeline::Bind(ID3D11DeviceContext* context) {
 
     ID3D11SamplerState* samplers[] = { samp_.Get() };
     context->PSSetSamplers(0, 1, samplers);
+}
+
+void ComposePipeline::SetConstants(ID3D11DeviceContext* context, float crossfade) {
+    crossfade = Utils::Clamp01(crossfade);
+
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    ThrowIfFailed(context->Map(cbCompose_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource),
+        "ComposePipeline::SetConstants: Map failed.");
+
+    CBComposeData* data = static_cast<CBComposeData*>(mappedResource.pData);
+    data->sceneCrossfade = crossfade;
+
+    context->Unmap(cbCompose_.Get(), 0);
+
+    ID3D11Buffer* cbs[] = { cbCompose_.Get() };
+    context->VSSetConstantBuffers(0, 1, cbs);
+    context->PSSetConstantBuffers(0, 1, cbs);
 }
 
 } // namespace Salt2D::Render

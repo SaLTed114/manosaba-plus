@@ -134,7 +134,7 @@ void DX11Renderer::ExecutePlan(const RenderPlan& plan, const FrameBlackboard& fr
         pass->Record(ctx);
     }
 
-    sceneIdx_ ^= 1;
+    if (!frame.lockPrevScene) sceneIdx_ ^= 1;
     sceneValid_ = true;
 }
 

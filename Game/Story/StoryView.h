@@ -20,6 +20,7 @@ struct StoryView {
         float revealCpF = 0.0f;
         bool lineDone = false;
         bool finished = false;
+        int lineSerial = 0;
     };
 
     std::optional<VnView> vn;

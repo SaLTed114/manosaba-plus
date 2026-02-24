@@ -1,5 +1,11 @@
-Texture2D gScene : register(t0);
+Texture2D gSceneCurr : register(t0);
+Texture2D gScenePrev : register(t1);
 SamplerState gSamp : register(s0);
+
+cbuffer ComposeCB : register(b0) {
+    float  gCrossfadeT;
+    float3 pad;
+};
 
 struct VSOut {
     float4 pos : SV_POSITION;
@@ -25,5 +31,8 @@ VSOut VS(uint vid : SV_VertexID) {
 }
 
 float4 PS(VSOut i) : SV_TARGET {
-    return gScene.Sample(gSamp, i.uv);
+    float t = saturate(gCrossfadeT);
+    float4 colCurr = gSceneCurr.Sample(gSamp, i.uv);
+    float4 colPrev = gScenePrev.Sample(gSamp, i.uv);
+    return lerp(colPrev, colCurr, t);
 }

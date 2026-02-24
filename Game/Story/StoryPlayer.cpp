@@ -430,15 +430,16 @@ void StoryPlayer::UpdateView() {
     case NodeType::Error: {
         const VnState& state = vn_.State();
         StoryView::VnView view;
-        view.speaker   = state.speaker;
-        view.fullText  = state.fullText;
-        view.perfId    = state.perfId.empty() ? "vn_default" : state.perfId;
+        view.speaker    = state.speaker;
+        view.fullText   = state.fullText;
+        view.perfId     = state.perfId.empty() ? "vn_default" : state.perfId;
 
-        view.revealed  = state.revealed;
-        view.totalCp   = state.totalCp;
-        view.revealCpF = state.revealCpF;
-        view.lineDone  = state.lineDone;
-        view.finished  = state.finished;
+        view.revealed   = state.revealed;
+        view.totalCp    = state.totalCp;
+        view.revealCpF  = state.revealCpF;
+        view.lineDone   = state.lineDone;
+        view.finished   = state.finished;
+        view.lineSerial = state.lineSerial;
 
         if (!vnTimer_.active || vnTimer_.lineSerial != state.lineSerial) {
             ResetVnAutoTimer(state.fullText, state.lineSerial);
