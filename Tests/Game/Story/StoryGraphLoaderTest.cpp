@@ -58,7 +58,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         DiskFileSystem diskFS;
 
         // 构建图路径
-        std::filesystem::path graphPath = "Assets/Story/Demo/demo_story.graph.json";
+        std::filesystem::path graphPath = "Assets/Story/DemoTrial/demo_trial.graph.json";
         
         std::cout << "Loading story graph from: " << graphPath << "\n\n";
 

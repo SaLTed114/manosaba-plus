@@ -69,9 +69,18 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
     texCatalog_.SetMissing({ checker_.SRV(), 64, 64, true });
     // TODO: catalog settings like missing texture and logger
 
-    auto storyRoot = std::filesystem::path("Assets/Story/Demo/");
-    auto graphPath = std::filesystem::path("demo_story.graph.json");
-    session_.Initialize(storyRoot, graphPath, "n0_intro");
+    const auto sessionConfig = Game::Session::StorySessionConfig{
+        .storyRoot = std::filesystem::path("Assets/Story/DemoTrial/"),
+        .graphPath = std::filesystem::path("demo_trial.graph.json"),
+        .startNode = "n0_intro",
+        .loadTables = Game::Session::TableLoadMask::All,
+        .enableLogger = true,
+        .logPath = std::filesystem::path("Logs/game_scene.log"),
+        .consoleLevel = Utils::LogLevel::Debug,
+        .fileLevel    = Utils::LogLevel::Debug,
+    };
+
+    session_.Initialize(sessionConfig);
     screens_.Initialize(&session_.Player(), &session_.History(), &session_.Tables());
 
     stage_.Initialize(&session_.Tables(), &texCatalog_);

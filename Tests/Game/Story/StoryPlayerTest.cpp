@@ -92,7 +92,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     SetConsoleOutputCP(CP_UTF8);
     try {
         Salt2D::Utils::DiskFileSystem diskFS;
-        auto graphPath = std::filesystem::path("Assets/Story/Demo/demo_story.graph.json");
+        auto graphPath = std::filesystem::path("Assets/Story/DemoTrial/demo_trial.graph.json");
         auto graph = LoadStoryGraph(diskFS, graphPath);
         std::cout << "Loaded story graph with " << graph.Nodes().size() << " nodes and " << graph.Edges().size() << " edges.\n\n";
 

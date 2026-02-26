@@ -21,13 +21,7 @@ manosaba-plus/
 │   ├── Font/                                  # 字体文件
 │   ├── Image/                                 # 图像纹理文件
 │   ├── Mesh/                                  # 3D 网格文件
-│   └── Story/
-│       └── Demo/
-│           ├── demo_story.graph.json          # 演示故事图定义
-│           ├── VN/                            # 视觉小说脚本文件 (.txt)
-│           ├── Present/                       # 证据出示定义 (.json)
-│           ├── Debate/                        # 辩论定义文件 (.json)
-│           └── Choice/                        # 选择定义文件 (.json)
+│   └── Story/                                 # 剧本文件
 │
 ├── Build/                                     # CMake 构建输出（自动生成）
 │

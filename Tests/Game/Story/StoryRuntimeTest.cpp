@@ -19,7 +19,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         Salt2D::Utils::DiskFileSystem diskFS;
 
         // 构建图路径
-        std::filesystem::path graphPath = std::filesystem::path("Assets/Story/Demo/demo_story.graph.json");
+        std::filesystem::path graphPath = std::filesystem::path("Assets/Story/DemoTrial/demo_trial.graph.json");
 
         // 加载图
         StoryGraphLoadOptions loadOpt;

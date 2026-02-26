@@ -1,0 +1,33 @@
+{
+  "nodes": [
+    { "id": "n0_intro", "type": "vn", "resource": "VN/n0_intro.json" },
+    { "id": "n1_choice", "type": "choice", "resource": "Choice/n1_choice.json" },
+    { "id": "n2_choice_be", "type": "be", "resource": "VN/n2_choice_be.json" },
+    { "id": "n3_choice_back", "type": "choice", "resource": "Choice/n3_choice_back.json" },
+    { "id": "n4_continue", "type": "vn", "resource": "VN/n4_continue.json" },
+    { "id": "demo_novel_chapter_end", "type": "chapter_end", "resource": "" }
+  ],
+  "edges": [
+    { "from": "n0_intro", "to": "n1_choice", "trigger": "auto" },
+    {
+      "from": "n1_choice",
+      "to": "n2_choice_be",
+      "trigger": "option",
+      "key": "opt_badend"
+    },
+    {
+      "from": "n1_choice",
+      "to": "n4_continue",
+      "trigger": "option",
+      "key": "opt_continue"
+    },
+    { "from": "n2_choice_be", "to": "n3_choice_back", "trigger": "auto" },
+    {
+      "from": "n3_choice_back",
+      "to": "n1_choice",
+      "trigger": "option",
+      "key": "opt_back"
+    },
+    { "from": "n4_continue", "to": "demo_novel_chapter_end", "trigger": "auto" }
+  ]
+}

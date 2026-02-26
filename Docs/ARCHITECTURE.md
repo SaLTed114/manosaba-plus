@@ -19,13 +19,7 @@ manosaba-plus/
 │   ├── Font/                                  # Font files
 │   ├── Image/                                 # Image texture files
 │   ├── Mesh/                                  # 3D mesh files
-│   └── Story/
-│       └── Demo/
-│           ├── demo_story.graph.json          # Demo story graph definition
-│           ├── VN/                            # Visual novel script files (.txt)
-│           ├── Present/                       # Evidence presentation definitions (.json)
-│           ├── Debate/                        # Debate definition files (.json)
-│           └── Choice/                        # Choice definition files (.json)
+│   └── Story/                                 # Script files
 │
 ├── Build/                                     # CMake build output (generated)
 │

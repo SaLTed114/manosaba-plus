@@ -73,6 +73,46 @@ set_target_properties(StoryPlayerTest PROPERTIES
 )
 
 # ========================================
+# Game/Flow Tests
+# ========================================
+
+add_executable(GameFlowTest
+    Game/Flow/GameFlowTest.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Flow/GameFlow.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Session/StorySession.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Session/StoryHistory.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/StoryGraphLoader.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/StoryRuntime.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/StoryPlayer.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Runners/VnRunner.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Runners/PresentRunner.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Runners/DebateRunner.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Runners/ChoiceRunner.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Resources/VnScript.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Resources/PresentDefLoader.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Resources/DebateDefLoader.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Resources/ChoiceDefLoader.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Resources/PerformanceDefLoader.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Resources/CastDefLoader.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/Resources/StageDefLoader.cpp
+    ${CMAKE_SOURCE_DIR}/Game/Story/TextMarkup/SusMarkup.cpp
+)
+
+target_include_directories(GameFlowTest PRIVATE
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/ThirdParty
+)
+
+target_link_libraries(GameFlowTest PRIVATE
+    Utils
+    Core
+)
+
+set_target_properties(GameFlowTest PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Bin/$<CONFIG>
+)
+
+# ========================================
 # Future Tests
 # ========================================
 
@@ -84,6 +124,6 @@ set_target_properties(StoryPlayerTest PROPERTIES
 
 # Create a custom target that builds all tests
 add_custom_target(Tests
-    DEPENDS StoryGraphLoaderTest StoryRuntimeTest StoryPlayerTest
+    DEPENDS StoryGraphLoaderTest StoryRuntimeTest StoryPlayerTest GameFlowTest
     COMMENT "Building all tests"
 )
