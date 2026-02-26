@@ -10,6 +10,12 @@ MeshPass::MeshPass(
     std::span<const MeshDrawItem> meshes
 ) : RenderPassBase(name, target, depth, blend), meshes_(meshes) {}
 
+void MeshPass::SetClearScene(float r, float g, float b, float a) {
+    clearColor_ = true; clearDepth_ = true;
+    clearColorValue_[0] = r; clearColorValue_[1] = g;
+    clearColorValue_[2] = b; clearColorValue_[3] = a;
+}
+
 void MeshPass::SetClearDepth(float depth, uint8_t stencil) {
     clearDepth_ = true;
     clearDepthValue_ = depth;

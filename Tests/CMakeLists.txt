@@ -113,6 +113,31 @@ set_target_properties(GameFlowTest PROPERTIES
 )
 
 # ========================================
+# Render Tests
+# ========================================
+
+add_executable(MeshTest
+    Render/MeshTest.cpp
+)
+
+target_include_directories(MeshTest PRIVATE
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/ThirdParty
+)
+
+target_link_libraries(MeshTest PRIVATE
+    Core
+    Render
+    Resources
+    RHI_DX11
+    Utils
+)
+
+set_target_properties(MeshTest PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Bin/$<CONFIG>
+)
+
+# ========================================
 # Future Tests
 # ========================================
 
@@ -124,6 +149,6 @@ set_target_properties(GameFlowTest PROPERTIES
 
 # Create a custom target that builds all tests
 add_custom_target(Tests
-    DEPENDS StoryGraphLoaderTest StoryRuntimeTest StoryPlayerTest GameFlowTest
+    DEPENDS StoryGraphLoaderTest StoryRuntimeTest StoryPlayerTest GameFlowTest MeshTest
     COMMENT "Building all tests"
 )

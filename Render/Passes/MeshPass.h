@@ -15,6 +15,7 @@ public:
         DepthMode depth, BlendMode blend,
         std::span<const MeshDrawItem> meshes);
 
+    void SetClearScene(float r, float g, float b, float a);
     void SetClearDepth(float depth = 1.0f, uint8_t stencil = 0);
 
 protected:

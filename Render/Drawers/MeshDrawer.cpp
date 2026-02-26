@@ -36,8 +36,8 @@ void MeshDrawer::Draw(PassContext& ctx, const MeshDrawItem& item) {
 
     auto& pipeline = ctx.pipelines->Mesh();
 
-    // Pass both world matrix and worldViewProj for lighting calculations
-    pipeline.SetConstants(ctx.ctx, item.world, wvp);
+    // Pass world matrix, worldViewProj, and light position for lighting calculations
+    pipeline.SetConstants(ctx.ctx, item.world, wvp, ctx.frame->lightPosition);
 
     UINT stride = item.mesh->stride;
     UINT offset = 0;

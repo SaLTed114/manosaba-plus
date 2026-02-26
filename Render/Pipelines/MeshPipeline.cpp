@@ -12,7 +12,7 @@ struct CBuffers {
     XMFLOAT4X4 worldViewProj;     // 64 bytes
     XMFLOAT4X4 world;              // 64 bytes
     XMFLOAT4X4 worldInvTranspose;  // 64 bytes
-    XMFLOAT4   lightDirWS;         // 16 bytes (changed from XMFLOAT3 + float)
+    XMFLOAT4   lightPosWS;         // 16 bytes (xyz = position, w unused)
     XMFLOAT4   lightColorAndAmbient; // 16 bytes (rgb = color, w = ambient)
 };
 
@@ -84,6 +84,16 @@ void MeshPipeline::SetConstants(
     const DirectX::XMMATRIX& world,
     const DirectX::XMMATRIX& worldViewProj
 ) {
+    // Use default light position
+    SetConstants(context, world, worldViewProj, XMFLOAT3(0.0f, 10.0f, 0.0f));
+}
+
+void MeshPipeline::SetConstants(
+    ID3D11DeviceContext* context,
+    const DirectX::XMMATRIX& world,
+    const DirectX::XMMATRIX& worldViewProj,
+    const DirectX::XMFLOAT3& lightPos
+) {
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     ThrowIfFailed(context->Map(constantBuffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource),
         "Failed to map MeshPipeline constant buffer.");
@@ -100,8 +110,8 @@ void MeshPipeline::SetConstants(
     XMMATRIX worldInvTranspose = XMMatrixTranspose(worldInv);
     XMStoreFloat4x4(&cbData->worldInvTranspose, XMMatrixTranspose(worldInvTranspose));
     
-    // Default lighting parameters
-    cbData->lightDirWS = XMFLOAT4(0.0f, -1.0f, 1.0f, 0.0f);  // w unused
+    // Lighting parameters (point light with custom position)
+    cbData->lightPosWS = XMFLOAT4(lightPos.x, lightPos.y, lightPos.z, 0.0f);
     cbData->lightColorAndAmbient = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.3f);  // rgb = color, w = ambient
 
     context->Unmap(constantBuffer_.Get(), 0);

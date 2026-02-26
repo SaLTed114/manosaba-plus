@@ -34,6 +34,9 @@ struct FrameBlackboard {
     float sceneCrossfade = 1.0f;
     uint32_t lockPrevScene = 0;
     uint32_t pad[2] = {0, 0};
+    
+    // Global point light position for 3D rendering
+    DirectX::XMFLOAT3 lightPosition = {0.0f, 10.0f, 0.0f};
 };
 
 struct PassContext {
