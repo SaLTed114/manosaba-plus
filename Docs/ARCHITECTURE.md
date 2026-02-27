@@ -41,14 +41,18 @@ manosaba-plus/
 │
 ├── Game/
 │   ├── CMakeLists.txt
-│   ├── Common/
-│   │   ├── Logger.h                           # Logging interface
-│   │   └── Logger.cpp                         # Console logger implementation
+│   ├── Common/                                # Common components (reserved for future expansion)
+│   ├── Flow/
+│   │   ├── GameFlow.h                         # Game flow management interface
+│   │   ├── GameFlow.cpp                       # Game flow control implementation
+│   │   └── GameFlowTypes.h                    # Game flow type definitions
 │   ├── RenderBridge/
 │   │   ├── TextService.h                      # Text rendering service interface
 │   │   ├── TextService.cpp                    # Text rendering service implementation
 │   │   ├── TextureService.h                   # Texture management service interface
-│   │   └── TextureService.cpp                 # Texture management service implementation
+│   │   ├── TextureService.cpp                 # Texture management service implementation
+│   │   ├── TextureCatalog.h                   # Texture catalog management interface
+│   │   └── TextureCatalog.cpp                 # Texture catalog management implementation
 │   ├── Screens/
 │   │   ├── IStoryScreen.h                     # Story screen interface
 │   │   ├── VnScreen.h                         # Visual novel screen interface
@@ -83,6 +87,7 @@ manosaba-plus/
 │   │   ├── StoryView.h                        # Unified view data structures (VN, Present, Debate, Choice)
 │   │   ├── StoryTimer.h                       # Story timer structure and utilities
 │   │   ├── StoryTables.h                      # Story data tables management (cast, stage, performance)
+│   │   ├── StorySignal.h                      # Story signal and event definitions
 │   │   ├── Resources/
 │   │   │   ├── VnScript.h                     # Visual novel script structure
 │   │   │   ├── VnScript.cpp                   # VN script parser
@@ -123,6 +128,7 @@ manosaba-plus/
 │   │   ├── StageCameraDirector.cpp            # Camera control and positioning logic
 │   │   ├── HudEvaluator.h                     # HUD evaluation interface
 │   │   ├── HudEvaluator.cpp                   # HUD state evaluation and updates
+│   │   ├── SceneCrossfadeController.h         # Scene crossfade controller
 │   │   └── StageCamera/
 │   │       ├── StageCameraTypes.h             # Stage camera type definitions
 │   │       ├── StageCameraSolver.h            # Stage camera solver interface
@@ -156,7 +162,11 @@ manosaba-plus/
 │           ├── TimerWidget.h                  # Timer widget interface
 │           ├── TimerWidget.cpp                # Timer widget implementation
 │           ├── UIButtonWidget.h               # Button widget interface
-│           └── UIButtonWidget.cpp             # Button widget implementation
+│           ├── UIButtonWidget.cpp             # Button widget implementation
+│           ├── VnAutoWidget.h                 # VN auto-play widget interface
+│           ├── VnAutoWidget.cpp               # VN auto-play widget implementation
+│           ├── HistoryWidget.h                # History widget interface
+│           └── HistoryWidget.cpp              # History widget implementation
 │
 ├── RHI/
 │   ├── CMakeLists.txt
@@ -265,11 +275,15 @@ manosaba-plus/
 ├── Tests/
 │   ├── CMakeLists.txt
 │   ├── README.md                              # Testing documentation
-│   └── Game/
-│       └── Story/
-│           ├── StoryGraphLoaderTest.cpp       # Story graph loading test
-│           ├── StoryRuntimeTest.cpp           # Runtime state machine test
-│           └── StoryPlayerTest.cpp            # Interactive story player test
+│   ├── Game/
+│   │   ├── Story/
+│   │   │   ├── StoryGraphLoaderTest.cpp       # Story graph loading test
+│   │   │   ├── StoryRuntimeTest.cpp           # Runtime state machine test
+│   │   │   └── StoryPlayerTest.cpp            # Interactive story player test
+│   │   └── Flow/
+│   │       └── GameFlowTest.cpp               # Game flow test
+│   └── Render/
+│       └── MeshTest.cpp                       # Mesh system test
 │
 ├── CMakeLists.txt                             # Root CMake configuration
 ├── LICENSE                                    # MIT License
@@ -312,15 +326,21 @@ manosaba-plus/
 
 ### Game/ - Game Logic Layer
 
-**Common Utilities**
-- `Common/Logger.h` - Logging interface with multiple log levels (Debug, Info, Warning, Error)
-- `Common/Logger.cpp` - Console logger implementation with color-coded output
+**Common Components**
+- `Common/` - Reserved for future common component expansion
+
+**Game Flow**
+- `Flow/GameFlow.h` - Game flow management interface
+- `Flow/GameFlow.cpp` - Manages game state transitions, scene switching, and overall flow control
+- `Flow/GameFlowTypes.h` - Game flow related type definitions
 
 **Render Bridge**
 - `RenderBridge/TextService.h` - Text rendering service interface
 - `RenderBridge/TextService.cpp` - Bridging text rendering with game logic
 - `RenderBridge/TextureService.h` - Texture management service interface
 - `RenderBridge/TextureService.cpp` - Centralized texture loading and caching
+- `RenderBridge/TextureCatalog.h` - Texture catalog management interface
+- `RenderBridge/TextureCatalog.cpp` - Manages texture resource classification and indexing
 
 **Screen System**
 - `Screens/IStoryScreen.h` - Base interface for all story screens
@@ -362,6 +382,7 @@ The story system implements a node-based narrative engine supporting visual nove
 - `Story/StoryView.h` - Unified view structures for all node types (VN, Present, Debate, Choice)
 - `Story/StoryTimer.h` - Story timer structure and utilities for timed events
 - `Story/StoryTables.h` - Centralized story data table management (cast, stage, performance definitions)
+- `Story/StorySignal.h` - Story signal and event definitions for inter-component communication
 
 **Resource Definitions**
 - `Story/Resources/VnScript.h` - Visual novel script structure (commands, speaker, text)
@@ -401,7 +422,7 @@ The story system implements a node-based narrative engine supporting visual nove
 
 **Director System**
 
-The director system manages 3D stage presentation, camera control, and HUD state evaluation.
+The director system manages 3D stage presentation, camera control, scene transitions, and HUD state evaluation.
 
 - `Director/StageWorld.h` - Stage world management interface
 - `Director/StageWorld.cpp` - 3D stage world state, character positioning, anchor management
@@ -409,6 +430,7 @@ The director system manages 3D stage presentation, camera control, and HUD state
 - `Director/StageCameraDirector.cpp` - Cinematic camera control, interpolation, anchor-based positioning
 - `Director/HudEvaluator.h` - HUD evaluation interface
 - `Director/HudEvaluator.cpp` - Evaluates and updates HUD state based on story context
+- `Director/SceneCrossfadeController.h` - Scene crossfade controller, manages smooth transition effects between scenes
 - `Director/StageCamera/StageCameraTypes.h` - Stage camera type definitions (camera samples, rotation results)
 - `Director/StageCamera/StageCameraSolver.h` - Stage camera solver interface
 - `Director/StageCamera/StageCameraSolver.cpp` - Camera track evaluation, rotation policy computation
@@ -440,6 +462,10 @@ The director system manages 3D stage presentation, camera control, and HUD state
 - `UI/Widgets/TimerWidget.cpp` - Timer display widget for timed events
 - `UI/Widgets/UIButtonWidget.h` - Button widget interface
 - `UI/Widgets/UIButtonWidget.cpp` - Generic button widget implementation
+- `UI/Widgets/VnAutoWidget.h` - VN auto-play widget interface
+- `UI/Widgets/VnAutoWidget.cpp` - Auto-play mode control and display widget
+- `UI/Widgets/HistoryWidget.h` - History widget interface
+- `UI/Widgets/HistoryWidget.cpp` - Dialogue history review widget, supports browsing previous dialogue content
 
 ---
 
@@ -582,8 +608,28 @@ Note: Each .hlsl file contains both vertex shader (VS) and pixel shader (PS) ent
 - `FileUtils.h` - File path resolution interface
 - `FileUtils.cpp` - Path resolution helpers for locating assets and shaders
 
+**Logging Utilities**
+- `Logger.h` - Logging interface with multiple log levels (debug, info, warning, error)
+- `Logger.cpp` - Console logger implementation with color-coded output
+
+**Math Utilities**
+- `MathUtils.h` - Math utility functions and common calculations
+
 **String Utilities**
 - `StringUtils.h` - String manipulation and conversion utilities
+
+---
+
+### Tests/ - Testing
+
+**Game System Tests**
+- `Game/Story/StoryGraphLoaderTest.cpp` - Tests story graph JSON loading functionality
+- `Game/Story/StoryRuntimeTest.cpp` - Tests story runtime state machine logic
+- `Game/Story/StoryPlayerTest.cpp` - Tests interactive story player functionality
+- `Game/Flow/GameFlowTest.cpp` - Tests game flow management
+
+**Render System Tests**
+- `Render/MeshTest.cpp` - Tests mesh system loading and rendering functionality
 
 ---
 

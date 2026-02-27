@@ -43,14 +43,18 @@ manosaba-plus/
 │
 ├── Game/
 │   ├── CMakeLists.txt
-│   ├── Common/
-│   │   ├── Logger.h                           # 日志接口
-│   │   └── Logger.cpp                         # 控制台日志实现
+│   ├── Common/                                # 通用组件（保留用于未来扩展）
+│   ├── Flow/
+│   │   ├── GameFlow.h                         # 游戏流程管理接口
+│   │   ├── GameFlow.cpp                       # 游戏流程控制实现
+│   │   └── GameFlowTypes.h                    # 游戏流程类型定义
 │   ├── RenderBridge/
 │   │   ├── TextService.h                      # 文本渲染服务接口
 │   │   ├── TextService.cpp                    # 文本渲染服务实现
 │   │   ├── TextureService.h                   # 纹理管理服务接口
-│   │   └── TextureService.cpp                 # 纹理管理服务实现
+│   │   ├── TextureService.cpp                 # 纹理管理服务实现
+│   │   ├── TextureCatalog.h                   # 纹理目录管理接口
+│   │   └── TextureCatalog.cpp                 # 纹理目录管理实现
 │   ├── Screens/
 │   │   ├── IStoryScreen.h                     # 故事屏幕接口
 │   │   ├── VnScreen.h                         # 视觉小说屏幕接口
@@ -85,6 +89,7 @@ manosaba-plus/
 │   │   ├── StoryView.h                        # 统一视图数据结构（VN、Present、Debate、Choice）
 │   │   ├── StoryTimer.h                       # 故事计时器结构与工具
 │   │   ├── StoryTables.h                      # 故事数据表管理（角色、舞台、表演）
+│   │   ├── StorySignal.h                      # 故事信号与事件定义
 │   │   ├── Resources/
 │   │   │   ├── VnScript.h                     # 视觉小说脚本结构
 │   │   │   ├── VnScript.cpp                   # VN 脚本解析器
@@ -125,6 +130,7 @@ manosaba-plus/
 │   │   ├── StageCameraDirector.cpp            # 相机控制与定位逻辑
 │   │   ├── HudEvaluator.h                     # HUD 评估接口
 │   │   ├── HudEvaluator.cpp                   # HUD 状态评估与更新
+│   │   ├── SceneCrossfadeController.h         # 场景淡入淡出控制器
 │   │   └── StageCamera/
 │   │       ├── StageCameraTypes.h             # 舞台相机类型定义
 │   │       ├── StageCameraSolver.h            # 舞台相机求解器接口
@@ -158,7 +164,11 @@ manosaba-plus/
 │           ├── TimerWidget.h                  # 计时器控件接口
 │           ├── TimerWidget.cpp                # 计时器控件实现
 │           ├── UIButtonWidget.h               # 按钮控件接口
-│           └── UIButtonWidget.cpp             # 按钮控件实现
+│           ├── UIButtonWidget.cpp             # 按钮控件实现
+│           ├── VnAutoWidget.h                 # VN 自动播放控件接口
+│           ├── VnAutoWidget.cpp               # VN 自动播放控件实现
+│           ├── HistoryWidget.h                # 历史记录控件接口
+│           └── HistoryWidget.cpp              # 历史记录控件实现
 │
 ├── RHI/
 │   ├── CMakeLists.txt
@@ -257,21 +267,28 @@ manosaba-plus/
 ├── Utils/
 │   ├── CMakeLists.txt
 │   ├── ConsoleUtils.h                         # 控制台附加工具
+│   ├── Logger.h                               # 日志接口
+│   ├── Logger.cpp                             # 控制台日志实现
 │   ├── IFileSystem.h                          # 文件系统抽象接口
 │   ├── DiskFileSystem.h                       # 磁盘文件系统接口
 │   ├── DiskFileSystem.cpp                     # 磁盘文件系统实现
 │   ├── FileUtils.h                            # 文件路径解析工具
 │   ├── FileUtils.cpp                          # 文件系统辅助函数
+│   ├── MathUtils.h                            # 数学工具函数
 │   └── StringUtils.h                          # 字符串操作工具
 │
 ├── Tests/
 │   ├── CMakeLists.txt
 │   ├── README.md                              # 测试文档
-│   └── Game/
-│       └── Story/
-│           ├── StoryGraphLoaderTest.cpp       # 故事图加载测试
-│           ├── StoryRuntimeTest.cpp           # 运行时状态机测试
-│           └── StoryPlayerTest.cpp            # 交互式故事播放器测试
+│   ├── Game/
+│   │   ├── Story/
+│   │   │   ├── StoryGraphLoaderTest.cpp       # 故事图加载测试
+│   │   │   ├── StoryRuntimeTest.cpp           # 运行时状态机测试
+│   │   │   └── StoryPlayerTest.cpp            # 交互式故事播放器测试
+│   │   └── Flow/
+│   │       └── GameFlowTest.cpp               # 游戏流程测试
+│   └── Render/
+│       └── MeshTest.cpp                       # 网格系统测试
 │
 ├── CMakeLists.txt                             # 根 CMake 配置
 ├── LICENSE                                    # MIT 许可证
@@ -314,15 +331,21 @@ manosaba-plus/
 
 ### Game/ - 游戏逻辑层
 
-**通用工具**
-- `Common/Logger.h` - 日志接口，支持多个日志级别（调试、信息、警告、错误）
-- `Common/Logger.cpp` - 带颜色编码输出的控制台日志实现
+**通用组件**
+- `Common/` - 保留用于未来通用组件扩展
+
+**游戏流程**
+- `Flow/GameFlow.h` - 游戏流程管理接口
+- `Flow/GameFlow.cpp` - 管理游戏状态转换、场景切换和整体流程控制
+- `Flow/GameFlowTypes.h` - 游戏流程相关的类型定义
 
 **渲染桥接**
 - `RenderBridge/TextService.h` - 文本渲染服务接口
 - `RenderBridge/TextService.cpp` - 桥接文本渲染与游戏逻辑
 - `RenderBridge/TextureService.h` - 纹理管理服务接口
 - `RenderBridge/TextureService.cpp` - 集中式纹理加载与缓存
+- `RenderBridge/TextureCatalog.h` - 纹理目录管理接口
+- `RenderBridge/TextureCatalog.cpp` - 管理纹理资源的分类和索引
 
 **屏幕系统**
 - `Screens/IStoryScreen.h` - 所有故事屏幕的基础接口
@@ -364,6 +387,7 @@ manosaba-plus/
 - `Story/StoryView.h` - 所有节点类型的统一视图结构（VN、Present、Debate、Choice）
 - `Story/StoryTimer.h` - 故事计时器结构与工具，用于定时事件
 - `Story/StoryTables.h` - 集中式故事数据表管理（角色、舞台、表演定义）
+- `Story/StorySignal.h` - 故事信号与事件定义，用于组件间通信
 
 **资源定义**
 - `Story/Resources/VnScript.h` - 视觉小说脚本结构（命令、说话人、文本）
@@ -403,7 +427,7 @@ manosaba-plus/
 
 **导演系统（Director）**
 
-导演系统管理 3D 舞台演出、相机控制和 HUD 状态评估。
+导演系统管理 3D 舞台演出、相机控制、场景过渡和 HUD 状态评估。
 
 - `Director/StageWorld.h` - 舞台世界管理接口
 - `Director/StageWorld.cpp` - 3D 舞台世界状态、角色定位、锚点管理
@@ -411,6 +435,7 @@ manosaba-plus/
 - `Director/StageCameraDirector.cpp` - 电影式相机控制、插值、基于锚点的定位
 - `Director/HudEvaluator.h` - HUD 评估接口
 - `Director/HudEvaluator.cpp` - 基于故事上下文评估和更新 HUD 状态
+- `Director/SceneCrossfadeController.h` - 场景淡入淡出控制器，管理场景之间的平滑过渡效果
 - `Director/StageCamera/StageCameraTypes.h` - 舞台相机类型定义（相机采样、旋转结果）
 - `Director/StageCamera/StageCameraSolver.h` - 舞台相机求解器接口
 - `Director/StageCamera/StageCameraSolver.cpp` - 相机轨道评估、旋转策略计算
@@ -442,6 +467,10 @@ manosaba-plus/
 - `UI/Widgets/TimerWidget.cpp` - 定时事件的计时器显示控件
 - `UI/Widgets/UIButtonWidget.h` - 按钮控件接口
 - `UI/Widgets/UIButtonWidget.cpp` - 通用按钮控件实现
+- `UI/Widgets/VnAutoWidget.h` - VN 自动播放控件接口
+- `UI/Widgets/VnAutoWidget.cpp` - 自动播放模式的控制和显示控件
+- `UI/Widgets/HistoryWidget.h` - 历史记录控件接口
+- `UI/Widgets/HistoryWidget.cpp` - 对话历史回顾控件，支持浏览之前的对话内容
 
 ---
 
@@ -584,8 +613,28 @@ manosaba-plus/
 - `FileUtils.h` - 文件路径解析接口
 - `FileUtils.cpp` - 用于定位资源和着色器的路径解析辅助函数
 
+**日志工具**
+- `Logger.h` - 日志接口，支持多个日志级别（调试、信息、警告、错误）
+- `Logger.cpp` - 带颜色编码输出的控制台日志实现
+
+**数学工具**
+- `MathUtils.h` - 数学工具函数与常用计算
+
 **字符串工具**
 - `StringUtils.h` - 字符串操作与转换工具
+
+---
+
+### Tests/ - 测试
+
+**游戏系统测试**
+- `Game/Story/StoryGraphLoaderTest.cpp` - 测试故事图 JSON 加载功能
+- `Game/Story/StoryRuntimeTest.cpp` - 测试故事运行时状态机逻辑
+- `Game/Story/StoryPlayerTest.cpp` - 测试交互式故事播放器功能
+- `Game/Flow/GameFlowTest.cpp` - 测试游戏流程管理
+
+**渲染系统测试**
+- `Render/MeshTest.cpp` - 测试网格系统的加载和渲染功能
 
 ---
 
