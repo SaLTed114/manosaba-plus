@@ -107,11 +107,9 @@ void GameFlow::ConfirmGate() {
     BeginChapter();
 }
 
-void GameFlow::Tick(const Core::FrameTime& ft) {
+void GameFlow::Tick(const Core::FrameTime& /*ft*/) {
     if (state_ != FlowState::InChapter) return;
     if (!HasSession()) return;
-
-    session_->Player().Tick(ft.dtSec);
 
     if (auto sig = session_->Player().ConsumeSignal(); sig.has_value()) {
         switch (sig->kind) {

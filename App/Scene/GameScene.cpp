@@ -11,6 +11,9 @@
 #include <algorithm>
 #include <stdexcept>
 
+/// legacy: This game scene is one session only and is designed for the demo trial story.
+/// It is not optimized and may contain hardcoded values and temporary code for quick testing purposes.
+
 using namespace DirectX;
 
 namespace Salt2D::App {
@@ -81,7 +84,9 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
     };
 
     session_.Initialize(sessionConfig);
-    screens_.Initialize(&session_.Player(), &session_.History(), &session_.Tables());
+    // screens_.Initialize(&session_.Player(), &session_.History(), &session_.Tables());
+    screens_.Initialize();
+    screens_.Bind({ &session_.Player(), &session_.History(), &session_.Tables() });
 
     stage_.Initialize(&session_.Tables(), &texCatalog_);
     stage_.LoadStage(device, "inquisition");
@@ -104,6 +109,8 @@ void GameScene::Update(
     const Core::InputState& in,
     uint32_t canvasW, uint32_t canvasH
 ) {
+    session_.Player().Tick(ft.dtSec);
+
     screens_.Tick(ft, in, canvasW, canvasH);
     screens_.Bake(device, text_);
     screens_.PostBake(in, canvasW, canvasH);

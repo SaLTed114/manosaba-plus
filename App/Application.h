@@ -17,6 +17,7 @@ namespace Salt2D::App {
 
 class DemoScene;
 class GameScene;
+class PlayScene;
 
 class Application {
 public:
@@ -36,7 +37,8 @@ private:
     std::unique_ptr<Core::Win32Window> window_;
     std::unique_ptr<Render::DX11Renderer> renderer_;
     // std::unique_ptr<DemoScene> scene_;
-    std::unique_ptr<GameScene> scene_;
+    // std::unique_ptr<GameScene> scene_;
+    std::unique_ptr<PlayScene> scene_;
 
     Render::DrawList drawList_;
     Render::RenderPlan plan_;

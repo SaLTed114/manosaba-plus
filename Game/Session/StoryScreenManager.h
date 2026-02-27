@@ -17,9 +17,17 @@
 
 namespace Salt2D::Game::Session {
 
+struct StorySessionBindings {
+    Story::StoryPlayer* player  = nullptr;
+    StoryHistory*       history = nullptr;
+    Story::StoryTables* tables  = nullptr;
+};
+
 class StoryScreenManager {
 public:
-    void Initialize(Story::StoryPlayer* player, StoryHistory* history, Story::StoryTables* tables);
+    void Initialize();
+    void Bind(const StorySessionBindings& bindings);
+    void Unbind();
 
     void Tick(const Core::FrameTime& ft, const Core::InputState& in, uint32_t canvasW, uint32_t canvasH);
     void Bake(const RHI::DX11::DX11Device& device, RenderBridge::TextService& service);

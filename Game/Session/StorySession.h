@@ -45,7 +45,6 @@ class StorySession {
 public:
     explicit StorySession(Utils::IFileSystem& fs);
 
-    void Initialize(const std::filesystem::path& storyRoot, const std::filesystem::path& graphPath, const Story::NodeId& startNode);
     void Initialize(const StorySessionConfig& cfg);
 
     bool Ready() const { return player_ != nullptr; }

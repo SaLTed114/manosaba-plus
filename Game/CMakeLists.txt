@@ -43,6 +43,7 @@ set(GAME_SOURCES
     Session/StorySession.cpp
     Session/StoryActionMap.cpp
     Session/StoryHistory.cpp
+    Flow/GameFlow.cpp
 )
 
 add_library(Game STATIC

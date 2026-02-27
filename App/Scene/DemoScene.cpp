@@ -11,6 +11,9 @@
 #include "Render/Draw/MeshDrawItem.h"
 #include "Render/Pipelines/MeshPipeline.h"
 
+/// legacy: This demo scene is a playground for testing various rendering features.
+/// It is not optimized and may contain hardcoded values and temporary code for quick testing purposes.
+
 using namespace DirectX;
 
 namespace Salt2D::App {

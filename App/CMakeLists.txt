@@ -3,6 +3,7 @@ set(APP_SOURCES
     Application.cpp
     Scene/DemoScene.cpp
     Scene/GameScene.cpp
+    Scene/PlayScene.cpp
 )
 
 add_executable(manosaba_plus WIN32

@@ -4,18 +4,7 @@
 
 namespace Salt2D::Game::Session {
 
-void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* history, Story::StoryTables* tables) {
-    player_  = player;
-    tables_  = tables;
-
-    vn_.     SetPlayer(player);
-    debate_. SetPlayer(player);
-    present_.SetPlayer(player);
-    choice_. SetPlayer(player);
-
-    vn_.     SetTables(tables);
-    debate_. SetTables(tables);
-
+void StoryScreenManager::Initialize() {
     theme_.InitDefault();
     themeInited_ = true;
 
@@ -24,9 +13,46 @@ void StoryScreenManager::Initialize(Story::StoryPlayer* player, StoryHistory* hi
     present_.SetTheme(&theme_);
     choice_. SetTheme(&theme_);
 
-    overlay_.SetPlayer(player);
-    overlay_.SetHistory(history);
     overlay_.SetTheme(&theme_);
+}
+
+void StoryScreenManager::Bind(const StorySessionBindings& bindings) {
+    Unbind();
+    
+    player_ = bindings.player;
+    tables_ = bindings.tables;
+
+    vn_.     SetPlayer(player_);
+    debate_. SetPlayer(player_);
+    present_.SetPlayer(player_);
+    choice_. SetPlayer(player_);
+
+    vn_.     SetTables(tables_);
+    debate_. SetTables(tables_);
+
+    overlay_.SetPlayer(player_);
+    overlay_.SetHistory(bindings.history);
+
+    lastType_ = Story::NodeType::Unknown;
+}
+
+void StoryScreenManager::Unbind() {
+    if (active_) { active_->OnExit(); active_ = nullptr; }
+
+    player_ = nullptr;
+    tables_ = nullptr;
+    lastType_ = Story::NodeType::Unknown;
+
+    vn_.     SetPlayer(nullptr);
+    debate_. SetPlayer(nullptr);
+    present_.SetPlayer(nullptr);
+    choice_. SetPlayer(nullptr);
+
+    vn_.     SetTables(nullptr);
+    debate_. SetTables(nullptr);
+
+    overlay_.SetPlayer(nullptr);
+    overlay_.SetHistory(nullptr);
 }
 
 Screens::IStoryScreen* StoryScreenManager::Pick(Story::NodeType type) {
@@ -58,8 +84,6 @@ void StoryScreenManager::SwitchTo(Story::NodeType type, uint32_t canvasW, uint32
 
 void StoryScreenManager::Tick(const Core::FrameTime& ft, const Core::InputState& in, uint32_t canvasW, uint32_t canvasH) {
     if (!player_) return;
-
-    player_->Tick(ft.dtSec);
 
     const auto& type0 = player_->View().nodeType;
     SwitchTo(type0, canvasW, canvasH);

@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Scene/DemoScene.h"
 #include "Scene/GameScene.h"
+#include "Scene/PlayScene.h"
 
 #include <Windows.h>
 #include <objbase.h>
@@ -24,7 +25,10 @@ Application::Application(const char* title, uint32_t width, uint32_t height) {
     // scene_ = std::make_unique<DemoScene>();
     // scene_->Initialize(*renderer_);
 
-    scene_ = std::make_unique<GameScene>(fs_);
+    // scene_ = std::make_unique<GameScene>(fs_);
+    // scene_->Initialize(*renderer_);
+
+    scene_ = std::make_unique<PlayScene>(fs_);
     scene_->Initialize(*renderer_);
 }
 
