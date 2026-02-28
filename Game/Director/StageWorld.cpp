@@ -23,7 +23,7 @@ static inline void FitToHeight(
     uint32_t canvasW, uint32_t canvasH, uint32_t texW, uint32_t texH,
     float& outX, float& outY, float& outW, float& outH
 ) {
-    if (texW == 0 || texW == 0 || canvasW == 0 || canvasH == 0) {
+    if (texW == 0 || texH == 0 || canvasW == 0 || canvasH == 0) {
         outX = 0.0f; outY = 0.0f;
         outW = static_cast<float>(canvasW);
         outH = static_cast<float>(canvasH);
@@ -36,13 +36,25 @@ static inline void FitToHeight(
     outY = 0.0f;
 }
 
-void StageWorld::Initialize(const Story::StoryTables* tables, RenderBridge::TextureCatalog* catalog) {
-    tables_  = tables;
+void StageWorld::Initialize(RenderBridge::TextureCatalog* catalog) {
     catalog_ = catalog;
+    tables_ = nullptr;
+    ResetStage();
+}
 
+void StageWorld::BindTables(const Story::StoryTables* tables) {
+    tables_ = tables;
+}
+
+void StageWorld::UnbindTables() {
+    tables_ = nullptr;
+    ResetStage();
+}
+
+void StageWorld::ResetStage() {
     cards_.clear();
     anchors_.clear();
-
+    bgTex_ = {};
 }
 
 bool StageWorld::FindAnchor(const std::string_view& castId, Anchor& outHead) const {
@@ -53,10 +65,8 @@ bool StageWorld::FindAnchor(const std::string_view& castId, Anchor& outHead) con
 }
 
 void StageWorld::LoadStage(const RHI::DX11::DX11Device& device, std::string_view stageId) {
-    cards_.clear();
-    anchors_.clear();
-    bgTex_ = {};
-
+    ResetStage();
+    
     if (!tables_ || !catalog_) return;
 
     const auto* stage = tables_->stage.Find(stageId);

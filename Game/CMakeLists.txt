@@ -44,6 +44,8 @@ set(GAME_SOURCES
     Session/StoryActionMap.cpp
     Session/StoryHistory.cpp
     Flow/GameFlow.cpp
+    Presentation/TrialPresentation.cpp
+    Presentation/PresentationRegistry.cpp
 )
 
 add_library(Game STATIC

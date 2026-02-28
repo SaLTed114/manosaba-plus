@@ -88,14 +88,16 @@ void GameScene::Initialize(Render::DX11Renderer& renderer) {
     screens_.Initialize();
     screens_.Bind({ &session_.Player(), &session_.History(), &session_.Tables() });
 
-    stage_.Initialize(&session_.Tables(), &texCatalog_);
+    stage_.Initialize(&texCatalog_);
+    stage_.BindTables(&session_.Tables());
     stage_.LoadStage(device, "inquisition");
 
     camera_.SetPosition({0.0f, 1.4f, 0.0f});
     camera_.SetFovY(60.0f * XM_PI / 180.0f);
     camera_.SetClip(0.1f, 100.0f);
 
-    director_.Initialize(&stage_, &session_.Tables(), &camera_);
+    director_.Initialize(&camera_);
+    director_.Bind(&stage_, &session_.Tables());
 }
 
 // ========================= End of Initialization ==========================

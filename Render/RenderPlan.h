@@ -39,6 +39,14 @@ struct FrameBlackboard {
     DirectX::XMFLOAT3 lightPosition = {0.0f, 10.0f, 0.0f};
 };
 
+inline FrameBlackboard DefaultFrameBlackboard() {
+    FrameBlackboard fb{};
+    fb.view = DirectX::XMMatrixIdentity();
+    fb.proj = DirectX::XMMatrixIdentity();
+    fb.viewProj = DirectX::XMMatrixIdentity();
+    return fb;
+}
+
 struct PassContext {
     RHI::DX11::DX11Device& device;
     ID3D11DeviceContext*   ctx;

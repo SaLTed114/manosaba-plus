@@ -30,8 +30,11 @@ struct Anchor {
 
 class StageWorld {
 public:
-    void Initialize(const Story::StoryTables* tables, RenderBridge::TextureCatalog* catalog);
+    void Initialize(RenderBridge::TextureCatalog* catalog);
+    void BindTables(const Story::StoryTables* tables);
+    void UnbindTables();
 
+    void ResetStage();
     void LoadStage(const RHI::DX11::DX11Device& device, std::string_view stageId);
 
     void Update(const Core::FrameTime& /*ft*/) {}

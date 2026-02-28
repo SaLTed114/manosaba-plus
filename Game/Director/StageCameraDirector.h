@@ -16,9 +16,10 @@ namespace Salt2D::Game::Director {
 
 class StageCameraDirector {
 public:
-    void Initialize(StageWorld* world,
-        const Story::StoryTables* tables,
-        Render::Scene3D::Camera3D* camera);
+    void Initialize(Render::Scene3D::Camera3D* camera);
+    void Bind(StageWorld* world, const Story::StoryTables* tables);
+    void Unbind();
+    void Reset();
 
     void Tick(const Story::StoryPlayer& player, const Core::FrameTime& ft);
 

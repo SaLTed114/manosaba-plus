@@ -20,6 +20,7 @@
 #include "Game/RenderBridge/TextService.h"
 #include "Game/RenderBridge/TextureService.h"
 #include "Game/RenderBridge/TextureCatalog.h"
+#include "Game/Presentation/PresentationRegistry.h"
 
 #include "RHI/DX11/DX11Texture2D.h"
 
@@ -60,6 +61,8 @@ private:
 
     RHI::DX11::DX11Texture2D white1x1_;
     RHI::DX11::DX11Texture2D checker_;
+
+    Game::Presentation::PresentationRegistry presReg_;
 };
 
 } // namespace Salt2D::App

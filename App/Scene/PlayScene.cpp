@@ -66,6 +66,8 @@ void PlayScene::Initialize(Render::DX11Renderer& renderer) {
     flow_.Start();
 
     ProcessFlowEvents(device);
+
+    presReg_.Initialize(texCatalog_);
 }
 
 void PlayScene::BuildDefaultChapters() {
@@ -95,7 +97,7 @@ void PlayScene::UnbindFromFlowSession() {
     screensBound_ = false;
 }
 
-void PlayScene::ProcessFlowEvents(const RHI::DX11::DX11Device& /*device*/) {
+void PlayScene::ProcessFlowEvents(const RHI::DX11::DX11Device& device) {
     while (auto evtOpt = flow_.ConsumeEvent()) {
         auto evt = *evtOpt;
 
@@ -104,9 +106,11 @@ void PlayScene::ProcessFlowEvents(const RHI::DX11::DX11Device& /*device*/) {
         case FlowEvent::SessionCleared:
         case FlowEvent::Finished:
             UnbindFromFlowSession();
+            presReg_.OnSessionCleared();
             break;
         case FlowEvent::SessionCreated:
             BindToFlowSession();
+            presReg_.OnSessionCreated(device, *flow_.CurrentChapter(), *flow_.Session());
             break;
         case FlowEvent::None:
         default:
@@ -139,6 +143,7 @@ void PlayScene::Update(
         auto* player = flow_.Player();
         if (player)  player->Tick(ft.dtSec);
 
+        presReg_.Tick(*player, ft);
         screens_.Tick(ft, in, canvasW, canvasH);
         screens_.Bake(device, text_);
         screens_.PostBake(in, canvasW, canvasH);
@@ -149,21 +154,13 @@ void PlayScene::Update(
 }
 
 void PlayScene::FillFrameBlackboard(Render::FrameBlackboard& frame, uint32_t sceneW, uint32_t sceneH) {
-    (void)sceneW; (void)sceneH;
-    using namespace DirectX;
-
-    // tmp hud only, frameBB is not used
-    frame.view     = XMMatrixIdentity();
-    frame.proj     = XMMatrixIdentity();
-    frame.viewProj = XMMatrixIdentity();
-
-    frame.sceneCrossfade = 1.0f;
-    frame.lockPrevScene  = 0;
+    presReg_.FillFrameBlackboard(frame, sceneW, sceneH);
 }
 
 void PlayScene::BuildDrawList(Render::DrawList& drawList, uint32_t canvasW, uint32_t canvasH) {
     (void)canvasW; (void)canvasH;
 
+    presReg_.EmitSceneDraw(drawList, canvasW, canvasH);
     screens_.EmitDraw(drawList, texService_);
 }
 
@@ -176,6 +173,8 @@ void PlayScene::BuildPlan(Render::RenderPlan& plan, const Render::DrawList& draw
     auto p0 = std::make_unique<SpritePass>("Scene_BG_2D", Target::Scene, DepthMode::Off, BlendMode::Alpha, bg);
     p0->SetClearScene(0.15f, 0.15f, 0.18f, 1.0f);
     plan.passes.push_back(std::move(p0));
+
+    presReg_.BuildScenePasses(plan, drawList);
 
     auto p1 = std::make_unique<ComposePass>("Compose");
     plan.passes.push_back(std::move(p1));

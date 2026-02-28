@@ -18,17 +18,28 @@ static inline float EvalU01(float cur, float total) {
 
 // =========================== End of helpers ===========================
 
-void StageCameraDirector::Initialize(
-    StageWorld* world,
-    const Story::StoryTables* tables,
-    Render::Scene3D::Camera3D* camera
-) {
-    world_ = world;
-    tables_ = tables;
+void StageCameraDirector::Initialize(Render::Scene3D::Camera3D* camera) {
     camera_ = camera;
-
     vnFade_.SetDuration(0.5f);
+    Reset();
+}
+
+void StageCameraDirector::Bind(StageWorld* world, const Story::StoryTables* tables) {
+    world_  = world;
+    tables_ = tables;
+}
+
+void StageCameraDirector::Unbind() {
+    world_  = nullptr;
+    tables_ = nullptr;
+}
+
+void StageCameraDirector::Reset() {
     vnFade_.Reset();
+    sceneCrossfade_ = 1.0f;
+    lockPrevScene_  = false;
+    lastSample_     = {};
+    lastRotation_   = {};
 }
 
 void StageCameraDirector::Tick(const Story::StoryPlayer& player, const Core::FrameTime& ft) {
