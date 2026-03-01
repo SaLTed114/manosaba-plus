@@ -6,6 +6,18 @@
 
 namespace Salt2D::Game::Story {
 
+static inline std::string CmdTypeStr(VnCmdType type) {
+    switch (type) {
+    case VnCmdType::Line:     return "Line";
+    case VnCmdType::BG:       return "BG";
+    case VnCmdType::CharShow: return "CharShow";
+    case VnCmdType::CharHide: return "CharHide";
+    case VnCmdType::CharMove: return "CharMove";
+    case VnCmdType::CharExpr: return "CharExpr";
+    default: return "Unknown";
+    }
+}
+
 VnRunner::VnRunner(Utils::IFileSystem& fs) : fs_(fs) {}
 
 void VnRunner::Enter(const Node& node) {
@@ -17,6 +29,7 @@ void VnRunner::Enter(const Node& node) {
 
     cmdIndex_ = 0;
     state_ = VnState{};
+    scene_.Reset();
     LoadNextLineOrFinish();
 }
 
@@ -115,37 +128,68 @@ void VnRunner::LoadNextLineOrFinish() {
     while (cmdIndex_ < script_.cmds.size()) {
         const VnCmd& cmd = script_.cmds[cmdIndex_++];
 
-        lineTotalCp_ = CountCodepoints(cmd.text);
-        revealAcc_ = 0.0f;
-
-        state_.speaker  = cmd.speaker;
-        state_.fullText = cmd.text;
-        state_.perfId   = cmd.perfId;
-        
-        state_.revealed = 0;
-        state_.totalCp  = lineTotalCp_;
-        state_.lineDone = false;
-        state_.finished = false;
-        state_.lineSerial++;
-        state_.revealCpF = 0.0f;
-
-        if (lineTotalCp_ == 0) {
-            state_.revealed = 0;
-            state_.lineDone = true;
+        switch (cmd.type) {
+        case VnCmdType::Line:
+            if (!cmd.line.has_value()) {
+                if (logger_) {
+                    logger_->Warn("VnRunner", "LoadNextLineOrFinish: Line command missing line data, skipping");
+                }
+                continue;
+            }
+            ApplyLineCmd(cmd.line.value());
+            return;
+        case VnCmdType::BG:
+        case VnCmdType::CharShow:
+        case VnCmdType::CharHide:
+        case VnCmdType::CharMove:
+        case VnCmdType::CharExpr:
+            scene_.ApplyCmd(cmd);
+            if (logger_) {
+                logger_->Debug("VnRunner",
+                    "LoadNextLineOrFinish: Applied scene command, type=" +
+                    CmdTypeStr(cmd.type));
+            }
+            continue;
+        default:
+            if (logger_) {
+                logger_->Warn("VnRunner",
+                    "LoadNextLineOrFinish: Unknown command type, skipping");
+            }
+            continue;
         }
-
-        if (logger_) {
-            logger_->Debug("VnRunner",
-                "LoadNextLine: New line loaded - " +
-                state_.speaker + ": \"" + state_.fullText + "\" (perfId=" + state_.perfId + ")");
-        }
-        return;
     }
     
     state_.finished = true;
     if (logger_) {
         logger_->Debug("VnRunner",
             "LoadNextLineOrFinish: No more lines, finished");
+    }
+}
+
+void VnRunner::ApplyLineCmd(const VnCmd::LineCmd& lineCmd) {
+    lineTotalCp_ = CountCodepoints(lineCmd.text);
+    revealAcc_ = 0.0f;
+
+    state_.speaker  = lineCmd.speaker;
+    state_.fullText = lineCmd.text;
+    state_.perfId   = lineCmd.perfId;
+    
+    state_.revealed = 0;
+    state_.totalCp  = lineTotalCp_;
+    state_.lineDone = false;
+    state_.finished = false;
+    state_.lineSerial++;
+    state_.revealCpF = 0.0f;
+
+    if (lineTotalCp_ == 0) {
+        state_.revealed = 0;
+        state_.lineDone = true;
+    }
+
+    if (logger_) {
+        logger_->Debug("VnRunner",
+            "LoadNextLine: New line loaded - " +
+            state_.speaker + ": \"" + state_.fullText + "\" (perfId=" + state_.perfId + ")");
     }
 }
 

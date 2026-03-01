@@ -2,6 +2,7 @@
 #ifndef GAME_STORY_RUNNERS_VNRUNNER_H
 #define GAME_STORY_RUNNERS_VNRUNNER_H
 
+#include "NovelSceneState.h"
 #include "Game/Story/StoryTypes.h"
 #include "Game/Story/Resources/VnScript.h"
 #include "Utils/IFileSystem.h"
@@ -40,13 +41,14 @@ public:
     void Tick(float dtSec, float cps);
 
     const VnState& State() const { return state_; }
+    const NovelSceneState& Scene() const { return scene_; }
 
     void SetCueCallback(CueCallback callback) { onCue_ = std::move(callback); }
     void SetLogger(const Utils::Logger* logger) { logger_ = logger; }
 
 private:
     void LoadNextLineOrFinish();
-    void ApplyCurrentCmdAsLine();
+    void ApplyLineCmd(const VnCmd::LineCmd& lineCmd);
     size_t CountCodepoints(const std::string& utf8) const;
     std::string Utf8PrefixByCodepoints(const std::string& utf8, size_t cpCount) const;
 
@@ -59,6 +61,7 @@ private:
     float  revealAcc_ = 0.0f;
 
     VnState state_;
+    NovelSceneState scene_;
     CueCallback onCue_;
     const Utils::Logger* logger_ = nullptr;
 };

@@ -20,7 +20,6 @@ void StorySession::Initialize(const StorySessionConfig& cfg) {
         const auto path = cfg.logPath.empty()
             ? Utils::GenerateTimestampedFilename("Logs/game_scene.log")
             : Utils::GenerateTimestampedFilename(cfg.logPath.string());
-        std::cout << "Initializing logger at: " << path << "\n";
         logger_ = Utils::MakeConsoleAndFileLogger(path, cfg.consoleLevel, cfg.fileLevel);
         history_.SetLogger(&logger_);
     } else {

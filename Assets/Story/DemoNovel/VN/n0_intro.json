@@ -1,7 +1,11 @@
 {
   "cmds": [
+    { "type": "bg", "bg_id": "placeholder" },
+    { "type": "char_show", "cast_id": "nikaidou_hiro", "slot": "left" },
     { "type": "line", "speaker": "二阶堂 希罗", "text": "这是一个demo" },
+    { "type": "char_show", "cast_id": "sakuraba_emma", "slot": "center" },
     { "type": "line", "speaker": "樱羽 艾玛", "text": "接下来还有一个选项" },
+    { "type": "char_show", "cast_id": "tsukishiro_yuki", "slot": "right" },
     { "type": "line", "speaker": "月代 雪", "text": "试试选择吧" }
   ]
 }
